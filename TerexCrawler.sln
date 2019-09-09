@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29230.47
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TerexCrawler.Models", "TerexCrawler.Models\TerexCrawler.Models.csproj", "{73384EA8-6B82-4723-93FC-2462A1D484CB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TerexCrawler.Entites", "TerexCrawler.Entites\TerexCrawler.Entites.csproj", "{3CB42F8A-3DE7-45A9-A828-F5DE4EA6AC0D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TerexCrawler.HttpHelper", "TerexCrawler.HttpHelper\TerexCrawler.HttpHelper.csproj", "{A43166AD-E556-48C6-8475-65D8BE5E06FA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TerexCrawler.Common", "TerexCrawler.Common\TerexCrawler.Common.csproj", "{B78F4215-4010-49AD-9186-393F80824DDD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TerexCrawler.Services", "TerexCrawler.Services\TerexCrawler.Services.csproj", "{2D186CBC-8881-4095-97DE-14B9207980E1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TerexCrawler.DataLayer", "TerexCrawler.DataLayer\TerexCrawler.DataLayer.csproj", "{57BDE551-0708-4D3E-B065-F43CCB14C23A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{73384EA8-6B82-4723-93FC-2462A1D484CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73384EA8-6B82-4723-93FC-2462A1D484CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73384EA8-6B82-4723-93FC-2462A1D484CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73384EA8-6B82-4723-93FC-2462A1D484CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CB42F8A-3DE7-45A9-A828-F5DE4EA6AC0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CB42F8A-3DE7-45A9-A828-F5DE4EA6AC0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CB42F8A-3DE7-45A9-A828-F5DE4EA6AC0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CB42F8A-3DE7-45A9-A828-F5DE4EA6AC0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A43166AD-E556-48C6-8475-65D8BE5E06FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A43166AD-E556-48C6-8475-65D8BE5E06FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A43166AD-E556-48C6-8475-65D8BE5E06FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A43166AD-E556-48C6-8475-65D8BE5E06FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B78F4215-4010-49AD-9186-393F80824DDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B78F4215-4010-49AD-9186-393F80824DDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B78F4215-4010-49AD-9186-393F80824DDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B78F4215-4010-49AD-9186-393F80824DDD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D186CBC-8881-4095-97DE-14B9207980E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D186CBC-8881-4095-97DE-14B9207980E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D186CBC-8881-4095-97DE-14B9207980E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D186CBC-8881-4095-97DE-14B9207980E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57BDE551-0708-4D3E-B065-F43CCB14C23A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57BDE551-0708-4D3E-B065-F43CCB14C23A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57BDE551-0708-4D3E-B065-F43CCB14C23A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57BDE551-0708-4D3E-B065-F43CCB14C23A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2312A822-3827-4198-99EE-AB88A8CD5EF8}
+	EndGlobalSection
+EndGlobal

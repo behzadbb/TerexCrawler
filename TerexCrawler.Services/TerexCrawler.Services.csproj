@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TerexCrawler.DataLayer\TerexCrawler.DataLayer.csproj" />
+    <ProjectReference Include="..\TerexCrawler.Entites\TerexCrawler.Entites.csproj" />
+    <ProjectReference Include="..\TerexCrawler.HttpHelper\TerexCrawler.HttpHelper.csproj" />
+    <ProjectReference Include="..\TerexCrawler.Models\TerexCrawler.Models.csproj" />
+  </ItemGroup>
+
+</Project>
