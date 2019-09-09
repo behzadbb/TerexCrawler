@@ -1,31 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Text;
 using TerexCrawler.Models.DTO;
+using RestSharp;
+using System.Net;
 
 namespace TerexCrawler.HttpHelper
 {
-    public class HttpClientHelper : IHttpClientHelper
+    public class RestSharpHelper : IHttpClientHelper
     {
         public HttpResultResponseDTO GetHttp(string url)
         {
             HttpResultResponseDTO result = new HttpResultResponseDTO();
             try
             {
-                using (HttpClient client = new HttpClient())
-                {
-                    using (HttpResponseMessage response = client.GetAsync(url).Result)
-                    {
-                        using (HttpContent content = response.Content)
-                        {
-                            result.Content = content.ReadAsStringAsync().Result;
-                            result.HttpStatusCode = (int)response.StatusCode;
-                            result.ErrorCode = 0;
-                            result.Success = response.StatusCode == System.Net.HttpStatusCode.OK;
-                        }
-                    }
-                }
+                IRestClient restClient = new RestClient(url);
+                var request = new RestRequest(Method.GET);
+                var response = restClient.Execute(request);
+
+                result.Content = response.StatusCode == HttpStatusCode.OK ? response.Content : string.Empty;
+                result.HttpStatusCode = (int)response.StatusCode;
+                result.ErrorCode = 0;
+                result.Success = response.StatusCode == HttpStatusCode.OK;
             }
             catch (Exception ex)
             {
@@ -42,25 +38,22 @@ namespace TerexCrawler.HttpHelper
             HttpResultResponseDTO result = new HttpResultResponseDTO();
             try
             {
-                using (HttpClient client = new HttpClient())
+                IRestClient restClient = new RestClient(url);
+                var request = new RestRequest(Method.GET);
+
+                if (changeAgent)
                 {
-                    if (changeAgent)
-                    {
-                        Random rnd = new Random();
-                        int agentNum = rnd.Next(0, agents.Length - 1);
-                        client.DefaultRequestHeaders.Add("User-Agent", agents[agentNum]);
-                    }
-                    using (HttpResponseMessage response = client.GetAsync(url).Result)
-                    {
-                        using (HttpContent content = response.Content)
-                        {
-                            result.Content = content.ReadAsStringAsync().Result;
-                            result.HttpStatusCode = (int)response.StatusCode;
-                            result.ErrorCode = 0;
-                            result.Success = response.StatusCode == System.Net.HttpStatusCode.OK;
-                        }
-                    }
+                    Random rnd = new Random();
+                    int agentNum = rnd.Next(0, agents.Length - 1);
+                    request.AddHeader("User-Agent", agents[agentNum]);
                 }
+
+                var response = restClient.Execute(request);
+
+                result.Content = response.StatusCode == HttpStatusCode.OK ? response.Content : string.Empty;
+                result.HttpStatusCode = (int)response.StatusCode;
+                result.ErrorCode = 0;
+                result.Success = response.StatusCode == HttpStatusCode.OK;
             }
             catch (Exception ex)
             {
@@ -102,7 +95,7 @@ namespace TerexCrawler.HttpHelper
         }
 
         // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        // ~HttpClientHelper()
+        // ~RestSharpHelper()
         // {
         //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
         //   Dispose(false);
