@@ -6,9 +6,10 @@ namespace TerexCrawler.Models.Interfaces
 {
     public interface IWebsiteCrawler : IDisposable
     {
-        string WebsiteName { get; set; }
-        string WebsiteUrl { get; set; }
+        string WebsiteName { get; }
+        string WebsiteUrl { get; }
         string GetPage(string url);
         string GetComment(string url);
+        bool AddPages();
     }
 }
