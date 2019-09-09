@@ -1,4 +1,4 @@
-# Terex Crwaler
+# Terex Crawler
 
 [TerexWare](https://github.com/behzadbb)
 
