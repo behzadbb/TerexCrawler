@@ -9,6 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TerexCrawler.Common\TerexCrawler.Common.csproj" />
     <ProjectReference Include="..\TerexCrawler.DataLayer\TerexCrawler.DataLayer.csproj" />
     <ProjectReference Include="..\TerexCrawler.Entites\TerexCrawler.Entites.csproj" />
     <ProjectReference Include="..\TerexCrawler.HttpHelper\TerexCrawler.HttpHelper.csproj" />

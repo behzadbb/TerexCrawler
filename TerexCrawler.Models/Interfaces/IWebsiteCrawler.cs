@@ -9,7 +9,10 @@ namespace TerexCrawler.Models.Interfaces
         string WebsiteName { get; }
         string WebsiteUrl { get; }
         string GetPage(string url);
-        string GetComment(string url);
+        string[] GetComments(string url);
         bool AddPages();
+        string[] GetSitemapFromAddress(string url);
+        string[] GetSitemapFromFile(string path);
+        string[] GetSitemapFromFiles(string[] path);
     }
 }

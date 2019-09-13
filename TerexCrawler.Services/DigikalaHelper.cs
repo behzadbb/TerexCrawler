@@ -49,6 +49,26 @@ namespace TerexCrawler.Services.Digikala
             throw new NotImplementedException();
         }
 
+        public string[] GetComments(string url)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string[] GetSitemapFromAddress(string url)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string[] GetSitemapFromFile(string path)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string[] GetSitemapFromFiles(string[] path)
+        {
+            throw new NotImplementedException();
+        }
+
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
@@ -64,7 +84,6 @@ namespace TerexCrawler.Services.Digikala
         }
         public void Dispose()
         {
-            Logger.Dispose();
             client.Dispose();
             Dispose(true);
         }
