@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using TerexCrawler.Models.DTO.XmlSitemap;
 
 namespace TerexCrawler.Models.Interfaces
 {
@@ -14,5 +15,7 @@ namespace TerexCrawler.Models.Interfaces
         string[] GetSitemapFromAddress(string url);
         string[] GetSitemapFromFile(string path);
         string[] GetSitemapFromFiles(string[] path);
+        void AddBasePage(B5_Url dto);
+        void AddBasePages(List<B5_Url> dtos);
     }
 }

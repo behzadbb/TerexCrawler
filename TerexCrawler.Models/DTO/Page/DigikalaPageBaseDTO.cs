@@ -1,15 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using TerexCrawler.Models.DTO.XmlSitemap;
 
 namespace TerexCrawler.Models.DTO.Page
 {
-    public struct DigikalaPageBaseDTO
+    public class DigikalaPageBaseDTO
     {
+        public int DKP { get; set; }
         public string Loc { get; set; }
         public string ChangeFreq { get; set; }
         public string Priority { get; set; }
-        public string ImageLloc { get; set; }
+        public string ImageLoc { get; set; }
         public string ImageCaption { get; set; }
+
+        public DigikalaPageBaseDTO(B5_Url b5)
+        {
+            Loc = b5.loc;
+            ChangeFreq = b5.changefreq;
+            Priority = b5.priority;
+            if (b5.image.caption != null && b5.image.loc != null)
+            {
+                ImageLoc = b5.image.loc;
+                ImageCaption = b5.image.caption;
+            }
+        }
     }
 }

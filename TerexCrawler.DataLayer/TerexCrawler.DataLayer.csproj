@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TerexCrawler.Entites\TerexCrawler.Entites.csproj" />
+    <ProjectReference Include="..\TerexCrawler.Models\TerexCrawler.Models.csproj" />
   </ItemGroup>
 
 </Project>
