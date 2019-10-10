@@ -1,6 +1,9 @@
-﻿using System;
+﻿using HtmlAgilityPack;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using TerexCrawler.Common;
 using TerexCrawler.DataLayer.Repository;
 using TerexCrawler.HttpHelper;
 using TerexCrawler.Models;
@@ -13,6 +16,25 @@ namespace TerexCrawler.Services.Digikala
 {
     public class DigikalaHelper : IWebsiteCrawler
     {
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                }
+                disposedValue = true;
+            }
+        }
+        public void Dispose()
+        {
+            client.Dispose();
+            Dispose(true);
+        }
+        #endregion
         private const string sitename = "Digikala";
         public string WebsiteName => sitename;
         public string WebsiteUrl => "https://Digikala.com";
@@ -95,7 +117,27 @@ namespace TerexCrawler.Services.Digikala
                 Logger.AddLog(log);
             }
         }
+        public T GetProduct<T>(string content)
+        {
+            var doc = new HtmlDocument();
+            doc.LoadHtml(content);
 
+            //var value = doc.DocumentNode
+            //    .SelectNodes("//td/input")
+            //    .First()
+            //    .Attributes["value"].Value;
+            var body = doc.DocumentNode.SelectSingleNode("//body");
+            var main = body.SelectSingleNode("//main");
+            //var divContent = main.SelectSingleNode("//div[@id='content']//div[@class='o-page']//div[@class='container']//article[@class='c-product']");
+            var divContent = main.SelectSingleNode(
+                "//div[@id='content']//div[@class='o-page c-product-page']//div[@class='container']");
+            //var cats= divContent.SelectSingleNode
+            using (HtmlHelper htmlHelper = new HtmlHelper())
+            {
+            }
+            return (T)Convert.ChangeType(new DigikalaPageBaseDTO(), typeof(T));
+            //throw new NotImplementedException();
+        }
         public void AddBasePages(List<B5_Url> dtos)
         {
             var pageBases = new List<DigikalaPageBaseDTO>();
@@ -127,24 +169,6 @@ namespace TerexCrawler.Services.Digikala
             pageBases.Clear();
         }
 
-        #region IDisposable Support
-        private bool disposedValue = false; // To detect redundant calls
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                }
-                disposedValue = true;
-            }
-        }
-        public void Dispose()
-        {
-            client.Dispose();
-            Dispose(true);
-        }
-        #endregion
     }
 }

@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="9.0.0" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.16" />
   </ItemGroup>
 
   <ItemGroup>

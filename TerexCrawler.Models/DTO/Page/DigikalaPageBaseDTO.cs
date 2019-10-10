@@ -25,5 +25,9 @@ namespace TerexCrawler.Models.DTO.Page
                 ImageCaption = b5.image.caption;
             }
         }
+        public DigikalaPageBaseDTO()
+        {
+
+        }
     }
 }

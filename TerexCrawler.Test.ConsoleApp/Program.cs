@@ -5,6 +5,10 @@ using System.Linq;
 using System.IO;
 using System.IO.Compression;
 using System.Collections.Generic;
+using TerexCrawler.Services.Digikala;
+using TerexCrawler.Models.Interfaces;
+using System.Text.Unicode;
+using TerexCrawler.Models.DTO.Page;
 
 namespace TerexCrawler.Test.ConsoleApp
 {
@@ -23,6 +27,7 @@ namespace TerexCrawler.Test.ConsoleApp
             p("2- Test Digikala Clean SitemapFile");
             p("3- Test Digikala LoadSiteMap from Directory");
             p("4- Load All Sitemap Files");
+            p("5- Get Product Page");
             short methodNum = Convert.ToInt16(Console.ReadLine());
 
             switch (methodNum)
@@ -38,6 +43,9 @@ namespace TerexCrawler.Test.ConsoleApp
                     break;
                 case 4:
                     digikala_LoadSitemap();
+                    break;
+                case 5:
+                    digikala_5_GetProduct();
                     break;
                 default:
                     break;
@@ -97,6 +105,14 @@ namespace TerexCrawler.Test.ConsoleApp
                 }
             }
             int sss = 5;
+        }
+        private static void digikala_5_GetProduct()
+        {
+            using (IWebsiteCrawler digikala = new DigikalaHelper())
+            {
+                var page = digikala.GetPage("https://www.digikala.com/product/dkp-942464");
+                var s = digikala.GetProduct<DigikalaPageBaseDTO>(page);
+            }
         }
     }
 }

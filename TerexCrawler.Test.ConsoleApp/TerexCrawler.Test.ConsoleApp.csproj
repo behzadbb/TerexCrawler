@@ -6,8 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.16" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\TerexCrawler.Common\TerexCrawler.Common.csproj" />
     <ProjectReference Include="..\TerexCrawler.Models\TerexCrawler.Models.csproj" />
+    <ProjectReference Include="..\TerexCrawler.Services\TerexCrawler.Services.csproj" />
   </ItemGroup>
 
 </Project>
