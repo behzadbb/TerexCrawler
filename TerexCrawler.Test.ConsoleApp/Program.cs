@@ -110,7 +110,7 @@ namespace TerexCrawler.Test.ConsoleApp
         {
             using (IWebsiteCrawler digikala = new DigikalaHelper())
             {
-                var page = digikala.GetPage("https://www.digikala.com/product/dkp-1675555");
+                var page = digikala.GetPage("https://www.digikala.com/product/dkp-313420");
                 var s = digikala.GetProduct<DigikalaPageBaseDTO>(page);
             }
         }
