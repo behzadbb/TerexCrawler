@@ -133,12 +133,20 @@ namespace TerexCrawler.Services.Digikala
             var article_info = divContainer.SelectSingleNode("//article//section[@class='c-product__info']");
             var title_fa_1 = article_info.SelectSingleNode("//div[@class='c-product__headline']//h1[@class='c-product__title']").ChildNodes["#Text"].InnerText.Replace("\n", "").Trim();
             var title_en_1 = article_info.SelectSingleNode("//div[@class='c-product__headline']//h1[@class='c-product__title']//span[@class='c-product__title-en']").InnerHtml.Replace("\n", "").Trim();
+            var product__guaranteed = article_info.SelectSingleNode("//div[@class='c-product__headline']//div[@class='c-product__guaranteed']//span").InnerText.Replace("\n", "").Trim();
 
             var productWrapper = article_info.SelectSingleNode("//div[@class='c-product__attributes js-product-attributes']//div[@class='c-product__config']//div[@class='c-product__config-wrapper']");
             var brand = productWrapper.SelectSingleNode("//div[@class='c-product__directory']//ul//li//a[@class='btn-link-spoiler product-brand-title']").InnerText;
             var cat = productWrapper.SelectSingleNode("//div[@class='c-product__directory']//ul//li//a[@class='btn-link-spoiler']").InnerText;
             var colors = productWrapper.SelectNodes("//div[@class='c-product__variants']//ul//li").Select(x => x.InnerText).ToList();
-            var feature_list = productWrapper.SelectNodes("//div[@class='c-product__params js-is-expandable']//ul//li").Select(x => new { name = x.FirstChild.InnerText.Replace(":","").Trim(), val = x.LastChild.InnerText.Replace("\n","").Trim() }).ToList();
+            var feature_list = productWrapper.SelectNodes("//div[@class='c-product__params js-is-expandable']//ul//li").Select(x => new { name = x.FirstChild.InnerText.Replace(":", "").Trim(), val = x.LastChild.InnerText.Replace("\n", "").Trim() }).ToList();
+
+            var c_box = article_info.SelectSingleNode("//div[@class='c-product__attributes js-product-attributes']//div[@class='c-product__summary js-product-summary']//div[@class='c-box']");
+            var price = article_info.SelectSingleNode("//div[@class='c-product__seller-info js-seller-info']" +
+                "//div[@class='js-seller-info-changable c-product__seller-box']" +
+                "//div[@class='c-product__seller-row c-product__seller-row--price']" +
+                "//div[@class='c-product__seller-price-prev js-rrp-price u-hidden']").InnerText.Replace("\n","").Replace(",","").Trim();
+
             return (T)Convert.ChangeType(new DigikalaPageBaseDTO(), typeof(T));
         }
         public void AddBasePages(List<B5_Url> dtos)
