@@ -9,6 +9,7 @@ using TerexCrawler.Services.Digikala;
 using TerexCrawler.Models.Interfaces;
 using System.Text.Unicode;
 using TerexCrawler.Models.DTO.Page;
+using Newtonsoft.Json;
 
 namespace TerexCrawler.Test.ConsoleApp
 {
@@ -110,8 +111,11 @@ namespace TerexCrawler.Test.ConsoleApp
         {
             using (IWebsiteCrawler digikala = new DigikalaHelper())
             {
-                var page = digikala.GetPage("https://www.digikala.com/product/dkp-313420");
-                var s = digikala.GetProduct<DigikalaPageBaseDTO>(page);
+                string url1 = "https://www.digikala.com/product/dkp-313420";
+                string url2 = "https://www.digikala.com/product/dkp-1675555";
+                var page = digikala.GetPage(url2);
+                var s = digikala.GetProduct<DigikalaPageBaseDTO>(page, url2);
+                var jjj = JsonConvert.SerializeObject(s);
             }
         }
     }
