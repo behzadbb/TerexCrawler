@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using TerexCrawler.Models.DTO.Comment;
 
 namespace TerexCrawler.Models.DTO.Digikala
 {
@@ -16,6 +17,7 @@ namespace TerexCrawler.Models.DTO.Digikala
         public long Price { get; set; }
         public string Brand { get; set; }
         public List<ProductFeatures> Features { get; set; }
+        public List<CommentDTO> Comments { get; set; }
     }
     public class ProductFeatures
     {

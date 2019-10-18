@@ -10,6 +10,7 @@ using TerexCrawler.Models.Interfaces;
 using System.Text.Unicode;
 using TerexCrawler.Models.DTO.Page;
 using Newtonsoft.Json;
+using TerexCrawler.Models.DTO.Digikala;
 
 namespace TerexCrawler.Test.ConsoleApp
 {
@@ -29,6 +30,7 @@ namespace TerexCrawler.Test.ConsoleApp
             p("3- Test Digikala LoadSiteMap from Directory");
             p("4- Load All Sitemap Files");
             p("5- Get Product Page");
+            p("6- Get Comments");
             short methodNum = Convert.ToInt16(Console.ReadLine());
 
             switch (methodNum)
@@ -47,6 +49,9 @@ namespace TerexCrawler.Test.ConsoleApp
                     break;
                 case 5:
                     digikala_5_GetProduct();
+                    break;
+                case 6:
+                    digikala_6_GetProductComments();
                     break;
                 default:
                     break;
@@ -114,8 +119,19 @@ namespace TerexCrawler.Test.ConsoleApp
                 string url1 = "https://www.digikala.com/product/dkp-313420";
                 string url2 = "https://www.digikala.com/product/dkp-1675555";
                 var page = digikala.GetPage(url2);
-                var s = digikala.GetProduct<DigikalaPageBaseDTO>(page, url2);
+                var s = digikala.GetProduct<DigikalaProductDTO>(page, url2);
                 var jjj = JsonConvert.SerializeObject(s);
+            }
+        }
+        private static void digikala_6_GetProductComments()
+        {
+            using (IWebsiteCrawler digikala = new DigikalaHelper())
+            {
+                string url1 = "https://www.digikala.com/product/dkp-313420";
+                string url2 = "https://www.digikala.com/product/dkp-1675555";
+                var cm = digikala.GetComments(url2);
+                //var s = digikala.GetProduct<DigikalaProductDTO>(page, url2);
+                //var jjj = JsonConvert.SerializeObject(s);
             }
         }
     }

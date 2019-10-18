@@ -9,6 +9,7 @@ using TerexCrawler.Common;
 using TerexCrawler.DataLayer.Repository;
 using TerexCrawler.HttpHelper;
 using TerexCrawler.Models;
+using TerexCrawler.Models.DTO.Comment;
 using TerexCrawler.Models.DTO.Digikala;
 using TerexCrawler.Models.DTO.Page;
 using TerexCrawler.Models.DTO.XmlSitemap;
@@ -79,6 +80,28 @@ namespace TerexCrawler.Services.Digikala
 
         public string[] GetComments(string url)
         {
+            List<CommentDTO> CommentsList = new List<CommentDTO>();
+            int? cmListdiv = (int?)null;
+            int DKP = getDKPWithUrl(url);
+            string firstCmUrl = GetReviewUrl(DKP);
+            var firstCmPage = GetPage(firstCmUrl);
+
+            var doc = new HtmlDocument();
+            doc.LoadHtml(firstCmPage);
+
+            var rate = doc.DocumentNode.SelectNodes("//h2[@class='c-comments__headline']//span//span");
+            using (HtmlHelper html = new HtmlHelper())
+            {
+                int rate2 = int.Parse(html.NumberEN(rate[2].InnerText.Trim()));
+                int rate3 = int.Parse(html.NumberEN(rate[3].InnerText.Replace("/", "").Trim()));
+                int rate4 = int.Parse(html.NumberEN(rate[4].InnerText.Replace("(", "").Replace(")", "").Replace("\n", "").Replace("نفر", "").Trim()));
+            }
+            if (doc.GetElementbyId("comment-pagination").SelectNodes("//ul[@class='c-pager__items']//li[@class='js-pagination-item']") != null)
+            {
+                cmListdiv = Int16.Parse(doc.GetElementbyId("comment-pagination").SelectNodes("//ul[@class='c-pager__items']//li[@class='js-pagination-item']").LastOrDefault().SelectNodes("//a[@class='c-pager__next']").Select(x => x.Attributes["data-page"].Value.ToString()).FirstOrDefault());
+            }
+
+
             throw new NotImplementedException();
         }
 
@@ -124,9 +147,7 @@ namespace TerexCrawler.Services.Digikala
         {
             DigikalaProductDTO dto = new DigikalaProductDTO();
             dto.Url = url;
-            var indexDKP = url.LastIndexOf("/") + 1;
-            var lenghtDKP= url.Length - indexDKP;
-            dto.DKP = int.Parse(url.Substring(indexDKP, lenghtDKP).Replace("dkp-", ""));
+            dto.DKP = getDKPWithUrl(url);
 
             var doc = new HtmlDocument();
             doc.LoadHtml(content);
@@ -199,7 +220,7 @@ namespace TerexCrawler.Services.Digikala
             }
             dto.Features = features;
             #endregion
-            var jjj = JsonConvert.SerializeObject(dto);
+            //var jjj = JsonConvert.SerializeObject(dto);
             return (T)Convert.ChangeType(dto, typeof(DigikalaProductDTO));
         }
         public void AddBasePages(List<B5_Url> dtos)
@@ -233,6 +254,19 @@ namespace TerexCrawler.Services.Digikala
             pageBases.Clear();
         }
 
-
+        private int getDKPWithUrl(string url)
+        {
+            var indexDKP = url.LastIndexOf("/") + 1;
+            var lenghtDKP = url.Length - indexDKP;
+            return int.Parse(url.Substring(indexDKP, lenghtDKP).Replace("dkp-", ""));
+        }
+        public string GetReviewUrl(int DKP, int Page = 1)
+        {
+            return string.Format("https://www.digikala.com/ajax/product/comments/{0}/?page={1}&mode=buyers", DKP, Page);
+        }
+        public string GetReviewListUrl(int DKP, int Page = 1)
+        {
+            return string.Format("https://www.digikala.com/ajax/product/comments/list/{0}/?page={1}&mode=buyers", DKP, Page);
+        }
     }
 }
