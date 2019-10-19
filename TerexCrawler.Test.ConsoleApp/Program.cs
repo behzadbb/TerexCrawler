@@ -119,7 +119,7 @@ namespace TerexCrawler.Test.ConsoleApp
                 string url1 = "https://www.digikala.com/product/dkp-313420";
                 string url2 = "https://www.digikala.com/product/dkp-1675555";
                 var page = digikala.GetPage(url2);
-                var s = digikala.GetProduct<DigikalaProductDTO>(page, url2);
+                var s = digikala.GetProduct<DigikalaProductDTO>(url2);
                 var jjj = JsonConvert.SerializeObject(s);
             }
         }
@@ -129,7 +129,7 @@ namespace TerexCrawler.Test.ConsoleApp
             {
                 string url1 = "https://www.digikala.com/product/dkp-313420";
                 string url2 = "https://www.digikala.com/product/dkp-1675555";
-                var cm = digikala.GetComments(url2);
+                //var cm = digikala.GetComments(url2);
                 //var s = digikala.GetProduct<DigikalaProductDTO>(page, url2);
                 //var jjj = JsonConvert.SerializeObject(s);
             }

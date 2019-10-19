@@ -11,8 +11,8 @@ namespace TerexCrawler.Models.Interfaces
         string WebsiteName { get; }
         string WebsiteUrl { get; }
         string GetPage(string url);
-        T GetProduct<T>(string content, string url);
-        List<CommentDTO> GetComments(string url);
+        T GetProduct<T>(string url);
+        List<CommentDTO> GetComments(string url, int count);
         bool AddPages();
         string[] GetSitemapFromAddress(string url);
         string[] GetSitemapFromFile(string path);

@@ -11,6 +11,9 @@ namespace TerexCrawler.Models.DTO.Digikala
         public string Url { get; set; }
         public string Title { get; set; }
         public string TitleEN { get; set; }
+        public int? AvrageRate { get; set; }
+        public int? MaxRate { get; set; }
+        public int? TotalParticipantsCount { get; set; }
         public List<string> Colors { get; set; }
         public string Category { get; set; }
         public List<string> Categories { get; set; }
