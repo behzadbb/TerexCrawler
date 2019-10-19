@@ -52,6 +52,7 @@ namespace TerexCrawler.Services.Digikala
 
         public string GetPage(string url)
         {
+            System.Threading.Thread.Sleep(250);
             var res = client.GetHttp(url);
             if (res.Success)
             {
@@ -81,7 +82,7 @@ namespace TerexCrawler.Services.Digikala
         public string[] GetComments(string url)
         {
             List<CommentDTO> CommentsList = new List<CommentDTO>();
-            int? cmListdiv = (int?)null;
+            int? cmPageCount = (int?)null;
             int DKP = getDKPWithUrl(url);
             string firstCmUrl = GetReviewUrl(DKP);
             var firstCmPage = GetPage(firstCmUrl);
@@ -92,16 +93,90 @@ namespace TerexCrawler.Services.Digikala
             var rate = doc.DocumentNode.SelectNodes("//h2[@class='c-comments__headline']//span//span");
             using (HtmlHelper html = new HtmlHelper())
             {
+                List<CommentDTO> comments = new List<CommentDTO>();
                 int rate2 = int.Parse(html.NumberEN(rate[2].InnerText.Trim()));
                 int rate3 = int.Parse(html.NumberEN(rate[3].InnerText.Replace("/", "").Trim()));
                 int rate4 = int.Parse(html.NumberEN(rate[4].InnerText.Replace("(", "").Replace(")", "").Replace("\n", "").Replace("نفر", "").Trim()));
-            }
-            if (doc.GetElementbyId("comment-pagination").SelectNodes("//ul[@class='c-pager__items']//li[@class='js-pagination-item']") != null)
-            {
-                cmListdiv = Int16.Parse(doc.GetElementbyId("comment-pagination").SelectNodes("//ul[@class='c-pager__items']//li[@class='js-pagination-item']").LastOrDefault().SelectNodes("//a[@class='c-pager__next']").Select(x => x.Attributes["data-page"].Value.ToString()).FirstOrDefault());
-            }
+
+                if (doc.GetElementbyId("comment-pagination").SelectNodes("//ul[@class='c-pager__items']//li[@class='js-pagination-item']") != null)
+                {
+                    cmPageCount = Int16.Parse(doc.GetElementbyId("comment-pagination").SelectNodes("//ul[@class='c-pager__items']//li[@class='js-pagination-item']").LastOrDefault().SelectNodes("//a[@class='c-pager__next']").Select(x => x.Attributes["data-page"].Value.ToString()).FirstOrDefault());
+                }
+
+                if (cmPageCount.HasValue)
+                {
+                    for (int i = 1; i <= cmPageCount; i++)
+                    {
+                        var _cmPage = GetPage(GetReviewListUrl(DKP, i));
+                        var _cmDoc = new HtmlDocument();
+                        _cmDoc.LoadHtml(_cmPage);
+
+                        var sections = _cmDoc.DocumentNode.SelectSingleNode("//ul[@class='c-comments__list']").SelectNodes("//li//section").ToList();
+                        foreach (var section in sections)
+                        {
+                            var _section = new HtmlDocument();
+                            _section.LoadHtml(section.InnerHtml);
+                            CommentDTO cm = new CommentDTO();
+                            cm.Purchased = _section.DocumentNode.SelectSingleNode("//div[@class='aside']//div[@class='c-message-light c-message-light--purchased']") != null;
+                            var isDeatils = _section.DocumentNode.SelectSingleNode("//div[@class='aside']//ul[@class='c-comments__user-shopping']") != null;
+                            var Positive = _section.DocumentNode.SelectSingleNode("//div[@class='aside']//div[@class='c-message-light c-message-light--opinion-positive']") != null;
+                            var Negative = _section.DocumentNode.SelectSingleNode("//div[@class='aside']//div[@class='c-message-light c-message-light--opinion-negative']") != null;
+                            var Noidea = _section.DocumentNode.SelectSingleNode("//div[@class='aside']//div[@class='c-message-light c-message-light--opinion-noidea']") != null;
+                            if (isDeatils)
+                            {
+                                var _colorCell = _section.DocumentNode.SelectSingleNode("//div[@class='aside']//ul[@class='c-comments__user-shopping']//li//div[@class='cell color-cell']").InnerText;
+                                cm.Color = string.IsNullOrEmpty(_colorCell) ? string.Empty : _colorCell.Replace("\n", "").Trim();
+                                var _sellerCell = _section.DocumentNode.SelectSingleNode("//div[@class='aside']//ul[@class='c-comments__user-shopping']//li//div[@class='cell seller-cell']").InnerText;
+                                cm.Seller = string.IsNullOrEmpty(_sellerCell) ? string.Empty : _sellerCell.Replace("\n", "").Trim();
+                                var _boughtPrice = _section.DocumentNode.SelectSingleNode("//div[@class='aside']//ul[@class='c-comments__user-shopping']//li//div[@class='cell bought-price']").InnerText;
+                                long? boughtPrice = string.IsNullOrEmpty(_boughtPrice) ? (long?)null : long.Parse(html.NumberEN(_boughtPrice.Replace("\n", "").Replace(",", "").Replace("تومان", "").Trim()));
+                                if (boughtPrice.HasValue)
+                                {
+                                    cm.BoughtPrice = boughtPrice.Value;
+                                }
+                            }
+                            var article = _section.DocumentNode.SelectSingleNode("//div[@class='article']");
+                            if (article != null)
+                            {
+                                var header = _section.DocumentNode.SelectSingleNode("//div[@class='article']//div[@class='header']//div");
+                                var Title = header != null && header.ChildNodes.Count() > 0 ? header.ChildNodes[0].InnerText.Replace("\n", "").Trim() : "";
+                                var authorDeatils = header != null && header.ChildNodes.Count() > 1 ? header.ChildNodes[1].InnerText.Replace("\n", "").Trim() : "";
+                                if (!string.IsNullOrEmpty(authorDeatils))
+                                {
+                                    string[] _t = authorDeatils.Replace("در تاریخ", "|").Replace("توسط", "").Replace("\n","").Trim().Split('|');
+                                    if (_t.Length>1)
+                                    {
+                                        _t[1] = html.MountToNum(html.NumberEN(_t[1]));
+                                        cm.Author = _t[0].Trim();
+                                        cm.CommentDate = html.JalaliToMiladi(_t[1]);
+                                    }
+                                }
+
+                                var evaluation= _section.DocumentNode.SelectSingleNode("//div[@class='article']//div[@class='c-comments__evaluation']");
+                                if (evaluation != null)
+                                {
+                                    var evaluationPositive = _section.DocumentNode.SelectSingleNode("//div[@class='article']//div[@class='c-comments__evaluation']//div[@class='c-comments__evaluation-positive']");
+                                    if (evaluationPositive != null)
+                                    {
+                                        cm.PositiveAspect = _section.DocumentNode.SelectNodes("//div[@class='article']//div[@class='c-comments__evaluation']//div[@class='c-comments__evaluation-positive']//ul//li").Select(x=> x.InnerText.Replace("\n","").Trim()).ToArray();
+                                    }
+
+                                    var evaluationNegative = _section.DocumentNode.SelectSingleNode("//div[@class='article']//div[@class='c-comments__evaluation']//div[@class='c-comments__evaluation-negative']");
+                                    if (evaluationNegative != null)
+                                    {
+                                        cm.NegativeAspect = _section.DocumentNode.SelectNodes("//div[@class='article']//div[@class='c-comments__evaluation']//div[@class='c-comments__evaluation-negative']//ul//li").Select(x=> x.InnerText.Replace("\n","").Trim()).ToArray();
+                                    }
+
+                                }
+                            }
 
 
+                            comments.Add(cm);
+                        }
+                    }
+                }
+                var s = JsonConvert.SerializeObject(comments);
+            }
             throw new NotImplementedException();
         }
 
@@ -143,7 +218,7 @@ namespace TerexCrawler.Services.Digikala
                 Logger.AddLog(log);
             }
         }
-        public T GetProduct<T>(string content,string url)
+        public T GetProduct<T>(string content, string url)
         {
             DigikalaProductDTO dto = new DigikalaProductDTO();
             dto.Url = url;
@@ -188,7 +263,7 @@ namespace TerexCrawler.Services.Digikala
             var isExistPrice = article_info.SelectSingleNode(priceQuery) != null;
             if (isExistPrice)
             {
-                using (HtmlHelper html=new HtmlHelper())
+                using (HtmlHelper html = new HtmlHelper())
                 {
                     dto.Price = Int64.Parse(html.NumberEN(article_info.SelectSingleNode(priceQuery).InnerText.Replace("\n", "").Replace(",", "").Trim()));
                 }
@@ -214,7 +289,7 @@ namespace TerexCrawler.Services.Digikala
                     {
                         Key = x.ChildNodes[0].InnerText.Replace("\n", "").Trim(),
                         Value = x.ChildNodes[1].InnerText.Replace("\n", "")
-                        .Replace("          "," ").Replace("     "," ").Replace("     "," ").Replace("  "," ").Replace("  "," ").Trim(),
+                        .Replace("          ", " ").Replace("     ", " ").Replace("     ", " ").Replace("  ", " ").Replace("  ", " ").Trim(),
                     }).ToArray();
                 features.Add(p);
             }
