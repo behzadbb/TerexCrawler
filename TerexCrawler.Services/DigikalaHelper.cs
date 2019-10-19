@@ -39,6 +39,12 @@ namespace TerexCrawler.Services.Digikala
             Dispose(true);
         }
         #endregion
+        string[] user_agent = {
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:69.0) Gecko/20100101 Firefox/69.0",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.18362"
+        };
+
         private const string sitename = "Digikala";
         public string WebsiteName => sitename;
         public string WebsiteUrl => "https://Digikala.com";
@@ -52,8 +58,8 @@ namespace TerexCrawler.Services.Digikala
 
         public string GetPage(string url)
         {
-            System.Threading.Thread.Sleep(250);
-            var res = client.GetHttp(url);
+            System.Threading.Thread.Sleep(50);
+            var res = client.GetHttp(url, true, user_agent);
             if (res.Success)
             {
                 return res.Content;
@@ -79,7 +85,7 @@ namespace TerexCrawler.Services.Digikala
             throw new NotImplementedException();
         }
 
-        public string[] GetComments(string url)
+        public List<CommentDTO> GetComments(string url)
         {
             List<CommentDTO> CommentsList = new List<CommentDTO>();
             int? cmPageCount = (int?)null;
@@ -122,6 +128,15 @@ namespace TerexCrawler.Services.Digikala
                             var Positive = _section.DocumentNode.SelectSingleNode("//div[@class='aside']//div[@class='c-message-light c-message-light--opinion-positive']") != null;
                             var Negative = _section.DocumentNode.SelectSingleNode("//div[@class='aside']//div[@class='c-message-light c-message-light--opinion-negative']") != null;
                             var Noidea = _section.DocumentNode.SelectSingleNode("//div[@class='aside']//div[@class='c-message-light c-message-light--opinion-noidea']") != null;
+                            if (Positive)
+                                cm.OpinionType = 100;
+                            else if (Noidea)
+                                cm.OpinionType = 50;
+                            else if (Negative)
+                                cm.OpinionType = -100;
+                            else
+                                cm.OpinionType = 0;
+
                             if (isDeatils)
                             {
                                 var _colorCell = _section.DocumentNode.SelectSingleNode("//div[@class='aside']//ul[@class='c-comments__user-shopping']//li//div[@class='cell color-cell']").InnerText;
@@ -139,12 +154,12 @@ namespace TerexCrawler.Services.Digikala
                             if (article != null)
                             {
                                 var header = _section.DocumentNode.SelectSingleNode("//div[@class='article']//div[@class='header']//div");
-                                var Title = header != null && header.ChildNodes.Count() > 0 ? header.ChildNodes[0].InnerText.Replace("\n", "").Trim() : "";
+                                cm.Title = header != null && header.ChildNodes.Count() > 0 ? header.ChildNodes[0].InnerText.Replace("\n", "").Trim() : "";
                                 var authorDeatils = header != null && header.ChildNodes.Count() > 1 ? header.ChildNodes[1].InnerText.Replace("\n", "").Trim() : "";
                                 if (!string.IsNullOrEmpty(authorDeatils))
                                 {
-                                    string[] _t = authorDeatils.Replace("در تاریخ", "|").Replace("توسط", "").Replace("\n","").Trim().Split('|');
-                                    if (_t.Length>1)
+                                    string[] _t = authorDeatils.Replace("در تاریخ", "|").Replace("توسط", "").Replace("\n", "").Trim().Split('|');
+                                    if (_t.Length > 1)
                                     {
                                         _t[1] = html.MountToNum(html.NumberEN(_t[1]));
                                         cm.Author = _t[0].Trim();
@@ -152,32 +167,54 @@ namespace TerexCrawler.Services.Digikala
                                     }
                                 }
 
-                                var evaluation= _section.DocumentNode.SelectSingleNode("//div[@class='article']//div[@class='c-comments__evaluation']");
+                                var evaluation = _section.DocumentNode.SelectSingleNode("//div[@class='article']//div[@class='c-comments__evaluation']");
                                 if (evaluation != null)
                                 {
                                     var evaluationPositive = _section.DocumentNode.SelectSingleNode("//div[@class='article']//div[@class='c-comments__evaluation']//div[@class='c-comments__evaluation-positive']");
                                     if (evaluationPositive != null)
                                     {
-                                        cm.PositiveAspect = _section.DocumentNode.SelectNodes("//div[@class='article']//div[@class='c-comments__evaluation']//div[@class='c-comments__evaluation-positive']//ul//li").Select(x=> x.InnerText.Replace("\n","").Trim()).ToArray();
+                                        cm.PositiveAspect = _section.DocumentNode.SelectNodes("//div[@class='article']//div[@class='c-comments__evaluation']//div[@class='c-comments__evaluation-positive']//ul//li").Select(x => x.InnerText.Replace("\n", "").Trim()).ToArray();
                                     }
 
                                     var evaluationNegative = _section.DocumentNode.SelectSingleNode("//div[@class='article']//div[@class='c-comments__evaluation']//div[@class='c-comments__evaluation-negative']");
                                     if (evaluationNegative != null)
                                     {
-                                        cm.NegativeAspect = _section.DocumentNode.SelectNodes("//div[@class='article']//div[@class='c-comments__evaluation']//div[@class='c-comments__evaluation-negative']//ul//li").Select(x=> x.InnerText.Replace("\n","").Trim()).ToArray();
+                                        cm.NegativeAspect = _section.DocumentNode.SelectNodes("//div[@class='article']//div[@class='c-comments__evaluation']//div[@class='c-comments__evaluation-negative']//ul//li").Select(x => x.InnerText.Replace("\n", "").Trim()).ToArray();
                                     }
 
                                 }
+
+                                var paragraph = _section.DocumentNode.SelectSingleNode("//div[@class='article']//p");
+                                if (paragraph != null)
+                                {
+                                    cm.Comment = paragraph.InnerText.Trim();
+                                }
+
+                                var footer = _section.DocumentNode.SelectSingleNode("//div[@class='article']//div[@class='footer']//div[@class='c-comments__likes js-comment-like-container']");
+                                if (footer != null)
+                                {
+                                    var commentLike = _section.DocumentNode.SelectSingleNode("//div[@class='article']//div[@class='footer']//div[@class='c-comments__likes js-comment-like-container']//button[@class='btn-like js-comment-like']").Attributes["data-counter"].Value;
+                                    cm.CommentLike = string.IsNullOrEmpty(commentLike) ? (short?)null : short.Parse(html.NumberEN(commentLike));
+                                    var commentDisLike = _section.DocumentNode.SelectSingleNode("//div[@class='article']//div[@class='footer']//div[@class='c-comments__likes js-comment-like-container']//button[@class='btn-like js-comment-dislike']").Attributes["data-counter"].Value;
+                                    cm.CommentDisLike = string.IsNullOrEmpty(commentLike) ? (short?)null : short.Parse(html.NumberEN(commentDisLike));
+                                    if (cm.CommentLike.HasValue)
+                                    {
+                                        cm.CommentId = long.Parse(_section.DocumentNode.SelectSingleNode("//div[@class='article']//div[@class='footer']//div[@class='c-comments__likes js-comment-like-container']//button[@class='btn-like js-comment-like']").Attributes["data-comment"].Value.Trim());
+                                    }
+                                    if (!cm.CommentId.HasValue && cm.CommentDisLike.HasValue)
+                                    {
+                                        cm.CommentId = long.Parse(_section.DocumentNode.SelectSingleNode("//div[@class='article']//div[@class='footer']//div[@class='c-comments__likes js-comment-like-container']//button[@class='btn-like js-comment-like']").Attributes["data-comment"].Value.Trim());
+                                    }
+                                }
                             }
-
-
+                            cm.CreateDate = DateTime.UtcNow;
                             comments.Add(cm);
                         }
                     }
                 }
-                var s = JsonConvert.SerializeObject(comments);
+                return comments;
             }
-            throw new NotImplementedException();
+            return new List<CommentDTO>();
         }
 
         public string[] GetSitemapFromAddress(string url)
@@ -268,7 +305,6 @@ namespace TerexCrawler.Services.Digikala
                     dto.Price = Int64.Parse(html.NumberEN(article_info.SelectSingleNode(priceQuery).InnerText.Replace("\n", "").Replace(",", "").Trim()));
                 }
             }
-
             #endregion
 
             #region Tabs
@@ -295,6 +331,8 @@ namespace TerexCrawler.Services.Digikala
             }
             dto.Features = features;
             #endregion
+
+            dto.Comments = GetComments(url);
             //var jjj = JsonConvert.SerializeObject(dto);
             return (T)Convert.ChangeType(dto, typeof(DigikalaProductDTO));
         }

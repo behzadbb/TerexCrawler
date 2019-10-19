@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using TerexCrawler.Models.DTO.Comment;
 using TerexCrawler.Models.DTO.XmlSitemap;
 
 namespace TerexCrawler.Models.Interfaces
@@ -11,7 +12,7 @@ namespace TerexCrawler.Models.Interfaces
         string WebsiteUrl { get; }
         string GetPage(string url);
         T GetProduct<T>(string content, string url);
-        string[] GetComments(string url);
+        List<CommentDTO> GetComments(string url);
         bool AddPages();
         string[] GetSitemapFromAddress(string url);
         string[] GetSitemapFromFile(string path);
