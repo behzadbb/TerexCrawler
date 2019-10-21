@@ -348,7 +348,7 @@ namespace TerexCrawler.Services.Digikala
             pageBases.Clear();
         }
 
-        private DigikalaProductDTO commentConcat(DigikalaProductDTO dto,string url)
+        private DigikalaProductDTO commentConcat(DigikalaProductDTO dto, string url)
         {
             int? cmPageCount = (int?)null;
             int DKP = getDKPWithUrl(url);
@@ -365,10 +365,21 @@ namespace TerexCrawler.Services.Digikala
                 dto.MaxRate = int.Parse(html.NumberEN(rate[3].InnerText.Replace("/", "").Trim()));
                 dto.TotalParticipantsCount = int.Parse(html.NumberEN(rate[4].InnerText.Replace("(", "").Replace(")", "").Replace("\n", "").Replace("نفر", "").Trim()));
             }
-            Dictionary<string, string> itemRating = new Dictionary<string, string>();
-            if (doc.DocumentNode.SelectSingleNode("//div[@class='c-comments__summary']//div[@class='c-comments__summary-box']") !=null)
-            {
 
+            if (doc.DocumentNode.SelectSingleNode("//div[@class='c-comments__summary']//div[@class='c-comments__summary-box']") != null)
+            {
+                //var ratings = doc.DocumentNode.SelectNodes("//div[@class='c-comments__summary']//div[@class='c-comments__summary-box']//ul[@class='c-comments__item-rating']").ToList();
+                //string[,] itemRating = new string[ratings.Count, 3];
+                var _ratingItems = doc.DocumentNode.SelectNodes("//div[@class='c-comments__summary']//div[@class='c-comments__summary-box']//ul[@class='c-comments__item-rating']//li").ToArray();
+                List<string[]> ratingItems = new List<string[]>();
+                foreach (var item in _ratingItems)
+                {
+                    string[] _rate = new string[3];
+                    _rate[0] = item.SelectSingleNode("//div[@class='cell']").InnerText.Replace(":", "").Replace("\n", "").Trim();
+                    _rate[1] = item.SelectSingleNode("//div[@class='cell']//div[@class='c-rating c-rating--general js-rating']").Attributes["data-rate-digit"].Value.Replace(":", "").Replace("\n", "").Trim();
+                    _rate[2] = item.SelectSingleNode("//div[@class='cell']//div[@class='c-rating c-rating--general js-rating']//div[@class='c-rating__rate js-rating-value']").Attributes["data-rate-value"].Value.Replace("%", "").Replace("\n", "").Trim();
+                    ratingItems.Add(_rate);
+                }
             }
 
 
