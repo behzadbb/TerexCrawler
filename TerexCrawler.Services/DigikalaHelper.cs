@@ -89,6 +89,7 @@ namespace TerexCrawler.Services.Digikala
         {
             List<CommentDTO> CommentsList = new List<CommentDTO>();
             int DKP = getDKPWithUrl(url);
+            string _SelectPrice = "//div[@class='aside']//ul[@class='c-comments__user-shopping']//li//div[@class='cell bought-price']";
             using (HtmlHelper html = new HtmlHelper())
             {
                 List<CommentDTO> comments = new List<CommentDTO>();
@@ -125,8 +126,9 @@ namespace TerexCrawler.Services.Digikala
                             cm.Color = string.IsNullOrEmpty(_colorCell) ? string.Empty : _colorCell.Replace("\n", "").Trim();
                             var _sellerCell = _section.DocumentNode.SelectSingleNode("//div[@class='aside']//ul[@class='c-comments__user-shopping']//li//div[@class='cell seller-cell']").InnerText;
                             cm.Seller = string.IsNullOrEmpty(_sellerCell) ? string.Empty : _sellerCell.Replace("\n", "").Trim();
-                            var _boughtPrice = _section.DocumentNode.SelectSingleNode("//div[@class='aside']//ul[@class='c-comments__user-shopping']//li//div[@class='cell bought-price']").InnerText;
-                            long? boughtPrice = string.IsNullOrEmpty(_boughtPrice) ? (long?)null : long.Parse(html.NumberEN(_boughtPrice.Replace("\n", "").Replace(",", "").Replace("تومان", "").Trim()));
+                            var _boughtPrice = _section.DocumentNode.SelectSingleNode(_SelectPrice);
+                            //var _boughtPrice = _section.DocumentNode.SelectSingleNode(_SelectPrice) != null ? string.Empty : _section.DocumentNode.SelectSingleNode(_SelectPrice).InnerText;
+                            long? boughtPrice = _boughtPrice == null ? (long?)null : long.Parse(html.NumberEN(_boughtPrice.InnerText.Replace("\n", "").Replace(",", "").Replace("تومان", "").Trim()));
                             if (boughtPrice.HasValue)
                             {
                                 cm.BoughtPrice = boughtPrice.Value;
