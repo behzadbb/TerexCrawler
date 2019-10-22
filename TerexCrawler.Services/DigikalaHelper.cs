@@ -368,18 +368,30 @@ namespace TerexCrawler.Services.Digikala
 
             if (doc.DocumentNode.SelectSingleNode("//div[@class='c-comments__summary']//div[@class='c-comments__summary-box']") != null)
             {
-                //var ratings = doc.DocumentNode.SelectNodes("//div[@class='c-comments__summary']//div[@class='c-comments__summary-box']//ul[@class='c-comments__item-rating']").ToList();
-                //string[,] itemRating = new string[ratings.Count, 3];
-                var _ratingItems = doc.DocumentNode.SelectNodes("//div[@class='c-comments__summary']//div[@class='c-comments__summary-box']//ul[@class='c-comments__item-rating']//li").ToArray();
+                var _ratingItems = doc.DocumentNode
+                    .SelectSingleNode("//div[@class='c-comments__summary']" +
+                    "//div[@class='c-comments__summary-box']" +
+                    "//ul[@class='c-comments__item-rating']").ChildNodes.ToArray().Where(x => x.Name.Contains("li"));
+
                 List<string[]> ratingItems = new List<string[]>();
+
                 foreach (var item in _ratingItems)
                 {
-                    string[] _rate = new string[3];
-                    _rate[0] = item.SelectSingleNode("//div[@class='cell']").InnerText.Replace(":", "").Replace("\n", "").Trim();
-                    _rate[1] = item.SelectSingleNode("//div[@class='cell']//div[@class='c-rating c-rating--general js-rating']").Attributes["data-rate-digit"].Value.Replace(":", "").Replace("\n", "").Trim();
-                    _rate[2] = item.SelectSingleNode("//div[@class='cell']//div[@class='c-rating c-rating--general js-rating']//div[@class='c-rating__rate js-rating-value']").Attributes["data-rate-value"].Value.Replace("%", "").Replace("\n", "").Trim();
-                    ratingItems.Add(_rate);
+                    var hasCell = item.SelectSingleNode("//div[@class='cell']") != null;
+                    var cell = item.SelectSingleNode("//div[@class='cell']").InnerHtml.Replace("  "," ").Trim();
+                    if (hasCell)
+                    {
+                        var docCell = new HtmlDocument();
+                        docCell.LoadHtml(item.InnerHtml.Replace("\n", "").Replace("  ", " ").Trim());
+
+                        string[] _rate = new string[3];
+                        _rate[0] = docCell.DocumentNode.SelectSingleNode("//div[@class='cell']").InnerText.Replace(":", "").Replace("\n", "").Trim();
+                        _rate[1] = docCell.DocumentNode.SelectSingleNode("//div[@class='cell']//div[@class='c-rating c-rating--general js-rating']").Attributes["data-rate-digit"].Value.Replace(":", "").Replace("\n", "").Trim();
+                        _rate[2] = docCell.DocumentNode.SelectSingleNode("//div[@class='cell']//div[@class='c-rating c-rating--general js-rating']//div[@class='c-rating__rate js-rating-value']").Attributes["data-rate-value"].Value.Replace("%", "").Replace("\n", "").Trim();
+                        ratingItems.Add(_rate);
+                    }
                 }
+                dto.RatingItems = ratingItems;
             }
 
 
