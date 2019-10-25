@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using TerexCrawler.DataLayer.Context;
 using TerexCrawler.Entites;
+using TerexCrawler.Entites.Digikala;
 using TerexCrawler.Models.DTO.Page;
 
 namespace TerexCrawler.DataLayer.Repository

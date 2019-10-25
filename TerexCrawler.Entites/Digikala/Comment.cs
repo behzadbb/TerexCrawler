@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace TerexCrawler.Models.DTO.Comment
+namespace TerexCrawler.Entites.Digikala
 {
-    public class CommentDTO
+    public class Comment
     {
         public int Id { get; set; }
         public long? CommentId { get; set; }

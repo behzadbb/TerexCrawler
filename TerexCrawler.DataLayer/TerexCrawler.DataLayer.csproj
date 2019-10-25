@@ -6,11 +6,19 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.6" />
+    <PackageReference Include="mongocsharpdriver" Version="2.9.2" />
+    <PackageReference Include="MongoDB.Bson" Version="2.9.2" />
+    <PackageReference Include="MongoDB.Driver" Version="2.9.2" />
+    <PackageReference Include="MongoDB.Driver.Core" Version="2.9.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TerexCrawler.Entites\TerexCrawler.Entites.csproj" />
     <ProjectReference Include="..\TerexCrawler.Models\TerexCrawler.Models.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="MongoDBContext\" />
   </ItemGroup>
 
 </Project>

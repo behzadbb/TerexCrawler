@@ -1,4 +1,5 @@
-﻿using HtmlAgilityPack;
+﻿using AutoMapper;
+using HtmlAgilityPack;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Text;
 using TerexCrawler.Common;
 using TerexCrawler.DataLayer.Repository;
+using TerexCrawler.Entites.Digikala;
 using TerexCrawler.HttpHelper;
 using TerexCrawler.Models;
 using TerexCrawler.Models.DTO.Comment;
@@ -44,7 +46,6 @@ namespace TerexCrawler.Services.Digikala
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:69.0) Gecko/20100101 Firefox/69.0",
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.18362"
         };
-
         private const string sitename = "Digikala";
         public string WebsiteName => sitename;
         public string WebsiteUrl => "https://Digikala.com";
@@ -171,7 +172,7 @@ namespace TerexCrawler.Services.Digikala
                             var paragraph = _section.DocumentNode.SelectSingleNode("//div[@class='article']//p");
                             if (paragraph != null)
                             {
-                                cm.Comment = paragraph.InnerText.Trim();
+                                cm.Review = paragraph.InnerText.Trim();
                             }
 
                             var footer = _section.DocumentNode.SelectSingleNode("//div[@class='article']//div[@class='footer']//div[@class='c-comments__likes js-comment-like-container']");
@@ -298,18 +299,17 @@ namespace TerexCrawler.Services.Digikala
                 "//article" +
                 "//section";
             var tabSections = main.SelectNodes(tabsQuery).ToArray();
-            List<ProductFeatures> features = new List<ProductFeatures>();
+            List<ProductFeaturesDTO> features = new List<ProductFeaturesDTO>();
             foreach (var feat in tabSections)
             {
-                ProductFeatures p = new ProductFeatures();
+                ProductFeaturesDTO p = new ProductFeaturesDTO();
                 p.Title = feat.ChildNodes[0].InnerText;
                 p.Features = feat.ChildNodes[1].ChildNodes
-                    .Select(x => new Feature
+                    .Select(x => new string[]
                     {
-                        Key = x.ChildNodes[0].InnerText.Replace("\n", "").Trim(),
-                        Value = x.ChildNodes[1].InnerText.Replace("\n", "")
-                        .Replace("          ", " ").Replace("     ", " ").Replace("     ", " ").Replace("  ", " ").Replace("  ", " ").Trim(),
-                    }).ToArray();
+                        x.ChildNodes[0].InnerText.Replace("\n", "").Trim(),
+                        x.ChildNodes[1].InnerText.Replace("\n", "").Replace("          ", " ").Replace("     ", " ").Replace("     ", " ").Replace("  ", " ").Replace("  ", " ").Trim(),
+                    }).ToList();
                 features.Add(p);
             }
             dto.Features = features;
@@ -343,7 +343,7 @@ namespace TerexCrawler.Services.Digikala
                 }
             }
             dtos.Clear();
-            using (var digi = new DigikalaRepository())
+            using (var digi = new DigikalaMongoDBRepository())
             {
                 digi.AddDigikalaBasePages(pageBases);
             }
@@ -380,7 +380,7 @@ namespace TerexCrawler.Services.Digikala
                 foreach (var item in _ratingItems)
                 {
                     var hasCell = item.SelectSingleNode("//div[@class='cell']") != null;
-                    var cell = item.SelectSingleNode("//div[@class='cell']").InnerHtml.Replace("  "," ").Trim();
+                    var cell = item.SelectSingleNode("//div[@class='cell']").InnerHtml.Replace("  ", " ").Trim();
                     if (hasCell)
                     {
                         var docCell = new HtmlDocument();
@@ -421,6 +421,62 @@ namespace TerexCrawler.Services.Digikala
         {
             return string.Format("https://www.digikala.com/ajax/product/comments/list/{0}/?page={1}&mode=buyers", DKP, Page);
         }
+        public void AddProduct(DigikalaProductDTO dto)
+        {
+            using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
+            {
+                db.AddDgikalaProduct(ConvertProductDTOToEntity(dto));
+            }
+        }
 
+        private DigikalaProduct ConvertProductDTOToEntity(DigikalaProductDTO dto)
+        {
+            DigikalaProduct m = new DigikalaProduct()
+            {
+                AvrageRate = dto.AvrageRate,
+                Brand = dto.Brand,
+                Categories = dto.Categories,
+                Category = dto.Category,
+                Colors = dto.Colors,
+                Comments = dto.Comments.Select(x => ConvertCommentDTOToEntity(x)).ToList(),
+                DKP = dto.DKP,
+                Features = dto.Features.Select(x => new ProductFeatures { Title = x.Title, Features = x.Features }).ToList(),
+                MaxRate = dto.MaxRate,
+                Price = dto.Price,
+                RatingItems = dto.RatingItems,
+                Title = dto.Title,
+                TitleEN = dto.TitleEN,
+                TotalParticipantsCount = dto.TotalParticipantsCount,
+                Url = dto.Url
+            };
+            return m;
+        }
+
+        private Comment ConvertCommentDTOToEntity(CommentDTO dto)
+        {
+            Comment m = new Comment()
+            {
+                Author = dto.Author,
+                BoughtPrice = dto.BoughtPrice,
+                Color = dto.Color,
+                CommentDate = dto.CommentDate,
+                CommentDisLike = dto.CommentDisLike,
+                CommentId = dto.CommentId,
+                CommentLike = dto.CommentLike,
+                CreateDate = dto.CreateDate,
+                Id = dto.Id,
+                NegativeAspect = dto.NegativeAspect,
+                OpinionType = dto.OpinionType,
+                PageId = dto.PageId,
+                PositiveAspect = dto.PositiveAspect,
+                Purchased = dto.Purchased,
+                Review = dto.Review,
+                Seller = dto.Seller,
+                SellerLink = dto.SellerLink,
+                Title = dto.Title
+            };
+
+            return m;
+        }
     }
 }

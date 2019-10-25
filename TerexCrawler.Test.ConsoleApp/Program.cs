@@ -31,6 +31,7 @@ namespace TerexCrawler.Test.ConsoleApp
             p("4- Load All Sitemap Files");
             p("5- Get Product Page");
             p("6- Get Comments");
+            p("7- Add Product To DB");
             short methodNum = Convert.ToInt16(Console.ReadLine());
 
             switch (methodNum)
@@ -52,6 +53,9 @@ namespace TerexCrawler.Test.ConsoleApp
                     break;
                 case 6:
                     digikala_6_GetProductComments();
+                    break;
+                case 7:
+                    digikala_7_AddProductToMongo();
                     break;
                 default:
                     break;
@@ -110,6 +114,10 @@ namespace TerexCrawler.Test.ConsoleApp
                     dkps.AddRange(sitemap.SitemapToObject(fileInfos[i].ToString()).urlset.ToList());
                 }
             }
+            using (IWebsiteCrawler digikala = new DigikalaHelper())
+            {
+                digikala.AddBasePages(dkps);
+            }
             int sss = 5;
         }
         private static void digikala_5_GetProduct()
@@ -134,5 +142,19 @@ namespace TerexCrawler.Test.ConsoleApp
                 //var jjj = JsonConvert.SerializeObject(s);
             }
         }
+
+        private static void digikala_7_AddProductToMongo()
+        {
+            using (IWebsiteCrawler digikala = new DigikalaHelper())
+            {
+                string url1 = "https://www.digikala.com/product/dkp-313420";
+                string url2 = "https://www.digikala.com/product/dkp-1675555";
+                //var page = digikala.GetPage(url2);
+                var s = digikala.GetProduct<DigikalaProductDTO>(url1);
+                //var jjj = JsonConvert.SerializeObject(s);
+                digikala.AddProduct(s);
+            }
+        }
+
     }
 }

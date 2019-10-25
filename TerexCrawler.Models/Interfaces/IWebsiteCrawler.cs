@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using TerexCrawler.Models.DTO.Comment;
+using TerexCrawler.Models.DTO.Digikala;
 using TerexCrawler.Models.DTO.XmlSitemap;
 
 namespace TerexCrawler.Models.Interfaces
@@ -19,5 +20,6 @@ namespace TerexCrawler.Models.Interfaces
         string[] GetSitemapFromFiles(string[] path);
         void AddBasePage(B5_Url dto);
         void AddBasePages(List<B5_Url> dtos);
+        void AddProduct(DigikalaProductDTO dto);
     }
 }

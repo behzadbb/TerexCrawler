@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using TerexCrawler.Entites;
+using TerexCrawler.Entites.Digikala;
 
 namespace TerexCrawler.DataLayer.Context
 {
