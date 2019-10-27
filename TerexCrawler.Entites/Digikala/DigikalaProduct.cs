@@ -16,6 +16,7 @@ namespace TerexCrawler.Entites.Digikala
         public List<string> Categories { get; set; }
         public long Price { get; set; }
         public string Brand { get; set; }
+        public short? Guaranteed { get; set; }
         public List<ProductFeatures> Features { get; set; }
         public List<string[]> RatingItems { get; set; }
         public List<Comment> Comments { get; set; }

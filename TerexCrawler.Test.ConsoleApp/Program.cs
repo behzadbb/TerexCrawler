@@ -126,8 +126,9 @@ namespace TerexCrawler.Test.ConsoleApp
             {
                 string url1 = "https://www.digikala.com/product/dkp-313420";
                 string url2 = "https://www.digikala.com/product/dkp-1675555";
+                string url3 = "https://www.digikala.com/product/dkp-676525";
                 //var page = digikala.GetPage(url2);
-                var s = digikala.GetProduct<DigikalaProductDTO>(url1);
+                var s = digikala.GetProduct<DigikalaProductDTO>(url3);
                 var jjj = JsonConvert.SerializeObject(s);
             }
         }

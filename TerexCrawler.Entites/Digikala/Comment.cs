@@ -19,6 +19,7 @@ namespace TerexCrawler.Entites.Digikala
         public string[] PositiveAspect { get; set; }
         public long? BoughtPrice { get; set; }
         public string Color { get; set; }
+        public string Size { get; set; }
         public string Seller { get; set; }
         public string SellerLink { get; set; }
         public short? OpinionType { get; set; }

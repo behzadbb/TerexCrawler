@@ -19,6 +19,7 @@ namespace TerexCrawler.Models.DTO.Digikala
         public List<string> Categories { get; set; }
         public long Price { get; set; }
         public string Brand { get; set; }
+        public short? Guaranteed { get; set; }
         public List<ProductFeaturesDTO> Features { get; set; }
         public List<string[]> RatingItems { get; set; }
         public List<CommentDTO> Comments { get; set; }
