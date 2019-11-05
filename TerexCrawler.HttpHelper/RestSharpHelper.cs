@@ -4,6 +4,7 @@ using System.Text;
 using TerexCrawler.Models.DTO;
 using RestSharp;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace TerexCrawler.HttpHelper
 {
@@ -70,7 +71,7 @@ namespace TerexCrawler.HttpHelper
             throw new NotImplementedException();
         }
 
-        public HttpResultResponseDTO GetHttpAsync(string url, bool changeAgent = false, string[] agents = null)
+        public Task<HttpResultResponseDTO> GetHttpAsync(string url, bool changeAgent = false, string[] agents = null)
         {
             throw new NotImplementedException();
         }

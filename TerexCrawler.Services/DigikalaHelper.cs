@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using TerexCrawler.Common;
 using TerexCrawler.DataLayer.Repository;
 using TerexCrawler.Entites.Digikala;
@@ -49,7 +51,7 @@ namespace TerexCrawler.Services.Digikala
         private const string sitename = "Digikala";
         public string WebsiteName => sitename;
         public string WebsiteUrl => "https://Digikala.com";
-        IHttpClientHelper client = new RestSharpHelper();
+        readonly IHttpClientHelper client = new RestSharpHelper();
         ILoger Logger = new LoggerHelper();
 
         public string GetComment(string url)
@@ -57,9 +59,9 @@ namespace TerexCrawler.Services.Digikala
             throw new NotImplementedException();
         }
 
-        public string GetPage(string url)
+        public async Task<string> GetPage(string url)
         {
-            System.Threading.Thread.Sleep(50);
+            //            System.Threading.Thread.Sleep(50);
             var res = client.GetHttp(url, true, user_agent);
             if (res.Success)
             {
@@ -97,7 +99,7 @@ namespace TerexCrawler.Services.Digikala
 
                 for (int i = 1; i <= count; i++)
                 {
-                    var _cmPage = GetPage(GetReviewListUrl(DKP, i));
+                    var _cmPage = GetPage(GetReviewListUrl(DKP, i)).Result;
                     var _cmDoc = new HtmlDocument();
                     _cmDoc.LoadHtml(_cmPage);
 
@@ -244,9 +246,9 @@ namespace TerexCrawler.Services.Digikala
                 Logger.AddLog(log);
             }
         }
-        public T GetProduct<T>(string url)
+        public async Task<T> GetProduct<T>(string url)
         {
-            var content = GetPage(url);
+            var content = await GetPage(url);
             DigikalaProductDTO dto = new DigikalaProductDTO();
             dto.Url = url;
             dto.DKP = getDKPWithUrl(url);
@@ -409,7 +411,7 @@ namespace TerexCrawler.Services.Digikala
             int? cmPageCount = (int?)null;
             int DKP = getDKPWithUrl(url);
             string firstCmUrl = GetReviewUrl(DKP);
-            var firstCmPage = GetPage(firstCmUrl);
+            var firstCmPage = GetPage(firstCmUrl).Result;
 
             var doc = new HtmlDocument();
             doc.LoadHtml(firstCmPage);
@@ -463,9 +465,26 @@ namespace TerexCrawler.Services.Digikala
         }
         private int getDKPWithUrl(string url)
         {
-            var indexDKP = url.LastIndexOf("/") + 1;
+            var indexDKP = url.LastIndexOf("dkp-");
             var lenghtDKP = url.Length - indexDKP;
-            return int.Parse(url.Substring(indexDKP, lenghtDKP).Replace("dkp-", ""));
+            var indexEndChar = url.Substring(indexDKP).IndexOf("/");
+
+            string getDKP = url.Substring(indexDKP,indexEndChar).Replace("dkp-", "");
+
+            List<string> splitUrl = new List<string>();
+            splitUrl.AddRange(getDKP.Split("-"));
+            if (splitUrl.Any())
+            {
+                foreach (var item in splitUrl)
+                {
+                    if (Regex.Match(item, @"^[0-9]*$").Success)
+                    {
+                        return int.Parse(item);
+
+                    }
+                }
+            }
+            return int.Parse(getDKP);
         }
         public string GetReviewUrl(int DKP, int Page = 1)
         {
@@ -492,9 +511,9 @@ namespace TerexCrawler.Services.Digikala
                 Categories = dto.Categories,
                 Category = dto.Category,
                 Colors = dto.Colors,
-                Comments = dto.Comments.Select(x => ConvertCommentDTOToEntity(x)).ToList(),
                 DKP = dto.DKP,
-                Features = dto.Features.Select(x => new ProductFeatures { Title = x.Title, Features = x.Features }).ToList(),
+                Features = dto.Features.Select(x => new ProductFeatures {Title = x.Title, Features = x.Features})
+                    .ToList(),
                 MaxRate = dto.MaxRate,
                 Price = dto.Price,
                 RatingItems = dto.RatingItems,
@@ -504,6 +523,10 @@ namespace TerexCrawler.Services.Digikala
                 Url = dto.Url,
                 Guaranteed = dto.Guaranteed
             };
+            if (dto.Comments !=null && dto.Comments.Count()>0)
+            {
+                m.Comments = dto.Comments.Select(x => ConvertCommentDTOToEntity(x)).ToList();
+            }
             return m;
         }
 

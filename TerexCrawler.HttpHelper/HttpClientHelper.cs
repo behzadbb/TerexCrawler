@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 using TerexCrawler.Models.DTO;
 
 namespace TerexCrawler.HttpHelper
@@ -77,7 +78,7 @@ namespace TerexCrawler.HttpHelper
             throw new NotImplementedException();
         }
 
-        public HttpResultResponseDTO GetHttpAsync(string url, bool changeAgent = false, string[] agents = null)
+        public Task<HttpResultResponseDTO> GetHttpAsync(string url, bool changeAgent = false, string[] agents = null)
         {
             throw new NotImplementedException();
         }

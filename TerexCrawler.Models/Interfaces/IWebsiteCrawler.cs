@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using TerexCrawler.Models.DTO.Comment;
 using TerexCrawler.Models.DTO.Digikala;
 using TerexCrawler.Models.DTO.XmlSitemap;
@@ -11,8 +12,8 @@ namespace TerexCrawler.Models.Interfaces
     {
         string WebsiteName { get; }
         string WebsiteUrl { get; }
-        string GetPage(string url);
-        T GetProduct<T>(string url);
+        Task<string> GetPage(string url);
+        Task<T> GetProduct<T>(string url);
         List<CommentDTO> GetComments(string url, int count);
         bool AddPages();
         string[] GetSitemapFromAddress(string url);

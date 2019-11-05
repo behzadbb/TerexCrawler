@@ -8,14 +8,26 @@ using System.Collections.Generic;
 using TerexCrawler.Services.Digikala;
 using TerexCrawler.Models.Interfaces;
 using System.Text.Unicode;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using TerexCrawler.Models.DTO.Page;
 using Newtonsoft.Json;
+using TerexCrawler.DataLayer.Context;
 using TerexCrawler.Models.DTO.Digikala;
 
 namespace TerexCrawler.Test.ConsoleApp
 {
     class Program
     {
+        static MongoClient client = new MongoClient("mongodb://localhost");
+        static MongoServer server => client.GetServer();
+        static MongoDatabase db => server.GetDatabase("Digikala");
+
+
+        public Program()
+        {
+            
+        }
         private static void p(string p)
         {
             Console.WriteLine(p);
@@ -144,16 +156,41 @@ namespace TerexCrawler.Test.ConsoleApp
             }
         }
 
-        private static void digikala_7_AddProductToMongo()
+
+
+        private async static void digikala_7_AddProductToMongo()
         {
+            
+
+            
+            MongoCollection<BsonDocument> digikalaCollection = db.GetCollection<BsonDocument>("DigikalaBasePages");
+            var getALl = digikalaCollection.FindAll()
+                .Where(c => c[4] == false && c[5].ToString().Contains("dkp-"))
+                .ToList();
+            Console.WriteLine($"list total {getALl.Count}");
             using (IWebsiteCrawler digikala = new DigikalaHelper())
             {
-                string url1 = "https://www.digikala.com/product/dkp-313420";
-                string url2 = "https://www.digikala.com/product/dkp-1675555";
+                double x = 0;
+                foreach (var item in getALl)
+                {
+                    string urlAdress = item[5].ToString();
+//                    try
+//                    { 
+                       var tryToGetData = await digikala.GetProduct<DigikalaProductDTO>(urlAdress);
+                       digikala.AddProduct(tryToGetData);
+                       Console.WriteLine(++x);
+//                    }
+//                    catch 
+//                    {
+//                      
+//                    }
+                }
+//                string url1 = "https://www.digikala.com/product/dkp-313420";
+//                string url2 = "https://www.digikala.com/product/dkp-1675555";
                 //var page = digikala.GetPage(url2);
-                var s = digikala.GetProduct<DigikalaProductDTO>(url1);
+//                var s = digikala.GetProduct<DigikalaProductDTO>(url1);
                 //var jjj = JsonConvert.SerializeObject(s);
-                digikala.AddProduct(s);
+                
             }
         }
 
