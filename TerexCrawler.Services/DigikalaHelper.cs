@@ -417,12 +417,16 @@ namespace TerexCrawler.Services.Digikala
             doc.LoadHtml(firstCmPage);
 
             var rate = doc.DocumentNode.SelectNodes("//h2[@class='c-comments__headline']//span//span");
-            using (HtmlHelper html = new HtmlHelper())
+            if (rate != null)
             {
-                dto.AvrageRate = int.Parse(html.NumberEN(rate[2].InnerText.Trim()));
-                dto.MaxRate = int.Parse(html.NumberEN(rate[3].InnerText.Replace("/", "").Trim()));
-                dto.TotalParticipantsCount = int.Parse(html.NumberEN(rate[4].InnerText.Replace("(", "").Replace(")", "").Replace("\n", "").Replace("نفر", "").Trim()));
+                using (HtmlHelper html = new HtmlHelper())
+                {
+                    dto.AvrageRate = int.Parse(html.NumberEN(rate[2].InnerText.Trim()));
+                    dto.MaxRate = int.Parse(html.NumberEN(rate[3].InnerText.Replace("/", "").Trim()));
+                    dto.TotalParticipantsCount = int.Parse(html.NumberEN(rate[4].InnerText.Replace("(", "").Replace(")", "").Replace("\n", "").Replace("نفر", "").Trim()));
+                }
             }
+
 
             if (doc.DocumentNode.SelectSingleNode("//div[@class='c-comments__summary']//div[@class='c-comments__summary-box']") != null)
             {
@@ -453,7 +457,7 @@ namespace TerexCrawler.Services.Digikala
             }
 
 
-            if (doc.GetElementbyId("comment-pagination").SelectNodes("//ul[@class='c-pager__items']//li[@class='js-pagination-item']") != null)
+            if (doc.GetElementbyId("comment-pagination") != null && doc.GetElementbyId("comment-pagination").SelectNodes("//ul[@class='c-pager__items']//li[@class='js-pagination-item']") != null)
             {
                 cmPageCount = Int16.Parse(doc.GetElementbyId("comment-pagination").SelectNodes("//ul[@class='c-pager__items']//li[@class='js-pagination-item']").LastOrDefault().SelectNodes("//a[@class='c-pager__next']").Select(x => x.Attributes["data-page"].Value.ToString()).FirstOrDefault());
             }
@@ -469,7 +473,7 @@ namespace TerexCrawler.Services.Digikala
             var lenghtDKP = url.Length - indexDKP;
             var indexEndChar = url.Substring(indexDKP).IndexOf("/");
 
-            string getDKP = url.Substring(indexDKP,indexEndChar).Replace("dkp-", "");
+            string getDKP = url.Substring(indexDKP, indexEndChar).Replace("dkp-", "");
 
             List<string> splitUrl = new List<string>();
             splitUrl.AddRange(getDKP.Split("-"));
@@ -512,7 +516,7 @@ namespace TerexCrawler.Services.Digikala
                 Category = dto.Category,
                 Colors = dto.Colors,
                 DKP = dto.DKP,
-                Features = dto.Features.Select(x => new ProductFeatures {Title = x.Title, Features = x.Features})
+                Features = dto.Features.Select(x => new ProductFeatures { Title = x.Title, Features = x.Features })
                     .ToList(),
                 MaxRate = dto.MaxRate,
                 Price = dto.Price,
@@ -523,7 +527,7 @@ namespace TerexCrawler.Services.Digikala
                 Url = dto.Url,
                 Guaranteed = dto.Guaranteed
             };
-            if (dto.Comments !=null && dto.Comments.Count()>0)
+            if (dto.Comments != null && dto.Comments.Count() > 0)
             {
                 m.Comments = dto.Comments.Select(x => ConvertCommentDTOToEntity(x)).ToList();
             }
