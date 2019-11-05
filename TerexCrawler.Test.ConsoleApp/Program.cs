@@ -26,7 +26,7 @@ namespace TerexCrawler.Test.ConsoleApp
 
         public Program()
         {
-            
+
         }
         private static void p(string p)
         {
@@ -160,9 +160,9 @@ namespace TerexCrawler.Test.ConsoleApp
 
         private async static void digikala_7_AddProductToMongo()
         {
-            
 
-            
+
+
             MongoCollection<BsonDocument> digikalaCollection = db.GetCollection<BsonDocument>("DigikalaBasePages");
             var getALl = digikalaCollection.FindAll()
                 .Where(c => c[4] == false && c[5].ToString().Contains("dkp-"))
@@ -174,23 +174,23 @@ namespace TerexCrawler.Test.ConsoleApp
                 foreach (var item in getALl)
                 {
                     string urlAdress = item[5].ToString();
-//                    try
-//                    { 
-                       var tryToGetData = await digikala.GetProduct<DigikalaProductDTO>(urlAdress);
-                       digikala.AddProduct(tryToGetData);
-                       Console.WriteLine(++x);
-//                    }
-//                    catch 
-//                    {
-//                      
-//                    }
+                    //                    try
+                    //                    { 
+                    var tryToGetData = await digikala.GetProduct<DigikalaProductDTO>(urlAdress);
+                    digikala.AddProduct(tryToGetData);
+                    Console.WriteLine(++x);
+                    //                    }
+                    //                    catch 
+                    //                    {
+                    //                      
+                    //                    }
                 }
-//                string url1 = "https://www.digikala.com/product/dkp-313420";
-//                string url2 = "https://www.digikala.com/product/dkp-1675555";
+                //                string url1 = "https://www.digikala.com/product/dkp-313420";
+                //                string url2 = "https://www.digikala.com/product/dkp-1675555";
                 //var page = digikala.GetPage(url2);
-//                var s = digikala.GetProduct<DigikalaProductDTO>(url1);
+                //                var s = digikala.GetProduct<DigikalaProductDTO>(url1);
                 //var jjj = JsonConvert.SerializeObject(s);
-                
+
             }
         }
 
