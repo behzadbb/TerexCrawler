@@ -23,10 +23,9 @@ namespace TerexCrawler.Test.ConsoleApp
         static MongoServer server => client.GetServer();
         static MongoDatabase db => server.GetDatabase("Digikala");
 
-
         public Program()
         {
-            
+
         }
         private static void p(string p)
         {
@@ -139,60 +138,46 @@ namespace TerexCrawler.Test.ConsoleApp
                 string url1 = "https://www.digikala.com/product/dkp-313420";
                 string url2 = "https://www.digikala.com/product/dkp-1675555";
                 string url3 = "https://www.digikala.com/product/dkp-676525";
+                string url4 = "https://www.digikala.com/product/dkp-6/";
                 //var page = digikala.GetPage(url2);
-                var s = digikala.GetProduct<DigikalaProductDTO>(url3);
+                var s = digikala.GetProduct<DigikalaProductDTO>(url4);
                 var jjj = JsonConvert.SerializeObject(s);
             }
         }
+
         private static void digikala_6_GetProductComments()
         {
             using (IWebsiteCrawler digikala = new DigikalaHelper())
             {
                 string url1 = "https://www.digikala.com/product/dkp-313420";
-                string url2 = "https://www.digikala.com/product/dkp-1675555";
+                string url2 = "https://www.digikala.com/product/dkp-6/";
                 //var cm = digikala.GetComments(url2);
                 //var s = digikala.GetProduct<DigikalaProductDTO>(page, url2);
                 //var jjj = JsonConvert.SerializeObject(s);
             }
         }
 
-
-
         private async static void digikala_7_AddProductToMongo()
         {
-            
-
-            
             MongoCollection<BsonDocument> digikalaCollection = db.GetCollection<BsonDocument>("DigikalaBasePages");
             var getALl = digikalaCollection.FindAll()
                 .Where(c => c[4] == false && c[5].ToString().Contains("dkp-"))
+                .Take(10) // baraye Load Kamtar
                 .ToList();
             Console.WriteLine($"list total {getALl.Count}");
+
             using (IWebsiteCrawler digikala = new DigikalaHelper())
             {
-                double x = 0;
+                long x = 0;
                 foreach (var item in getALl)
                 {
                     string urlAdress = item[5].ToString();
-//                    try
-//                    { 
-                       var tryToGetData = await digikala.GetProduct<DigikalaProductDTO>(urlAdress);
-                       digikala.AddProduct(tryToGetData);
-                       Console.WriteLine(++x);
-//                    }
-//                    catch 
-//                    {
-//                      
-//                    }
+                    var tryToGetData = await digikala.GetProduct<DigikalaProductDTO>(urlAdress);
+                    digikala.AddProduct(tryToGetData);
+                    Console.WriteLine(++x);
                 }
-//                string url1 = "https://www.digikala.com/product/dkp-313420";
-//                string url2 = "https://www.digikala.com/product/dkp-1675555";
-                //var page = digikala.GetPage(url2);
-//                var s = digikala.GetProduct<DigikalaProductDTO>(url1);
-                //var jjj = JsonConvert.SerializeObject(s);
-                
+
             }
         }
-
     }
 }
