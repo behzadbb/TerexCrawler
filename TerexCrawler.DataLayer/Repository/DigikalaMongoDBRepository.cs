@@ -9,6 +9,11 @@ using TerexCrawler.Entites;
 using TerexCrawler.Models.DTO.Page;
 using TerexCrawler.Models.DTO.Digikala;
 using TerexCrawler.Entites.Digikala;
+using System.Linq;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.Serialization.Conventions;
+using MongoDB.Bson.IO;
 
 namespace TerexCrawler.DataLayer.Repository
 {
@@ -34,11 +39,21 @@ namespace TerexCrawler.DataLayer.Repository
 
         }
         #endregion
-        MongoClient client = new MongoClient("mongodb://localhost");
-        MongoServer server => client.GetServer();
-        MongoDatabase db => server.GetDatabase("Digikala");
 
-        //MongoCollection<Person> collection = db.GetCollection<Person>("people");
+        private MongoClient client;
+        private MongoServer server;
+        private MongoDatabase db;
+        private MongoCollection<DigikalaBasePage> digikalaBasePages;
+        private MongoCollection<DigikalaProduct> digikalaProducts;
+
+        public DigikalaMongoDBRepository()
+        {
+            client = new MongoClient("mongodb://localhost");
+            server = client.GetServer();
+            db = server.GetDatabase("Digikala");
+            digikalaBasePages = db.GetCollection<DigikalaBasePage>("DigikalaBasePages");
+            digikalaProducts = db.GetCollection<DigikalaProduct>("DigikalaProducts");
+        }
 
         public void AddDigikalaBasePage(DigikalaPageBaseDTO dto)
         {
@@ -50,9 +65,7 @@ namespace TerexCrawler.DataLayer.Repository
             model.Loc = dto.Loc;
             model.Priority = dto.Priority;
 
-            MongoCollection<BsonDocument> digikalaCollection = db.GetCollection<BsonDocument>("DigikalaBasePages");
-
-            digikalaCollection.Insert(model);
+            digikalaBasePages.Insert(model);
         }
 
         public void AddDigikalaBasePages(List<DigikalaPageBaseDTO> dtos)
@@ -74,23 +87,47 @@ namespace TerexCrawler.DataLayer.Repository
                 models.Add(model);
             }
 
-            MongoCollection<BsonDocument> digikalaCollection = db.GetCollection<BsonDocument>("DigikalaBasePages");
-
-            digikalaCollection.InsertBatch(models);
+            digikalaBasePages.InsertBatch(models);
         }
 
         public void AddDgikalaProduct(DigikalaProduct dto)
         {
-            MongoCollection<BsonDocument> digikalaCollection = db.GetCollection<BsonDocument>("DigikalaProduct");
-
-            digikalaCollection.Insert(dto);
+            digikalaProducts.Insert(dto);
         }
-        
+
         public void AddDgikalaProducts(List<DigikalaProduct> dtos)
         {
-            MongoCollection<BsonDocument> digikalaCollection = db.GetCollection<BsonDocument>("DigikalaProduct");
+            digikalaProducts.Insert(dtos);
+        }
 
-            digikalaCollection.Insert(dtos);
+        public List<DigikalaPageBaseDTO> GetAllBasePage()
+        {
+            var s = digikalaBasePages.FindAll()
+                        .Where(p => !p.Crawled && p.Loc.Contains("dkp-")).Take(40000);
+            List<DigikalaPageBaseDTO> sas = s.Select(
+                    x => new DigikalaPageBaseDTO
+                    {
+                        _id = x._id.ToString(),
+                        DKP = x.DKP,
+                        Crawled = x.Crawled,
+                        CreateDate = x.CreateDate,
+                        ChangeFreq = x.ChangeFreq,
+                        ImageCaption = x.ImageCaption,
+                        ImageLoc = x.ImageLoc,
+                        Loc = x.Loc,
+                        Priority = x.Priority,
+                        CrawlDate = x.CrawlDate
+                    }).ToList();
+            return sas;
+        }
+
+        public void CrwaledProduct(string id)
+        {
+            ObjectId _id = ObjectId.Parse(id);
+            var query = Query<DigikalaBasePage>.EQ(p => p._id, _id);
+            var update = Update<DigikalaBasePage>.Set(p => p.CrawlDate, DateTime.Now).Set(p => p.Crawled, true);
+
+            digikalaBasePages.Update(query, update);
         }
     }
 }

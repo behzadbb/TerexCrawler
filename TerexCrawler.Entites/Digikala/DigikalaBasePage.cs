@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MongoDB.Bson;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,6 +7,7 @@ namespace TerexCrawler.Entites.Digikala
 {
     public class DigikalaBasePage
     {
+        public ObjectId _id { get; set; }
         public int DKP { get; set; }
         public DateTime CreateDate { get; set; }
         public DateTime? CrawlDate { get; set; }

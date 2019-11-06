@@ -2,6 +2,7 @@
 using HtmlAgilityPack;
 using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -42,6 +43,11 @@ namespace TerexCrawler.Services.Digikala
             client.Dispose();
             Dispose(true);
         }
+        #endregion
+        #region Element Query
+        const string _sellerCellEQ = "//div[@class='aside']//ul[@class='c-comments__user-shopping']//li//div[@class='cell seller-cell']";
+        const string _colorCellEQ = "//div[@class='aside']//ul[@class='c-comments__user-shopping']//li//div[@class='cell color-cell']";
+        const string _sizeCellEQ = "//div[@class='aside']//ul[@class='c-comments__user-shopping']//li//div[@class='cell']";
         #endregion
         string[] user_agent = {
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36",
@@ -506,6 +512,23 @@ namespace TerexCrawler.Services.Digikala
             }
         }
 
+        public List<DigikalaPageBaseDTO> GetAllBasePage<T>()
+        {
+            List<DigikalaPageBaseDTO> dtos = new List<DigikalaPageBaseDTO>();
+            using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
+            {
+                dtos =db.GetAllBasePage();
+            }
+            return dtos;
+        }
+
+        public void CrawledProduct(string id)
+        {
+            using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
+            {
+                db.CrwaledProduct(id);
+            }
+        }
         private DigikalaProduct ConvertProductDTOToEntity(DigikalaProductDTO dto)
         {
             DigikalaProduct m = new DigikalaProduct()
@@ -580,11 +603,5 @@ namespace TerexCrawler.Services.Digikala
 
             return m;
         }
-
-        #region Element Query
-        const string _sellerCellEQ = "//div[@class='aside']//ul[@class='c-comments__user-shopping']//li//div[@class='cell seller-cell']";
-        const string _colorCellEQ = "//div[@class='aside']//ul[@class='c-comments__user-shopping']//li//div[@class='cell color-cell']";
-        const string _sizeCellEQ = "//div[@class='aside']//ul[@class='c-comments__user-shopping']//li//div[@class='cell']";
-        #endregion
     }
 }

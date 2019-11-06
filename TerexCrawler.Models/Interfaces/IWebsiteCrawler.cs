@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TerexCrawler.Models.DTO.Comment;
 using TerexCrawler.Models.DTO.Digikala;
+using TerexCrawler.Models.DTO.Page;
 using TerexCrawler.Models.DTO.XmlSitemap;
 
 namespace TerexCrawler.Models.Interfaces
@@ -22,5 +23,7 @@ namespace TerexCrawler.Models.Interfaces
         void AddBasePage(B5_Url dto);
         void AddBasePages(List<B5_Url> dtos);
         void AddProduct(DigikalaProductDTO dto);
+        List<DigikalaPageBaseDTO> GetAllBasePage<T>();
+        void CrawledProduct(string id);
     }
 }

@@ -14,6 +14,7 @@ using TerexCrawler.Models.DTO.Page;
 using Newtonsoft.Json;
 using TerexCrawler.DataLayer.Context;
 using TerexCrawler.Models.DTO.Digikala;
+using MongoDB.Driver.Builders;
 
 namespace TerexCrawler.Test.ConsoleApp
 {
@@ -159,24 +160,18 @@ namespace TerexCrawler.Test.ConsoleApp
 
         private async static void digikala_7_AddProductToMongo()
         {
-            MongoCollection<BsonDocument> digikalaCollection = db.GetCollection<BsonDocument>("DigikalaBasePages");
-            var getALl = digikalaCollection.FindAll()
-                .Where(c => c[4] == false && c[5].ToString().Contains("dkp-"))
-                .Take(10) // baraye Load Kamtar
-                .ToList();
-            Console.WriteLine($"list total {getALl.Count}");
-
             using (IWebsiteCrawler digikala = new DigikalaHelper())
             {
+                var getAll = digikala.GetAllBasePage<List<DigikalaPageBaseDTO>>();
+                Console.WriteLine($"list total {getAll.Count}");
                 long x = 0;
-                foreach (var item in getALl)
+                foreach (var item in getAll)
                 {
-                    string urlAdress = item[5].ToString();
-                    var tryToGetData = await digikala.GetProduct<DigikalaProductDTO>(urlAdress);
-                    digikala.AddProduct(tryToGetData);
+                    var product = await digikala.GetProduct<DigikalaProductDTO>(item.Loc);
+                    digikala.AddProduct(product);
+                    digikala.CrawledProduct(item._id);
                     Console.WriteLine(++x);
                 }
-
             }
         }
     }
