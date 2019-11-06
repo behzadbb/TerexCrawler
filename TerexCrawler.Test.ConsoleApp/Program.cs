@@ -167,10 +167,12 @@ namespace TerexCrawler.Test.ConsoleApp
                 long x = 0;
                 foreach (var item in getAll)
                 {
+                    var _s = DateTime.Now;
                     var product = await digikala.GetProduct<DigikalaProductDTO>(item.Loc);
+                    var _t = Math.Round((DateTime.Now - _s).TotalSeconds, 2);
                     digikala.AddProduct(product);
                     digikala.CrawledProduct(item._id);
-                    Console.WriteLine(++x);
+                    Console.WriteLine($"{++x} = DKP-{product.DKP} , Comment={(product.Comments != null ? product.Comments.Count() : 0)} ,  in {_t} Secs ");
                 }
             }
         }

@@ -297,7 +297,10 @@ namespace TerexCrawler.Services.Digikala
                 dto.Colors = colors;
             }
 
-            var feature_list = productWrapper.SelectNodes("//div[@class='c-product__params js-is-expandable']//ul//li").Select(x => new { name = x.FirstChild.InnerText.Replace(":", "").Trim(), val = x.LastChild.InnerText.Replace("\n", "").Trim() }).ToList();
+            if (productWrapper.SelectNodes("//div[@class='c-product__params js-is-expandable']//ul//li") != null)
+            {
+                var feature_list = productWrapper.SelectNodes("//div[@class='c-product__params js-is-expandable']//ul//li").Select(x => new { name = x.FirstChild.InnerText.Replace(":", "").Trim(), val = x.LastChild.InnerText.Replace("\n", "").Trim() }).ToList();
+            }
 
             var c_box = article_info.SelectSingleNode("//div[@class='c-product__attributes js-product-attributes']//div[@class='c-product__summary js-product-summary']//div[@class='c-box']");
             string priceOffQuery = "//div[@class='c-product__seller-info js-seller-info']" +
@@ -308,8 +311,9 @@ namespace TerexCrawler.Services.Digikala
                 "//div[@class='js-seller-info-changable c-product__seller-box']" +
                 "//div[@class='c-product__seller-row c-product__seller-row--price']" +
                 "//div[@class='c-product__seller-price-prev js-rrp-price u-hidden']";
-            var isExistPrice = article_info.SelectSingleNode(priceQuery) != null;
-            if (isExistPrice)
+            var priceElement = article_info.SelectSingleNode(priceQuery);
+            var isExistPrice = priceElement != null;
+            if (isExistPrice && priceElement.InnerText.Trim() != "")
             {
                 using (HtmlHelper html = new HtmlHelper())
                 {
@@ -467,6 +471,10 @@ namespace TerexCrawler.Services.Digikala
             {
                 cmPageCount = Int16.Parse(doc.GetElementbyId("comment-pagination").SelectNodes("//ul[@class='c-pager__items']//li[@class='js-pagination-item']").LastOrDefault().SelectNodes("//a[@class='c-pager__next']").Select(x => x.Attributes["data-page"].Value.ToString()).FirstOrDefault());
             }
+            else if (doc.GetElementbyId("product-comment-list") != null && doc.GetElementbyId("product-comment-list").SelectNodes("//ul[@class='c-comments__list']") != null)
+            {
+                cmPageCount = 1;
+            }
             if (cmPageCount.HasValue)
             {
                 dto.Comments = GetComments(url, cmPageCount.Value);
@@ -517,7 +525,7 @@ namespace TerexCrawler.Services.Digikala
             List<DigikalaPageBaseDTO> dtos = new List<DigikalaPageBaseDTO>();
             using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
             {
-                dtos =db.GetAllBasePage();
+                dtos = db.GetAllBasePage();
             }
             return dtos;
         }
@@ -531,25 +539,22 @@ namespace TerexCrawler.Services.Digikala
         }
         private DigikalaProduct ConvertProductDTOToEntity(DigikalaProductDTO dto)
         {
-            DigikalaProduct m = new DigikalaProduct()
-            {
-                AvrageRate = dto.AvrageRate,
-                Brand = dto.Brand,
-                Categories = dto.Categories,
-                Category = dto.Category,
-                Colors = dto.Colors,
-                DKP = dto.DKP,
-                Features = dto.Features.Select(x => new ProductFeatures { Title = x.Title, Features = x.Features })
-                    .ToList(),
-                MaxRate = dto.MaxRate,
-                Price = dto.Price,
-                RatingItems = dto.RatingItems,
-                Title = dto.Title,
-                TitleEN = dto.TitleEN,
-                TotalParticipantsCount = dto.TotalParticipantsCount,
-                Url = dto.Url,
-                Guaranteed = dto.Guaranteed
-            };
+            DigikalaProduct m = new DigikalaProduct();
+            m.AvrageRate = dto.AvrageRate;
+            m.Brand = dto.Brand;
+            m.Categories = dto.Categories;
+            m.Category = dto.Category;
+            m.Colors = dto.Colors;
+            m.DKP = dto.DKP;
+            m.Features = dto.Features == null ? null : dto.Features.Select(x => new ProductFeatures { Title = x.Title, Features = x.Features }).ToList();
+            m.MaxRate = dto.MaxRate;
+            m.Price = dto.Price;
+            m.RatingItems = dto.RatingItems;
+            m.Title = dto.Title;
+            m.TitleEN = dto.TitleEN;
+            m.TotalParticipantsCount = dto.TotalParticipantsCount;
+            m.Url = dto.Url;
+            m.Guaranteed = dto.Guaranteed;
             if (dto.Comments != null && dto.Comments.Count() > 0)
             {
                 m.Comments = dto.Comments.Select(x => ConvertCommentDTOToEntity(x)).ToList();
