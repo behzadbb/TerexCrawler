@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -38,7 +39,7 @@ namespace TerexCrawler.HttpHelper
             return result;
         }
 
-        public HttpResultResponseDTO GetHttp(string url, bool changeAgent = false, string[] agents = null)
+        public HttpResultResponseDTO GetHttp(string url, string proxy , bool changeAgent = false, string[] agents = null)
         {
             HttpResultResponseDTO result = new HttpResultResponseDTO();
             try
@@ -51,6 +52,11 @@ namespace TerexCrawler.HttpHelper
                         int agentNum = rnd.Next(0, agents.Length - 1);
                         client.DefaultRequestHeaders.Add("User-Agent", agents[agentNum]);
                     }
+
+
+
+
+
                     using (HttpResponseMessage response = client.GetAsync(url).Result)
                     {
                         using (HttpContent content = response.Content)

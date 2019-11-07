@@ -5,14 +5,19 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using AutoMapper.Execution;
+using MongoDB.Bson;
+using RestSharp;
 using TerexCrawler.Common;
 using TerexCrawler.DataLayer.Repository;
 using TerexCrawler.Entites.Digikala;
 using TerexCrawler.HttpHelper;
 using TerexCrawler.Models;
+using TerexCrawler.Models.DTO;
 using TerexCrawler.Models.DTO.Comment;
 using TerexCrawler.Models.DTO.Digikala;
 using TerexCrawler.Models.DTO.Page;
@@ -59,10 +64,13 @@ namespace TerexCrawler.Services.Digikala
             throw new NotImplementedException();
         }
 
-        public async Task<string> GetPage(string url)
+        public async Task<string> GetPage(string url, string proxy)
         {
             //            System.Threading.Thread.Sleep(50);
-            var res = client.GetHttp(url, true, user_agent);
+
+            var res = client.GetHttp(url, proxy, true, user_agent);
+
+
             if (res.Success)
             {
                 return res.Content;
@@ -99,7 +107,7 @@ namespace TerexCrawler.Services.Digikala
 
                 for (int i = 1; i <= count; i++)
                 {
-                    var _cmPage = GetPage(GetReviewListUrl(DKP, i)).Result;
+                    var _cmPage = GetPage(GetReviewListUrl(DKP, i), string.Empty).Result;
                     var _cmDoc = new HtmlDocument();
                     _cmDoc.LoadHtml(_cmPage);
 
@@ -246,9 +254,72 @@ namespace TerexCrawler.Services.Digikala
                 Logger.AddLog(log);
             }
         }
-        public async Task<T> GetProduct<T>(string url)
+        public async Task<T> GetProduct<T>(string url, string proxy, string hostAdress)
         {
-            var content = await GetPage(url);
+            string content = string.Empty;
+            if (string.IsNullOrEmpty(hostAdress))
+            {
+                content = await GetPage(url, proxy);
+            }
+            else
+            {
+
+
+                HttpResultResponseDTO sendReq(string urll, string hostAdresss)
+                {
+                    HttpResultResponseDTO result = new HttpResultResponseDTO();
+                    try
+                    {
+                        IRestClient restClient = new RestClient(hostAdresss);
+                        var request = new RestRequest();
+                        request.Method = Method.POST;
+                        request.AddHeader("Content-Type", "application/json");
+                        request.Parameters.Clear();
+                        request.AddParameter("value", "navid" , ParameterType.RequestBody);
+
+                        var response = restClient.Execute(request);
+                        var response3 = restClient.Post(request);
+                        result.Content = response.StatusCode == HttpStatusCode.OK ? response.Content : string.Empty;
+                        result.HttpStatusCode = (int)response.StatusCode;
+                        result.ErrorCode = 0;
+                        result.Success = response.StatusCode == HttpStatusCode.OK;
+                    }
+                    catch (Exception ex)
+                    {
+                        result.ExeptionErrorMessage = ex.Message;
+                        result.Content = string.Empty;
+                        result.ErrorCode = -10;
+                        result.Success = false;
+                    }
+                    return result;
+                }
+
+
+                var res = sendReq(url, hostAdress);
+
+                if (res.Success)
+                {
+                    content = res.Content;
+                }
+                else
+                {
+                    LogDTO log = new LogDTO()
+                    {
+                        DateTime = DateTime.Now,
+                        Description = res.ExeptionErrorMessage,
+                        ProjectId = (int)ProjectNames.HttpHelper,
+                        Url = url,
+                        MethodName = "Digikala - GetPage",
+                        Title = "Get HTML Error"
+                    };
+                    Logger.AddLog(log);
+                    content = string.Empty;
+                }
+
+
+              
+
+            }
             DigikalaProductDTO dto = new DigikalaProductDTO();
             dto.Url = url;
             dto.DKP = getDKPWithUrl(url);
@@ -291,7 +362,12 @@ namespace TerexCrawler.Services.Digikala
                 dto.Colors = colors;
             }
 
-            var feature_list = productWrapper.SelectNodes("//div[@class='c-product__params js-is-expandable']//ul//li").Select(x => new { name = x.FirstChild.InnerText.Replace(":", "").Trim(), val = x.LastChild.InnerText.Replace("\n", "").Trim() }).ToList();
+
+
+            //            var feature_list = productWrapper.SelectNodes("//div[@class='c-product__params js-is-expandable']//ul//li").Select(x => new { name = x.FirstChild.InnerText.Replace(":", "").Trim(), val = x.LastChild.InnerText.Replace("\n", "").Trim() }).ToList();
+            var feature_list = productWrapper.SelectNodes("//div[@class='c-product__directory']//ul//li").Select(x => new { name = x.FirstChild.InnerText.Replace(":", "").Trim(), val = x.LastChild.InnerText.Replace("\n", "").Trim() }).ToList();
+
+
 
             var c_box = article_info.SelectSingleNode("//div[@class='c-product__attributes js-product-attributes']//div[@class='c-product__summary js-product-summary']//div[@class='c-box']");
             string priceOffQuery = "//div[@class='c-product__seller-info js-seller-info']" +
@@ -302,12 +378,17 @@ namespace TerexCrawler.Services.Digikala
                 "//div[@class='js-seller-info-changable c-product__seller-box']" +
                 "//div[@class='c-product__seller-row c-product__seller-row--price']" +
                 "//div[@class='c-product__seller-price-prev js-rrp-price u-hidden']";
+            string priceQuery2 = "//html//body//div[2]//div[2]//div//div[1]//div[1]//div[9]//div[2]//div";
             var isExistPrice = article_info.SelectSingleNode(priceQuery) != null;
             if (isExistPrice)
             {
                 using (HtmlHelper html = new HtmlHelper())
                 {
-                    dto.Price = Int64.Parse(html.NumberEN(article_info.SelectSingleNode(priceQuery).InnerText.Replace("\n", "").Replace(",", "").Trim()));
+                    //                    var data1 = article_info.SelectSingleNode(priceQuery).InnerText;
+                    var data1 = article_info.SelectSingleNode(priceQuery2).InnerText;
+                    var data = html.NumberEN(data1.Replace("\n", "").Replace(",", "").Trim());
+                    dto.Price = Int64.Parse(data);
+                    Console.WriteLine(data);
                 }
             }
             else
@@ -411,7 +492,7 @@ namespace TerexCrawler.Services.Digikala
             int? cmPageCount = (int?)null;
             int DKP = getDKPWithUrl(url);
             string firstCmUrl = GetReviewUrl(DKP);
-            var firstCmPage = GetPage(firstCmUrl).Result;
+            var firstCmPage = GetPage(firstCmUrl, string.Empty).Result;
 
             var doc = new HtmlDocument();
             doc.LoadHtml(firstCmPage);
@@ -510,27 +591,52 @@ namespace TerexCrawler.Services.Digikala
         {
             DigikalaProduct m = new DigikalaProduct()
             {
-                AvrageRate = dto.AvrageRate,
                 Brand = dto.Brand,
                 Categories = dto.Categories,
                 Category = dto.Category,
-                Colors = dto.Colors,
                 DKP = dto.DKP,
-                Features = dto.Features.Select(x => new ProductFeatures { Title = x.Title, Features = x.Features })
-                    .ToList(),
-                MaxRate = dto.MaxRate,
                 Price = dto.Price,
                 RatingItems = dto.RatingItems,
                 Title = dto.Title,
                 TitleEN = dto.TitleEN,
-                TotalParticipantsCount = dto.TotalParticipantsCount,
                 Url = dto.Url,
-                Guaranteed = dto.Guaranteed
             };
             if (dto.Comments != null && dto.Comments.Count() > 0)
             {
                 m.Comments = dto.Comments.Select(x => ConvertCommentDTOToEntity(x)).ToList();
             }
+
+            if (dto.Features != null && dto.Features.Count() > 0)
+            {
+                m.Features = dto.Features.Select(x => new ProductFeatures { Title = x.Title, Features = x.Features })
+                    .ToList();
+            }
+
+            if (dto.AvrageRate != null)
+            {
+                m.AvrageRate = dto.AvrageRate;
+            }
+
+            if (dto.Colors != null)
+            {
+                m.Colors = dto.Colors;
+            }
+            if (dto.MaxRate != null)
+            {
+                m.MaxRate = dto.MaxRate;
+            }
+            if (dto.Guaranteed != null)
+            {
+                m.Guaranteed = dto.Guaranteed;
+            }
+            if (dto.TotalParticipantsCount != null)
+            {
+                m.TotalParticipantsCount = dto.TotalParticipantsCount;
+            }
+
+
+
+
             return m;
         }
 

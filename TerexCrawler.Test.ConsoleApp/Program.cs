@@ -8,17 +8,23 @@ using System.Collections.Generic;
 using TerexCrawler.Services.Digikala;
 using TerexCrawler.Models.Interfaces;
 using System.Text.Unicode;
+using System.Threading;
+using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Builders;
 using TerexCrawler.Models.DTO.Page;
 using Newtonsoft.Json;
 using TerexCrawler.DataLayer.Context;
 using TerexCrawler.Models.DTO.Digikala;
+using TerexCrawler.ProxyServices;
 
 namespace TerexCrawler.Test.ConsoleApp
 {
     class Program
     {
+
+        public static proxy Proxy = new proxy();
         static MongoClient client = new MongoClient("mongodb://localhost");
         static MongoServer server => client.GetServer();
         static MongoDatabase db => server.GetDatabase("Digikala");
@@ -32,8 +38,9 @@ namespace TerexCrawler.Test.ConsoleApp
             Console.WriteLine(p);
         }
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
+
             p("Start !");
             p("Select Method:");
             p("1- Test Digikala SitemapToObject");
@@ -129,7 +136,7 @@ namespace TerexCrawler.Test.ConsoleApp
             {
                 digikala.AddBasePages(dkps);
             }
-            int sss = 5;
+
         }
         private static void digikala_5_GetProduct()
         {
@@ -140,7 +147,7 @@ namespace TerexCrawler.Test.ConsoleApp
                 string url3 = "https://www.digikala.com/product/dkp-676525";
                 string url4 = "https://www.digikala.com/product/dkp-6/";
                 //var page = digikala.GetPage(url2);
-                var s = digikala.GetProduct<DigikalaProductDTO>(url4);
+                var s = digikala.GetProduct<DigikalaProductDTO>(url4, string.Empty);
                 var jjj = JsonConvert.SerializeObject(s);
             }
         }
@@ -159,40 +166,661 @@ namespace TerexCrawler.Test.ConsoleApp
 
         private async static void digikala_7_AddProductToMongo()
         {
-            
+            var digikalaCollection = db.GetCollection<BsonDocument>("DigikalaBasePages");
 
-            
-            MongoCollection<BsonDocument> digikalaCollection = db.GetCollection<BsonDocument>("DigikalaBasePages");
-            var getALl = digikalaCollection.FindAll()
-                .Where(c => c[4] == false && c[5].ToString().Contains("dkp-"))
-                .Take(10) // baraye Load Kamtar
-                .ToList();
-            Console.WriteLine($"list total {getALl.Count}");
 
-            using (IWebsiteCrawler digikala = new DigikalaHelper())
+//
+////            Proxy.GetUntestedProxyListFromTxtFilePath("C:\\proxy\\1.txt");
+//            var proxyList = Proxy.ListFromTxtFilePathToQueue("C:\\proxy\\1.txt");
+            int everyTheard = 500;
+            long counter = 0;
+
+
+
+            async void simpleTheard()
             {
-                long x = 0;
-                foreach (var item in getALl)
+                var getALl = digikalaCollection.FindAll()
+                    .Where(c => c[4] == false && c[5].ToString().Contains("dkp-"))
+                    .Skip(everyTheard - everyTheard)
+                    .Take(everyTheard) // baraye Load Kamtar
+                    .ToList();
+
+
+
+                using (IWebsiteCrawler digikala = new DigikalaHelper())
                 {
-                    string urlAdress = item[5].ToString();
-//                    try
-//                    { 
-                       var tryToGetData = await digikala.GetProduct<DigikalaProductDTO>(urlAdress);
-                       digikala.AddProduct(tryToGetData);
-                       Console.WriteLine(++x);
-//                    }
-//                    catch 
-//                    {
-//                      
-//                    }
+
+                    foreach (var item in getALl)
+                    {
+                        string urlAdress = item[5].ToString();
+                        try
+                        {
+                            var tryToGetData = await digikala.GetProduct<DigikalaProductDTO>(urlAdress , string.Empty  , "https://localhost:44337/api/values");
+                            digikala.AddProduct(tryToGetData);
+
+                            //                    var digikalaCollection = db.GetCollection<BsonDocument>("DigikalaBasePages");
+                            var query = Query.EQ("_id", item[0]);
+                            //                    var user = digikalaCollection.FindOne(query);
+                            var set = Update.Set("Crawled", 1);
+                            digikalaCollection.Update(query, set);
+                            Console.WriteLine(++counter);
+                        }
+                        catch
+                        {
+                            Thread.Sleep(1000);
+                            Console.WriteLine("err");
+                        }
+                    }
+
+
                 }
-//                string url1 = "https://www.digikala.com/product/dkp-313420";
-//                string url2 = "https://www.digikala.com/product/dkp-1675555";
-                //var page = digikala.GetPage(url2);
-//                var s = digikala.GetProduct<DigikalaProductDTO>(url1);
-                //var jjj = JsonConvert.SerializeObject(s);
-                
+
             }
+
+
+
+            async void simpleTheard2()
+            {
+                var getALl = digikalaCollection.FindAll()
+                    .Where(c => c[4] == false && c[5].ToString().Contains("dkp-"))
+                    .Skip(everyTheard)
+                    .Take(everyTheard) // baraye Load Kamtar
+                    .ToList();
+
+
+
+                using (IWebsiteCrawler digikala = new DigikalaHelper())
+                {
+
+                    foreach (var item in getALl)
+                    {
+                        string urlAdress = item[5].ToString();
+                        try
+                        {
+                            IWebsiteCrawler digikala2 = new DigikalaHelper();
+                            var tryToGetData = await digikala2.GetProduct<DigikalaProductDTO>(urlAdress, string.Empty);
+                            digikala.AddProduct(tryToGetData);
+
+                            //                    var digikalaCollection = db.GetCollection<BsonDocument>("DigikalaBasePages");
+                            var query = Query.EQ("_id", item[0]);
+                            //                    var user = digikalaCollection.FindOne(query);
+                            var set = Update.Set("Crawled", 1);
+                            digikalaCollection.Update(query, set);
+                            Console.WriteLine(++counter);
+                        }
+                        catch
+                        {
+                            Thread.Sleep(1000);
+                            Console.WriteLine("err");
+                        }
+                    }
+
+
+                }
+            }
+
+
+
+            async void simpleTheard3()
+            {
+                var getALl = digikalaCollection.FindAll()
+                    .Where(c => c[4] == false && c[5].ToString().Contains("dkp-"))
+                    .Skip(2 * everyTheard)
+                    .Take(everyTheard) // baraye Load Kamtar
+                    .ToList();
+
+
+
+                using (IWebsiteCrawler digikala = new DigikalaHelper())
+                {
+
+                    foreach (var item in getALl)
+                    {
+
+                        string urlAdress = item[5].ToString();
+                        try
+                        {
+                            IWebsiteCrawler digikala2 = new DigikalaHelper();
+                            var tryToGetData = await digikala2.GetProduct<DigikalaProductDTO>(urlAdress, string.Empty);
+                            digikala.AddProduct(tryToGetData);
+
+                            //                    var digikalaCollection = db.GetCollection<BsonDocument>("DigikalaBasePages");
+                            var query = Query.EQ("_id", item[0]);
+                            //                    var user = digikalaCollection.FindOne(query);
+                            var set = Update.Set("Crawled", 1);
+                            digikalaCollection.Update(query, set);
+                            Console.WriteLine(++counter);
+                        }
+                        catch
+                        {
+                            Thread.Sleep(1000);
+                            Console.WriteLine("err");
+                        }
+                    }
+
+
+                }
+            }
+
+
+
+            async void simpleTheard4()
+            {
+                var getALl = digikalaCollection.FindAll()
+                    .Where(c => c[4] == false && c[5].ToString().Contains("dkp-"))
+                    .Skip(3 * everyTheard)
+                    .Take(everyTheard) // baraye Load Kamtar
+                    .ToList();
+
+
+
+                using (IWebsiteCrawler digikala = new DigikalaHelper())
+                {
+
+                    foreach (var item in getALl)
+                    {
+                        string urlAdress = item[5].ToString();
+                        try
+                        {
+                            var tryToGetData = await digikala.GetProduct<DigikalaProductDTO>(urlAdress, string.Empty);
+                            digikala.AddProduct(tryToGetData);
+
+                            //                    var digikalaCollection = db.GetCollection<BsonDocument>("DigikalaBasePages");
+                            var query = Query.EQ("_id", item[0]);
+                            //                    var user = digikalaCollection.FindOne(query);
+                            var set = Update.Set("Crawled", 1);
+                            digikalaCollection.Update(query, set);
+                            Console.WriteLine(++counter);
+                        }
+                        catch
+                        {
+                            Thread.Sleep(1000);
+                            Console.WriteLine("err");
+                        }
+                    }
+
+
+                }
+            }
+
+
+
+
+            async void simpleTheard5()
+            {
+                var getALl = digikalaCollection.FindAll()
+                    .Where(c => c[4] == false && c[5].ToString().Contains("dkp-"))
+                    .Skip(4 * everyTheard)
+                    .Take(everyTheard) // baraye Load Kamtar
+                    .ToList();
+
+
+
+                using (IWebsiteCrawler digikala = new DigikalaHelper())
+                {
+
+                    foreach (var item in getALl)
+                    {
+                        string urlAdress = item[5].ToString();
+                        try
+                        {
+                            var tryToGetData = await digikala.GetProduct<DigikalaProductDTO>(urlAdress, string.Empty);
+                            digikala.AddProduct(tryToGetData);
+
+                            //                    var digikalaCollection = db.GetCollection<BsonDocument>("DigikalaBasePages");
+                            var query = Query.EQ("_id", item[0]);
+                            //                    var user = digikalaCollection.FindOne(query);
+                            var set = Update.Set("Crawled", 1);
+                            digikalaCollection.Update(query, set);
+                            Console.WriteLine(++counter);
+                        }
+                        catch
+                        {
+                            Console.WriteLine("err");
+                        }
+                    }
+
+
+                }
+            }
+
+
+
+            async void simpleTheard6()
+            {
+                var getALl = digikalaCollection.FindAll()
+                    .Where(c => c[4] == false && c[5].ToString().Contains("dkp-"))
+                    .Skip(5 * everyTheard)
+                    .Take(everyTheard) // baraye Load Kamtar
+                    .ToList();
+
+
+
+                using (IWebsiteCrawler digikala = new DigikalaHelper())
+                {
+
+                    foreach (var item in getALl)
+                    {
+                        string urlAdress = item[5].ToString();
+                        try
+                        {
+                            var tryToGetData = await digikala.GetProduct<DigikalaProductDTO>(urlAdress, string.Empty);
+                            digikala.AddProduct(tryToGetData);
+
+                            //                    var digikalaCollection = db.GetCollection<BsonDocument>("DigikalaBasePages");
+                            var query = Query.EQ("_id", item[0]);
+                            //                    var user = digikalaCollection.FindOne(query);
+                            var set = Update.Set("Crawled", 1);
+                            digikalaCollection.Update(query, set);
+                            Console.WriteLine(++counter);
+                        }
+                        catch
+                        {
+                            Console.WriteLine("err");
+                        }
+                    }
+
+
+                }
+            }
+
+
+
+            async void simpleTheard7()
+            {
+                var getALl = digikalaCollection.FindAll()
+                    .Where(c => c[4] == false && c[5].ToString().Contains("dkp-"))
+                    .Skip(6 * everyTheard)
+                    .Take(everyTheard) // baraye Load Kamtar
+                    .ToList();
+
+
+
+                using (IWebsiteCrawler digikala = new DigikalaHelper())
+                {
+
+                    foreach (var item in getALl)
+                    {
+                        string urlAdress = item[5].ToString();
+                        try
+                        {
+                            var tryToGetData = await digikala.GetProduct<DigikalaProductDTO>(urlAdress , string.Empty);
+                            digikala.AddProduct(tryToGetData);
+
+                            //                    var digikalaCollection = db.GetCollection<BsonDocument>("DigikalaBasePages");
+                            var query = Query.EQ("_id", item[0]);
+                            //                    var user = digikalaCollection.FindOne(query);
+                            var set = Update.Set("Crawled", 1);
+                            digikalaCollection.Update(query, set);
+                            Console.WriteLine(++counter);
+                        }
+                        catch
+                        {
+                            Console.WriteLine("err");
+                        }
+                    }
+
+
+                }
+            }
+
+
+
+            async void simpleTheard8()
+            {
+                var getALl = digikalaCollection.FindAll()
+                    .Where(c => c[4] == false && c[5].ToString().Contains("dkp-"))
+                    .Skip(7 * everyTheard)
+                    .Take(everyTheard) // baraye Load Kamtar
+                    .ToList();
+
+
+
+                using (IWebsiteCrawler digikala = new DigikalaHelper())
+                {
+
+                    foreach (var item in getALl)
+                    {
+                        string urlAdress = item[5].ToString();
+                        try
+                        {
+                            var tryToGetData = await digikala.GetProduct<DigikalaProductDTO>(urlAdress , string.Empty);
+                            digikala.AddProduct(tryToGetData);
+
+                            //                    var digikalaCollection = db.GetCollection<BsonDocument>("DigikalaBasePages");
+                            var query = Query.EQ("_id", item[0]);
+                            //                    var user = digikalaCollection.FindOne(query);
+                            var set = Update.Set("Crawled", 1);
+                            digikalaCollection.Update(query, set);
+                            Console.WriteLine(++counter);
+                        }
+                        catch
+                        {
+                            Console.WriteLine("err");
+                        }
+                    }
+
+
+                }
+            }
+
+
+
+            async void simpleTheard9()
+            {
+                var getALl = digikalaCollection.FindAll()
+                    .Where(c => c[4] == false && c[5].ToString().Contains("dkp-"))
+                    .Skip(8 * everyTheard)
+                    .Take(everyTheard) // baraye Load Kamtar
+                    .ToList();
+
+
+
+                using (IWebsiteCrawler digikala = new DigikalaHelper())
+                {
+
+                    foreach (var item in getALl)
+                    {
+                        string urlAdress = item[5].ToString();
+                        try
+                        {
+                            var tryToGetData = await digikala.GetProduct<DigikalaProductDTO>(urlAdress, string.Empty);
+                            digikala.AddProduct(tryToGetData);
+
+                            //                    var digikalaCollection = db.GetCollection<BsonDocument>("DigikalaBasePages");
+                            var query = Query.EQ("_id", item[0]);
+                            //                    var user = digikalaCollection.FindOne(query);
+                            var set = Update.Set("Crawled", 1);
+                            digikalaCollection.Update(query, set);
+                            Console.WriteLine(++counter);
+                        }
+                        catch
+                        {
+                            Console.WriteLine("err");
+                        }
+                    }
+
+
+                }
+            }
+
+
+
+            async void simpleTheard10()
+            {
+                var getALl = digikalaCollection.FindAll()
+                    .Where(c => c[4] == false && c[5].ToString().Contains("dkp-"))
+                    .Skip(9 * everyTheard)
+                    .Take(everyTheard) // baraye Load Kamtar
+                    .ToList();
+
+
+
+                using (IWebsiteCrawler digikala = new DigikalaHelper())
+                {
+
+                    foreach (var item in getALl)
+                    {
+                        string urlAdress = item[5].ToString();
+                        try
+                        {
+                            var tryToGetData = await digikala.GetProduct<DigikalaProductDTO>(urlAdress , string.Empty);
+                            digikala.AddProduct(tryToGetData);
+
+                            //                    var digikalaCollection = db.GetCollection<BsonDocument>("DigikalaBasePages");
+                            var query = Query.EQ("_id", item[0]);
+                            //                    var user = digikalaCollection.FindOne(query);
+                            var set = Update.Set("Crawled", 1);
+                            digikalaCollection.Update(query, set);
+                            Console.WriteLine(++counter);
+                        }
+                        catch
+                        {
+                            Console.WriteLine("err");
+                        }
+                    }
+
+
+                }
+            }
+
+
+
+            async void simpleTheard11()
+            {
+                var getALl = digikalaCollection.FindAll()
+                    .Where(c => c[4] == false && c[5].ToString().Contains("dkp-"))
+                    .Skip(10 * everyTheard)
+                    .Take(everyTheard) // baraye Load Kamtar
+                    .ToList();
+
+
+
+                using (IWebsiteCrawler digikala = new DigikalaHelper())
+                {
+
+                    foreach (var item in getALl)
+                    {
+                        string urlAdress = item[5].ToString();
+                        try
+                        {
+                            var tryToGetData = await digikala.GetProduct<DigikalaProductDTO>(urlAdress , string.Empty);
+                            digikala.AddProduct(tryToGetData);
+
+                            //                    var digikalaCollection = db.GetCollection<BsonDocument>("DigikalaBasePages");
+                            var query = Query.EQ("_id", item[0]);
+                            //                    var user = digikalaCollection.FindOne(query);
+                            var set = Update.Set("Crawled", 1);
+                            digikalaCollection.Update(query, set);
+                            Console.WriteLine(++counter);
+                        }
+                        catch
+                        {
+                            Console.WriteLine("err");
+                        }
+                    }
+
+
+                }
+            }
+
+
+
+            async void simpleTheard12()
+            {
+                var getALl = digikalaCollection.FindAll()
+                    .Where(c => c[4] == false && c[5].ToString().Contains("dkp-"))
+                    .Skip(11 * everyTheard)
+                    .Take(everyTheard) // baraye Load Kamtar
+                    .ToList();
+
+
+
+                using (IWebsiteCrawler digikala = new DigikalaHelper())
+                {
+
+                    foreach (var item in getALl)
+                    {
+                        string urlAdress = item[5].ToString();
+                        try
+                        {
+                            var tryToGetData = await digikala.GetProduct<DigikalaProductDTO>(urlAdress, string.Empty);
+                            digikala.AddProduct(tryToGetData);
+
+                            //                    var digikalaCollection = db.GetCollection<BsonDocument>("DigikalaBasePages");
+                            var query = Query.EQ("_id", item[0]);
+                            //                    var user = digikalaCollection.FindOne(query);
+                            var set = Update.Set("Crawled", 1);
+                            digikalaCollection.Update(query, set);
+                            Console.WriteLine(++counter);
+                        }
+                        catch
+                        {
+                            Console.WriteLine("err");
+                        }
+                    }
+
+
+                }
+            }
+
+
+
+            async void simpleTheard13()
+            {
+                var getALl = digikalaCollection.FindAll()
+                    .Where(c => c[4] == false && c[5].ToString().Contains("dkp-"))
+                    .Skip(12 * everyTheard)
+                    .Take(everyTheard) // baraye Load Kamtar
+                    .ToList();
+
+
+
+                using (IWebsiteCrawler digikala = new DigikalaHelper())
+                {
+
+                    foreach (var item in getALl)
+                    {
+                        string urlAdress = item[5].ToString();
+                        try
+                        {
+                            var tryToGetData = await digikala.GetProduct<DigikalaProductDTO>(urlAdress , string.Empty);
+                            digikala.AddProduct(tryToGetData);
+
+                            //                    var digikalaCollection = db.GetCollection<BsonDocument>("DigikalaBasePages");
+                            var query = Query.EQ("_id", item[0]);
+                            //                    var user = digikalaCollection.FindOne(query);
+                            var set = Update.Set("Crawled", 1);
+                            digikalaCollection.Update(query, set);
+                            Console.WriteLine(++counter);
+                        }
+                        catch
+                        {
+                            Console.WriteLine("err");
+                        }
+                    }
+
+
+                }
+            }
+
+
+
+            async void simpleTheard14()
+            {
+                var getALl = digikalaCollection.FindAll()
+                    .Where(c => c[4] == false && c[5].ToString().Contains("dkp-"))
+                    .Skip(13 * everyTheard)
+                    .Take(everyTheard) // baraye Load Kamtar
+                    .ToList();
+
+
+
+                using (IWebsiteCrawler digikala = new DigikalaHelper())
+                {
+
+                    foreach (var item in getALl)
+                    {
+                        string urlAdress = item[5].ToString();
+                        try
+                        {
+                            var tryToGetData = await digikala.GetProduct<DigikalaProductDTO>(urlAdress , string.Empty);
+                            digikala.AddProduct(tryToGetData);
+
+                            //                    var digikalaCollection = db.GetCollection<BsonDocument>("DigikalaBasePages");
+                            var query = Query.EQ("_id", item[0]);
+                            //                    var user = digikalaCollection.FindOne(query);
+                            var set = Update.Set("Crawled", 1);
+                            digikalaCollection.Update(query, set);
+                            Console.WriteLine(++counter);
+                        }
+                        catch
+                        {
+                            Console.WriteLine("err");
+                        }
+                    }
+
+
+                }
+            }
+
+
+
+            async void simpleTheard15()
+            {
+                var getALl = digikalaCollection.FindAll()
+                    .Where(c => c[4] == false && c[5].ToString().Contains("dkp-"))
+                    .Skip(14 * everyTheard)
+                    .Take(everyTheard) // baraye Load Kamtar
+                    .ToList();
+
+
+
+                using (IWebsiteCrawler digikala = new DigikalaHelper())
+                {
+
+                    foreach (var item in getALl)
+                    {
+                        string urlAdress = item[5].ToString();
+                        try
+                        {
+                            var tryToGetData = await digikala.GetProduct<DigikalaProductDTO>(urlAdress , string.Empty);
+                            digikala.AddProduct(tryToGetData);
+
+                            //                    var digikalaCollection = db.GetCollection<BsonDocument>("DigikalaBasePages");
+                            var query = Query.EQ("_id", item[0]);
+                            //                    var user = digikalaCollection.FindOne(query);
+                            var set = Update.Set("Crawled", 1);
+                            digikalaCollection.Update(query, set);
+                            Console.WriteLine(++counter);
+                        }
+                        catch
+                        {
+                            Console.WriteLine("err");
+                        }
+                    }
+
+
+                }
+            }
+
+
+
+
+
+            Thread thr = new Thread(new ThreadStart(simpleTheard));
+            Thread thr2 = new Thread(new ThreadStart(simpleTheard2));
+            Thread thr3 = new Thread(new ThreadStart(simpleTheard3));
+            Thread thr4 = new Thread(new ThreadStart(simpleTheard4));
+            Thread thr5 = new Thread(new ThreadStart(simpleTheard5));
+            Thread thr6 = new Thread(new ThreadStart(simpleTheard6));
+            Thread thr7 = new Thread(new ThreadStart(simpleTheard7));
+            Thread thr8 = new Thread(new ThreadStart(simpleTheard8));
+            Thread thr9 = new Thread(new ThreadStart(simpleTheard9));
+            Thread thr10 = new Thread(new ThreadStart(simpleTheard10));
+            Thread thr11 = new Thread(new ThreadStart(simpleTheard11));
+            Thread thr12 = new Thread(new ThreadStart(simpleTheard12));
+            Thread thr13 = new Thread(new ThreadStart(simpleTheard13));
+            Thread thr14 = new Thread(new ThreadStart(simpleTheard14));
+            Thread thr15 = new Thread(new ThreadStart(simpleTheard15));
+            thr.Start();
+//            thr2.Start();
+//            thr3.Start();
+//            thr4.Start();
+//            thr5.Start();
+//            thr6.Start();
+//            thr7.Start();
+//            thr8.Start();
+//            thr9.Start();
+//            thr10.Start();
+//            thr11.Start();
+//            thr12.Start();
+//            thr13.Start();
+//            thr14.Start();
+//            thr15.Start();
+
+
+
         }
     }
 }

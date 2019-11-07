@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -12,6 +12,7 @@
   <ItemGroup>
     <ProjectReference Include="..\TerexCrawler.Common\TerexCrawler.Common.csproj" />
     <ProjectReference Include="..\TerexCrawler.Models\TerexCrawler.Models.csproj" />
+    <ProjectReference Include="..\TerexCrawler.ProxyServices\TerexCrawler.ProxyServices.csproj" />
     <ProjectReference Include="..\TerexCrawler.Services\TerexCrawler.Services.csproj" />
   </ItemGroup>
 

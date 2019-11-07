@@ -34,12 +34,17 @@ namespace TerexCrawler.HttpHelper
             return result;
         }
 
-        public HttpResultResponseDTO GetHttp(string url, bool changeAgent = false, string[] agents = null)
+        public HttpResultResponseDTO GetHttp(string url, string proxy, bool changeAgent = false, string[] agents = null)
         {
             HttpResultResponseDTO result = new HttpResultResponseDTO();
             try
             {
                 IRestClient restClient = new RestClient(url);
+                if (!string.IsNullOrEmpty(proxy))
+                {
+                    restClient.Proxy = new WebProxy(proxy);
+                   
+                }
                 var request = new RestRequest(Method.GET);
 
                 if (changeAgent)
