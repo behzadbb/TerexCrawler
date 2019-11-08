@@ -23,6 +23,7 @@ namespace TerexCrawler.Models.DTO.Digikala
         public List<ProductFeaturesDTO> Features { get; set; }
         public List<string[]> RatingItems { get; set; }
         public List<CommentDTO> Comments { get; set; }
+        public string BaseID { get; set; }
     }
     public class ProductFeaturesDTO
     {

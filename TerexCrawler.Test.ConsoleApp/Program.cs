@@ -18,6 +18,7 @@ using MongoDB.Driver.Builders;
 using TerexCrawler.Models;
 using TerexCrawler.Models.Enums;
 using TerexCrawler.Services;
+using System.Threading.Tasks;
 
 namespace TerexCrawler.Test.ConsoleApp
 {
@@ -26,6 +27,7 @@ namespace TerexCrawler.Test.ConsoleApp
         static MongoClient client = new MongoClient("mongodb://localhost");
         static MongoServer server => client.GetServer();
         static MongoDatabase db => server.GetDatabase("Digikala");
+        private static List<DigikalaProductDTO> digikalaProducts = new List<DigikalaProductDTO>();
 
         public Program()
         {
@@ -215,21 +217,17 @@ namespace TerexCrawler.Test.ConsoleApp
                         using (IWebsiteCrawler digikala = new DigikalaHelper())
                         {
                             product = await digikala.GetProduct<DigikalaProductDTO>(item.Loc);
+                            product.BaseID = item._id.ToString();
                         }
                     }
                     var _t = Math.Round((DateTime.Now - _s).TotalSeconds, 2);
                     if (product != null)
                     {
-                        using (IWebsiteCrawler digikala2 = new DigikalaHelper())
-                        {
-                            digikala2.AddProduct(product);
-                            digikala2.CrawledProduct(item._id);
-                            Console.WriteLine($"{++x} = DKP-{product.DKP} , Comment={(product.Comments != null ? product.Comments.Count() + "+  " : "0  ")} ,  in {_t} Secs ");
-                        }
+                        AddProduct(product);
+                        Console.WriteLine($"{++x} = DKP-{product.DKP} , Comment={(product.Comments != null ? product.Comments.Count() + "+  " : "0  ")} ,  in {_t} Secs ");
                         if (x % 5 == 0)
                         {
                             Console.WriteLine("--------------");
-                            System.Threading.Thread.Sleep(200);
                         }
                         if (x % 100 == 0)
                         {
@@ -269,5 +267,20 @@ namespace TerexCrawler.Test.ConsoleApp
                 }
             }
         }
+
+        private async static void AddProduct(DigikalaProductDTO digikalaProduct)
+        {
+            digikalaProducts.Add(digikalaProduct);
+            if (digikalaProducts.Count() >= 3)
+            {
+                using (IWebsiteCrawler digikala2 = new DigikalaHelper())
+                {
+                    digikala2.AddProducts(digikalaProducts);
+                    digikala2.CrawledProducts(digikalaProducts.Select(x=>x.BaseID).ToList());
+                    digikalaProducts.Clear();
+                }
+            }
+        }
+
     }
 }

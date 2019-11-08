@@ -90,14 +90,14 @@ namespace TerexCrawler.DataLayer.Repository
             digikalaBasePages.InsertBatch(models);
         }
 
-        public void AddDgikalaProduct(DigikalaProduct dto)
+        public void AddDigikalaProduct(DigikalaProduct dto)
         {
             digikalaProducts.Insert(dto);
         }
 
-        public void AddDgikalaProducts(List<DigikalaProduct> dtos)
+        public void AddDigikalaProducts(List<DigikalaProduct> dtos)
         {
-            digikalaProducts.Insert(dtos);
+            digikalaProducts.InsertBatch(dtos);
         }
 
         public List<DigikalaPageBaseDTO> GetAllBasePage()
@@ -128,6 +128,16 @@ namespace TerexCrawler.DataLayer.Repository
             var update = Update<DigikalaBasePage>.Set(p => p.CrawlDate, DateTime.Now).Set(p => p.Crawled, true);
 
             digikalaBasePages.Update(query, update);
+        }
+        public void CrwaledProducts(List<string> productIDs)
+        {
+            var productObjectIDs = productIDs.Select(id => ObjectId.Parse(id));
+            //var filter = Query<DigikalaBasePage>.In(x => x._id, productObjectIDs);
+            //var filter = digikalaBasePages.Find(x => x._id , productIDs).ToEnumerable();
+            var filterDef = new QueryBuilder<DigikalaBasePage>();
+            var filter = filterDef.In(x => x._id, productObjectIDs);
+            var update = Update<DigikalaBasePage>.Set(p => p.CrawlDate, DateTime.Now).Set(p => p.Crawled, true);
+            digikalaBasePages.Update(filter, update);
         }
     }
 }

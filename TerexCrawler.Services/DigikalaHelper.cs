@@ -103,6 +103,7 @@ namespace TerexCrawler.Services.Digikala
             {
                 LogDTO log = new LogDTO()
                 {
+                    _id = ObjectId.GenerateNewId().ToString(),
                     DateTime = DateTime.Now,
                     Description = res.ExeptionErrorMessage,
                     ProjectId = (int)ProjectNames.HttpHelper,
@@ -602,10 +603,16 @@ namespace TerexCrawler.Services.Digikala
         {
             using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
             {
-                db.AddDgikalaProduct(ConvertProductDTOToEntity(dto));
+                db.AddDigikalaProduct(ConvertProductDTOToEntity(dto));
             }
         }
-
+        public void AddProducts(List<DigikalaProductDTO> dtos)
+        {
+            using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
+            {
+                db.AddDigikalaProducts(dtos.Select(x => ConvertProductDTOToEntity(x)).ToList());
+            }
+        }
         public List<DigikalaPageBaseDTO> GetAllBasePage<T>()
         {
             List<DigikalaPageBaseDTO> dtos = new List<DigikalaPageBaseDTO>();
@@ -621,6 +628,13 @@ namespace TerexCrawler.Services.Digikala
             using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
             {
                 db.CrwaledProduct(id);
+            }
+        }
+        public void CrawledProducts(List<string> id)
+        {
+            using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
+            {
+                db.CrwaledProducts(id);
             }
         }
         private DigikalaProduct ConvertProductDTOToEntity(DigikalaProductDTO dto)
@@ -694,5 +708,6 @@ namespace TerexCrawler.Services.Digikala
 
             return m;
         }
+
     }
 }
