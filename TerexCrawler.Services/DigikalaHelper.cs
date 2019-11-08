@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using HtmlAgilityPack;
+using MongoDB.Bson;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
@@ -78,6 +79,30 @@ namespace TerexCrawler.Services.Digikala
             {
                 LogDTO log = new LogDTO()
                 {
+                    _id = ObjectId.GenerateNewId().ToString(),
+                    DateTime = DateTime.Now,
+                    Description = res.ExeptionErrorMessage,
+                    ProjectId = (int)ProjectNames.HttpHelper,
+                    Url = url,
+                    MethodName = "Digikala - GetPage",
+                    Title = "Get HTML Error"
+                };
+                Logger.AddLog(log);
+                return string.Empty;
+            }
+        }
+        public async Task<string> GetPage1(string url)
+        {
+            IHttpClientHelper client1 = new RestSharpHelper();
+            var res = client1.GetHttp(url, true, user_agent);
+            if (res.Success)
+            {
+                return res.Content;
+            }
+            else
+            {
+                LogDTO log = new LogDTO()
+                {
                     DateTime = DateTime.Now,
                     Description = res.ExeptionErrorMessage,
                     ProjectId = (int)ProjectNames.HttpHelper,
@@ -106,7 +131,23 @@ namespace TerexCrawler.Services.Digikala
 
                 for (int i = 1; i <= count; i++)
                 {
-                    var _cmPage = GetPage(GetReviewListUrl(DKP, i)).Result;
+                    string reviewListUrl = GetReviewListUrl(DKP, i);
+                    string _cmPage = GetPage(reviewListUrl).Result;
+                    if (string.IsNullOrEmpty(_cmPage))
+                    {
+                        System.Threading.Thread.Sleep(1500);
+                        _cmPage = GetPage1(url).Result;
+                    }
+                    if (string.IsNullOrEmpty(_cmPage))
+                    {
+                        System.Threading.Thread.Sleep(4000);
+                        _cmPage = GetPage(url).Result;
+                    }
+                    if (string.IsNullOrEmpty(_cmPage))
+                    {
+                        throw new ArgumentException($"DKP: {DKP} , index: {i} , URL: {reviewListUrl} , Content = Null", "Comment");
+                    }
+
                     var _cmDoc = new HtmlDocument();
                     _cmDoc.LoadHtml(_cmPage);
 
@@ -210,6 +251,10 @@ namespace TerexCrawler.Services.Digikala
                         cm.CreateDate = DateTime.UtcNow;
                         comments.Add(cm);
                     }
+                    if (i % 5 == 0)
+                    {
+                        System.Threading.Thread.Sleep(30);
+                    }
                 }
                 return comments;
             }
@@ -256,140 +301,174 @@ namespace TerexCrawler.Services.Digikala
 
         public async Task<T> GetProduct<T>(string url)
         {
-            var content = await GetPage(url);
-            DigikalaProductDTO dto = new DigikalaProductDTO();
-            if (string.IsNullOrEmpty(content))
+            try
             {
-                return (T)Convert.ChangeType(null, typeof(DigikalaProductDTO));
-            }
-            dto.Url = url;
-            dto.DKP = getDKPWithUrl(url);
+                string content = await GetPage(url);
+                DigikalaProductDTO dto = new DigikalaProductDTO();
 
-            var doc = new HtmlDocument();
-            doc.LoadHtml(content);
-            var body = doc.DocumentNode.SelectSingleNode("//body");
-            var main = body.SelectSingleNode("//main");
-
-            #region Container
-            var divContainer = main.SelectSingleNode("//div[@id='content']//div[@class='o-page c-product-page']//div[@class='container']");
-            var _cats = divContainer.SelectNodes("//div[@class='c-product__nav-container']//nav//ul//li[@property='itemListElement']");
-            dto.Categories = _cats.Any() && _cats.Count() > 0 ? _cats.Select(x => x.InnerText).ToList() : new List<string>();
-            ////
-            dto.Title = divContainer.SelectNodes("//div[@class='c-product__nav-container']//nav//ul//li//span[@property='name']").Last().InnerText;
-
-            var article_info = divContainer.SelectSingleNode("//article//section[@class='c-product__info']");
-            var title_fa_1 = article_info.SelectSingleNode("//div[@class='c-product__headline']//h1[@class='c-product__title']").ChildNodes["#Text"].InnerText.Replace("\n", "").Trim();
-            dto.TitleEN = article_info.SelectSingleNode("//div[@class='c-product__headline']//h1[@class='c-product__title']//span[@class='c-product__title-en']").InnerHtml.Replace("\n", "").Trim();
-            var product__guaranteed = article_info.SelectSingleNode("//div[@class='c-product__headline']//div[@class='c-product__guaranteed']//span");
-            if (product__guaranteed != null)
-            {
-                using (HtmlHelper html = new HtmlHelper())
+                if (string.IsNullOrEmpty(content))
                 {
-                    dto.Guaranteed = short.Parse(html.NumberEN(product__guaranteed.InnerText.Replace("\n", "").Replace("  ", "").Trim().Replace("بیش از", "").Replace("نفر از خریداران این محصول را پیشنهاد داده‌اند", "").Trim()));
+                    System.Threading.Thread.Sleep(1500);
+                    content = await GetPage1(url);
+                }
+                if (string.IsNullOrEmpty(content))
+                {
+                    System.Threading.Thread.Sleep(5000);
+                    content = await GetPage(url);
                 }
 
-            }
+                if (string.IsNullOrEmpty(content))
+                    return (T)Convert.ChangeType(null, typeof(DigikalaProductDTO));
 
-            var productWrapper = article_info.SelectSingleNode("//div[@class='c-product__attributes js-product-attributes']//div[@class='c-product__config']//div[@class='c-product__config-wrapper']");
-            string brandElementQuery1 = "//div[@class='c-product__directory']//ul//li//a[@class='btn-link-spoiler product-brand-title']";
-            string brandElementQuery2 = "//div[@class='c-product__directory']//ul//li//span[@class='product-brand-title']";
-            dto.Brand = productWrapper.SelectSingleNode(brandElementQuery1) != null ? productWrapper.SelectSingleNode(brandElementQuery1).InnerText : (productWrapper.SelectSingleNode(brandElementQuery2) != null ? productWrapper.SelectSingleNode(brandElementQuery2).InnerText : "");
-            dto.Category = productWrapper.SelectSingleNode("//div[@class='c-product__directory']//ul//li//a[@class='btn-link-spoiler']").InnerText;
-            List<string> colors = new List<string>();
-            bool isColors = productWrapper.SelectNodes("//div[@class='c-product__variants']") != null;
-            if (isColors)
-            {
-                colors.AddRange(productWrapper.SelectNodes("//div[@class='c-product__variants']//ul//li").Select(x => x.InnerText).ToList());
-                dto.Colors = colors;
-            }
+                dto.Url = url;
+                dto.DKP = getDKPWithUrl(url);
 
-            if (productWrapper.SelectNodes("//div[@class='c-product__params js-is-expandable']//ul//li") != null)
-            {
-                var feature_list = productWrapper.SelectNodes("//div[@class='c-product__params js-is-expandable']//ul//li").Select(x => new { name = x.FirstChild.InnerText.Replace(":", "").Trim(), val = x.LastChild.InnerText.Replace("\n", "").Trim() }).ToList();
-            }
+                var doc = new HtmlDocument();
+                doc.LoadHtml(content);
+                var body = doc.DocumentNode.SelectSingleNode("//body");
+                var main = body.SelectSingleNode("//main");
 
-            var c_box = article_info.SelectSingleNode("//div[@class='c-product__attributes js-product-attributes']//div[@class='c-product__summary js-product-summary']//div[@class='c-box']");
-            string priceOffQuery = "//div[@class='c-product__seller-info js-seller-info']" +
-                "//div[@class='js-seller-info-changable c-product__seller-box']" +
-                "//div[@class='c-product__seller-row c-product__seller-row--price']" +
-                "//div[@class='c-product__seller-price-real']";
-            string priceQuery = "//div[@class='c-product__seller-info js-seller-info']" +
-                "//div[@class='js-seller-info-changable c-product__seller-box']" +
-                "//div[@class='c-product__seller-row c-product__seller-row--price']" +
-                "//div[@class='c-product__seller-price-prev js-rrp-price u-hidden']";
-            var priceElement = article_info.SelectSingleNode(priceQuery);
-            var isExistPrice = priceElement != null;
-            if (isExistPrice && priceElement.InnerText.Trim() != "")
-            {
-                using (HtmlHelper html = new HtmlHelper())
+                #region Container
+                var divContainer = main.SelectSingleNode("//div[@id='content']//div[@class='o-page c-product-page']//div[@class='container']");
+                var _cats = divContainer.SelectNodes("//div[@class='c-product__nav-container']//nav//ul//li[@property='itemListElement']");
+                dto.Categories = _cats.Any() && _cats.Count() > 0 ? _cats.Select(x => x.InnerText).ToList() : new List<string>();
+                ////
+                dto.Title = divContainer.SelectNodes("//div[@class='c-product__nav-container']//nav//ul//li//span[@property='name']").Last().InnerText;
+
+                var article_info = divContainer.SelectSingleNode("//article//section[@class='c-product__info']");
+                var title_fa_1 = article_info.SelectSingleNode("//div[@class='c-product__headline']//h1[@class='c-product__title']").ChildNodes["#Text"].InnerText.Replace("\n", "").Trim();
+                var enTitle = article_info.SelectSingleNode("//div[@class='c-product__headline']//h1[@class='c-product__title']//span[@class='c-product__title-en']");
+                if (enTitle != null)
                 {
-                    dto.Price = Int64.Parse(html.NumberEN(article_info.SelectSingleNode(priceQuery).InnerText.Replace("\n", "").Replace(",", "").Trim()));
+                    dto.TitleEN = enTitle.InnerHtml.Replace("\n", "").Trim();
                 }
-            }
-            else
-            {
-                var priceOff = article_info.SelectSingleNode(priceOffQuery);
-                if (priceOff != null)
+
+                var product__guaranteed = article_info.SelectSingleNode("//div[@class='c-product__headline']//div[@class='c-product__guaranteed']//span");
+                if (product__guaranteed != null)
                 {
                     using (HtmlHelper html = new HtmlHelper())
                     {
-                        dto.Price = Int64.Parse(html.NumberEN(priceOff.InnerText
-                            .Replace("\n", "").Replace("\r", "").Replace(",", "").Replace("تومان", "").Replace("  ", " ").Trim()));
+                        dto.Guaranteed = short.Parse(html.NumberEN(product__guaranteed.InnerText.Replace("\n", "").Replace("  ", "").Trim().Replace("بیش از", "").Replace("نفر از خریداران این محصول را پیشنهاد داده‌اند", "").Trim()));
                     }
+
                 }
 
-            }
-            #endregion
-
-            #region Tabs
-            string tabsQuery =
-                "//div[@id='tabs']" +
-                "//div[@class='c-box c-box--tabs p-tabs__content']" +
-                "//div[@class='c-params']" +
-                "//article" +
-                "//section";
-            if (main.SelectNodes(tabsQuery) != null)
-            {
-                var tabSections = main.SelectNodes(tabsQuery).ToArray();
-                List<ProductFeaturesDTO> features = new List<ProductFeaturesDTO>();
-                foreach (var feat in tabSections)
+                var productWrapper = article_info.SelectSingleNode("//div[@class='c-product__attributes js-product-attributes']//div[@class='c-product__config']//div[@class='c-product__config-wrapper']");
+                string brandElementQuery1 = "//div[@class='c-product__directory']//ul//li//a[@class='btn-link-spoiler product-brand-title']";
+                string brandElementQuery2 = "//div[@class='c-product__directory']//ul//li//span[@class='product-brand-title']";
+                dto.Brand = productWrapper.SelectSingleNode(brandElementQuery1) != null ? productWrapper.SelectSingleNode(brandElementQuery1).InnerText : (productWrapper.SelectSingleNode(brandElementQuery2) != null ? productWrapper.SelectSingleNode(brandElementQuery2).InnerText : "");
+                dto.Category = productWrapper.SelectSingleNode("//div[@class='c-product__directory']//ul//li//a[@class='btn-link-spoiler']").InnerText;
+                List<string> colors = new List<string>();
+                bool isColors = productWrapper.SelectNodes("//div[@class='c-product__variants']") != null;
+                if (isColors)
                 {
-                    ProductFeaturesDTO p = new ProductFeaturesDTO();
-                    p.Title = feat.ChildNodes[0].InnerText;
-                    var _features = feat.ChildNodes[1].ChildNodes
-                        .Select(x => new string[]
+                    colors.AddRange(productWrapper.SelectNodes("//div[@class='c-product__variants']//ul//li").Select(x => x.InnerText).ToList());
+                    dto.Colors = colors;
+                }
+
+                if (productWrapper.SelectNodes("//div[@class='c-product__params js-is-expandable']//ul//li") != null)
+                {
+                    var feature_list = productWrapper.SelectNodes("//div[@class='c-product__params js-is-expandable']//ul//li").Select(x => new { name = x.FirstChild.InnerText.Replace(":", "").Trim(), val = x.LastChild.InnerText.Replace("\n", "").Trim() }).ToList();
+                }
+
+                var c_box = article_info.SelectSingleNode("//div[@class='c-product__attributes js-product-attributes']//div[@class='c-product__summary js-product-summary']//div[@class='c-box']");
+                string priceOffQuery = "//div[@class='c-product__seller-info js-seller-info']" +
+                    "//div[@class='js-seller-info-changable c-product__seller-box']" +
+                    "//div[@class='c-product__seller-row c-product__seller-row--price']" +
+                    "//div[@class='c-product__seller-price-real']";
+                string priceQuery = "//div[@class='c-product__seller-info js-seller-info']" +
+                    "//div[@class='js-seller-info-changable c-product__seller-box']" +
+                    "//div[@class='c-product__seller-row c-product__seller-row--price']" +
+                    "//div[@class='c-product__seller-price-prev js-rrp-price u-hidden']";
+                var priceElement = article_info.SelectSingleNode(priceQuery);
+                var isExistPrice = priceElement != null;
+                if (isExistPrice && priceElement.InnerText.Trim() != "")
+                {
+                    using (HtmlHelper html = new HtmlHelper())
+                    {
+                        dto.Price = Int64.Parse(html.NumberEN(article_info.SelectSingleNode(priceQuery).InnerText.Replace("\n", "").Replace(",", "").Trim()));
+                    }
+                }
+                else
+                {
+                    var priceOff = article_info.SelectSingleNode(priceOffQuery);
+                    if (priceOff != null)
+                    {
+                        using (HtmlHelper html = new HtmlHelper())
                         {
+                            dto.Price = Int64.Parse(html.NumberEN(priceOff.InnerText
+                                .Replace("\n", "").Replace("\r", "").Replace(",", "").Replace("تومان", "").Replace("  ", " ").Trim()));
+                        }
+                    }
+
+                }
+                #endregion
+
+                #region Tabs
+                string tabsQuery =
+                    "//div[@id='tabs']" +
+                    "//div[@class='c-box c-box--tabs p-tabs__content']" +
+                    "//div[@class='c-params']" +
+                    "//article" +
+                    "//section";
+                if (main.SelectNodes(tabsQuery) != null)
+                {
+                    var tabSections = main.SelectNodes(tabsQuery).ToArray();
+                    List<ProductFeaturesDTO> features = new List<ProductFeaturesDTO>();
+                    foreach (var feat in tabSections)
+                    {
+                        ProductFeaturesDTO p = new ProductFeaturesDTO();
+                        p.Title = feat.ChildNodes[0].InnerText;
+                        var _features = feat.ChildNodes[1].ChildNodes
+                            .Select(x => new string[]
+                            {
                         GetFeatureKey(x.ChildNodes[0].InnerHtml),
                         x.ChildNodes[1].InnerText.Replace("\n", "").Replace("          ", " ").Replace("     ", " ").Replace("     ", " ").Replace("  ", " ").Replace("  ", " ").Trim(),
-                        }).ToArray();
-                    int _lastFillNumber = 0;
-                    int _TotalCount = _features.Count(x => x[0] != "");
-                    string[][] _tempFeature = new string[_features.Count()][];
-                    for (int i = 0; i < _features.Length; i++)
-                    {
-                        string currentKey = _features[i][0];
-                        if (!string.IsNullOrEmpty(currentKey) || i == 0)
+                            }).ToArray();
+                        int _lastFillNumber = 0;
+                        int _TotalCount = _features.Count(x => x[0] != "");
+                        string[][] _tempFeature = new string[_features.Count()][];
+                        for (int i = 0; i < _features.Length; i++)
                         {
-                            _lastFillNumber = i;
-                            _tempFeature[i] = new string[] { currentKey, _features[i][1] };
+                            string currentKey = _features[i][0];
+                            if (!string.IsNullOrEmpty(currentKey) || i == 0)
+                            {
+                                _lastFillNumber = i;
+                                _tempFeature[i] = new string[] { currentKey, _features[i][1] };
+                            }
+                            else
+                            {
+                                List<string> _featuePlus = _tempFeature[_lastFillNumber].ToList();
+                                _featuePlus.Add(_features[i][1]);
+                                _tempFeature[_lastFillNumber] = _featuePlus.ToArray();
+                            }
                         }
-                        else
-                        {
-                            List<string> _featuePlus = _tempFeature[_lastFillNumber].ToList();
-                            _featuePlus.Add(_features[i][1]);
-                            _tempFeature[_lastFillNumber] = _featuePlus.ToArray();
-                        }
+                        p.Features = _tempFeature.Where(x => x != null).ToList();
+                        features.Add(p);
                     }
-                    p.Features = _tempFeature.Where(x => x != null).ToList();
-                    features.Add(p);
+                    dto.Features = features;
                 }
-                dto.Features = features;
-            }
-            #endregion
+                #endregion
 
-            dto = commentConcat(dto, url);
-            //var jjj = JsonConvert.SerializeObject(dto);
-            return (T)Convert.ChangeType(dto, typeof(DigikalaProductDTO));
+                dto = commentConcat(dto, url);
+                //var jjj = JsonConvert.SerializeObject(dto);
+                return (T)Convert.ChangeType(dto, typeof(DigikalaProductDTO));
+            }
+            catch (Exception ex)
+            {
+                LogDTO log = new LogDTO()
+                {
+                    _id = ObjectId.GenerateNewId().ToString(),
+                    DateTime = DateTime.Now,
+                    Description = ex.Message.ToString(),
+                    ProjectId = (int)ProjectNames.Services,
+                    Url = url,
+                    MethodName = "Digikala - Digikala Helper",
+                    Title = "GetProduct"
+                };
+                Logger.AddLog(log);
+                return (T)Convert.ChangeType(null, typeof(DigikalaProductDTO));
+            }
         }
 
         public void AddBasePages(List<B5_Url> dtos)

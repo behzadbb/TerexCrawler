@@ -31,8 +31,13 @@ namespace TerexCrawler.Services
         {
             try
             {
-                Log log = mapper.Map<Log>(dto);
-                log._id = ObjectId.GenerateNewId();
+                Log log = new Log();
+                log._id = string.IsNullOrEmpty(dto._id) ? ObjectId.GenerateNewId() : ObjectId.Parse(dto._id);
+                log.Url = dto.Url;
+                log.DateTime = dto.DateTime;
+                log.Description = dto.Description;
+                log.MethodName = dto.Description;
+                log.Title = dto.Title;
                 logs.Insert(dto);
             }
             catch (Exception ex)

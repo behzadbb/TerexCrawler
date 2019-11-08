@@ -8,6 +8,7 @@ namespace TerexCrawler.Models.Enums
     {
         Common = 1,
         HttpHelper = 2,
-        Services = 3
+        Services = 3,
+        Console = 4
     }
 }

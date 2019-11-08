@@ -102,9 +102,9 @@ namespace TerexCrawler.DataLayer.Repository
 
         public List<DigikalaPageBaseDTO> GetAllBasePage()
         {
-            var s = digikalaBasePages.FindAll()
+            var digikalaBases = digikalaBasePages.FindAll()
                         .Where(p => !p.Crawled && p.Loc.Contains("dkp-")).Take(40000);
-            List<DigikalaPageBaseDTO> sas = s.Select(
+            List<DigikalaPageBaseDTO> sas = digikalaBases.Select(
                     x => new DigikalaPageBaseDTO
                     {
                         _id = x._id.ToString(),

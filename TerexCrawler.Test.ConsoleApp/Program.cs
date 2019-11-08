@@ -15,6 +15,9 @@ using Newtonsoft.Json;
 using TerexCrawler.DataLayer.Context;
 using TerexCrawler.Models.DTO.Digikala;
 using MongoDB.Driver.Builders;
+using TerexCrawler.Models;
+using TerexCrawler.Models.Enums;
+using TerexCrawler.Services;
 
 namespace TerexCrawler.Test.ConsoleApp
 {
@@ -156,16 +159,16 @@ namespace TerexCrawler.Test.ConsoleApp
             }
             int sss = 5;
         }
-        private static void digikala_5_GetProduct()
+        private async static void digikala_5_GetProduct()
         {
             using (IWebsiteCrawler digikala = new DigikalaHelper())
             {
                 string url1 = "https://www.digikala.com/product/dkp-313420";
                 string url2 = "https://www.digikala.com/product/dkp-1675555";
                 string url3 = "https://www.digikala.com/product/dkp-676525";
-                string url4 = "https://www.digikala.com/product/dkp-6/";
+                string url4 = "https://www.digikala.com/product/dkp-10778/";
                 //var page = digikala.GetPage(url2);
-                var s = digikala.GetProduct<DigikalaProductDTO>(url4);
+                var s = await digikala.GetProduct<DigikalaProductDTO>(url4);
                 var jjj = JsonConvert.SerializeObject(s);
             }
         }
@@ -184,35 +187,85 @@ namespace TerexCrawler.Test.ConsoleApp
 
         private async static void digikala_7_AddProductToMongo()
         {
+            List<DigikalaPageBaseDTO> getAll = new List<DigikalaPageBaseDTO>();
             using (IWebsiteCrawler digikala = new DigikalaHelper())
             {
-                var getAll = digikala.GetAllBasePage<List<DigikalaPageBaseDTO>>();
+                getAll = digikala.GetAllBasePage<List<DigikalaPageBaseDTO>>();
                 Console.WriteLine($"list total {getAll.Count}");
-                long x = 0;
-                foreach (var item in getAll)
+            }
+
+            long x = 0;
+            short errorCount = 0;
+            foreach (var item in getAll)
+            {
+                try
                 {
-                    try
+                    var _s = DateTime.Now;
+                    DigikalaProductDTO product = null;
+                    using (IWebsiteCrawler digikala = new DigikalaHelper())
                     {
-                        var _s = DateTime.Now;
-                        var product = await digikala.GetProduct<DigikalaProductDTO>(item.Loc);
-                        var _t = Math.Round((DateTime.Now - _s).TotalSeconds, 2);
-                        if (product != null)
-                        {
-                            digikala.AddProduct(product);
-                            digikala.CrawledProduct(item._id);
-                            Console.WriteLine($"{++x} = DKP-{product.DKP} , Comment={(product.Comments != null ? product.Comments.Count() : 0)} ,  in {_t} Secs ");
-                        }
-                        else
-                        {
-                            int dkp = getDKPWithUrl(item.Loc);
-                            Console.WriteLine($"{++x} = DKP-{dkp} , ** Error **");
-                        }
+                        product = await digikala.GetProduct<DigikalaProductDTO>(item.Loc);
                     }
-                    catch (Exception ex)
+
+                    if (product == null)
                     {
                         int dkp = getDKPWithUrl(item.Loc);
-                        Console.WriteLine($"{++x} = DKP-{dkp} , ** Error **");
+                        Console.WriteLine($"Try Again , DKP - {dkp} Wait: {6000} Secs");
+                        System.Threading.Thread.Sleep(6000 * errorCount);
+                        using (IWebsiteCrawler digikala = new DigikalaHelper())
+                        {
+                            product = await digikala.GetProduct<DigikalaProductDTO>(item.Loc);
+                        }
                     }
+                    var _t = Math.Round((DateTime.Now - _s).TotalSeconds, 2);
+                    if (product != null)
+                    {
+                        using (IWebsiteCrawler digikala2 = new DigikalaHelper())
+                        {
+                            digikala2.AddProduct(product);
+                            digikala2.CrawledProduct(item._id);
+                            Console.WriteLine($"{++x} = DKP-{product.DKP} , Comment={(product.Comments != null ? product.Comments.Count() + "+  " : "0  ")} ,  in {_t} Secs ");
+                        }
+                        if (x % 5 == 0)
+                        {
+                            Console.WriteLine("--------------");
+                            System.Threading.Thread.Sleep(200);
+                        }
+                        if (x % 100 == 0)
+                        {
+                            System.Threading.Thread.Sleep(5000);
+                            Console.Clear();
+                        }
+                        errorCount = 0;
+                    }
+                    else
+                    {
+                        errorCount += 1;
+                        int dkp = getDKPWithUrl(item.Loc);
+                        Console.WriteLine($"{++x} = DKP-{dkp} , Wait: {6000 * errorCount} Secs ,  *** Error *** ,");
+                        System.Threading.Thread.Sleep(6000 * errorCount);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    errorCount += 1;
+                    int dkp = getDKPWithUrl(item.Loc);
+                    Console.WriteLine($"{++x} = DKP-{dkp} , Wait: {6000 * errorCount} Secs , *** Error ***   Problem");
+                    using (ILoger Logger = new MongoDBLoggerHelper())
+                    {
+                        LogDTO log = new LogDTO()
+                        {
+                            _id = ObjectId.GenerateNewId().ToString(),
+                            DateTime = DateTime.Now,
+                            Description = ex.Message.ToString(),
+                            ProjectId = (int)ProjectNames.Console,
+                            Url = item.Loc,
+                            MethodName = "Digikala - Console App",
+                            Title = "Get Product Error - " + dkp
+                        };
+                        Logger.AddLog(log);
+                    }
+                    System.Threading.Thread.Sleep(6000 * errorCount);
                 }
             }
         }
