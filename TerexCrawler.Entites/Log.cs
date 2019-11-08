@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
@@ -7,8 +9,8 @@ namespace TerexCrawler.Entites
 {
     public class Log
     {
-        [Key]
-        public int Id { get; set; }
+        [BsonId]
+        public ObjectId _id { get; set; }
 
         [Required]
         public int ProjectId { get; set; }

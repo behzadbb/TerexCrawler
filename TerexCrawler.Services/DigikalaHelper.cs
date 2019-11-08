@@ -41,6 +41,7 @@ namespace TerexCrawler.Services.Digikala
         public void Dispose()
         {
             client.Dispose();
+            Logger.Dispose();
             Dispose(true);
         }
         #endregion
@@ -57,8 +58,8 @@ namespace TerexCrawler.Services.Digikala
         private const string sitename = "Digikala";
         public string WebsiteName => sitename;
         public string WebsiteUrl => "https://Digikala.com";
-        readonly IHttpClientHelper client = new RestSharpHelper();
-        ILoger Logger = new LoggerHelper();
+        readonly IHttpClientHelper client = new HttpClientHelper();
+        ILoger Logger = new MongoDBLoggerHelper();
 
         public string GetComment(string url)
         {
@@ -67,7 +68,7 @@ namespace TerexCrawler.Services.Digikala
 
         public async Task<string> GetPage(string url)
         {
-            //            System.Threading.Thread.Sleep(50);
+            //System.Threading.Thread.Sleep(50);
             var res = client.GetHttp(url, true, user_agent);
             if (res.Success)
             {
@@ -252,10 +253,15 @@ namespace TerexCrawler.Services.Digikala
                 Logger.AddLog(log);
             }
         }
+
         public async Task<T> GetProduct<T>(string url)
         {
             var content = await GetPage(url);
             DigikalaProductDTO dto = new DigikalaProductDTO();
+            if (string.IsNullOrEmpty(content))
+            {
+                return (T)Convert.ChangeType(null, typeof(DigikalaProductDTO));
+            }
             dto.Url = url;
             dto.DKP = getDKPWithUrl(url);
 
@@ -385,6 +391,7 @@ namespace TerexCrawler.Services.Digikala
             //var jjj = JsonConvert.SerializeObject(dto);
             return (T)Convert.ChangeType(dto, typeof(DigikalaProductDTO));
         }
+
         public void AddBasePages(List<B5_Url> dtos)
         {
             var pageBases = new List<DigikalaPageBaseDTO>();

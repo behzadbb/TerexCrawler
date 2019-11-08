@@ -6,7 +6,7 @@ namespace TerexCrawler.Models
 {
     public struct LogDTO
     {
-        public int Id { get; set; }
+        public string _id { get; set; }
         public int ProjectId { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }

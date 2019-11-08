@@ -77,6 +77,30 @@ namespace TerexCrawler.Test.ConsoleApp
             Console.ReadLine();
         }
 
+        private static int getDKPWithUrl(string url)
+        {
+            var indexDKP = url.LastIndexOf("dkp-");
+            var lenghtDKP = url.Length - indexDKP;
+            var indexEndChar = url.Substring(indexDKP).IndexOf("/");
+
+            string getDKP = url.Substring(indexDKP, indexEndChar).Replace("dkp-", "");
+
+            List<string> splitUrl = new List<string>();
+            splitUrl.AddRange(getDKP.Split("-"));
+            if (splitUrl.Any())
+            {
+                foreach (var item in splitUrl)
+                {
+                    if (System.Text.RegularExpressions.Regex.Match(item, @"^[0-9]*$").Success)
+                    {
+                        return int.Parse(item);
+
+                    }
+                }
+            }
+            return int.Parse(getDKP);
+        }
+
         private static void digikala_SitemapToObject(string path)
         {
             //string path = @"C:\Digikala\100125842.xml";
@@ -167,12 +191,28 @@ namespace TerexCrawler.Test.ConsoleApp
                 long x = 0;
                 foreach (var item in getAll)
                 {
-                    var _s = DateTime.Now;
-                    var product = await digikala.GetProduct<DigikalaProductDTO>(item.Loc);
-                    var _t = Math.Round((DateTime.Now - _s).TotalSeconds, 2);
-                    digikala.AddProduct(product);
-                    digikala.CrawledProduct(item._id);
-                    Console.WriteLine($"{++x} = DKP-{product.DKP} , Comment={(product.Comments != null ? product.Comments.Count() : 0)} ,  in {_t} Secs ");
+                    try
+                    {
+                        var _s = DateTime.Now;
+                        var product = await digikala.GetProduct<DigikalaProductDTO>(item.Loc);
+                        var _t = Math.Round((DateTime.Now - _s).TotalSeconds, 2);
+                        if (product != null)
+                        {
+                            digikala.AddProduct(product);
+                            digikala.CrawledProduct(item._id);
+                            Console.WriteLine($"{++x} = DKP-{product.DKP} , Comment={(product.Comments != null ? product.Comments.Count() : 0)} ,  in {_t} Secs ");
+                        }
+                        else
+                        {
+                            int dkp = getDKPWithUrl(item.Loc);
+                            Console.WriteLine($"{++x} = DKP-{dkp} , ** Error **");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        int dkp = getDKPWithUrl(item.Loc);
+                        Console.WriteLine($"{++x} = DKP-{dkp} , ** Error **");
+                    }
                 }
             }
         }
