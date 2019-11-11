@@ -190,8 +190,8 @@ namespace TerexCrawler.Test.ConsoleApp
             List<DigikalaPageBaseDTO> getAll = new List<DigikalaPageBaseDTO>();
             using (IWebsiteCrawler digikala = new DigikalaHelper())
             {
-                getAll = digikala.GetAllBasePage<List<DigikalaPageBaseDTO>>();
-                Console.WriteLine($"list total {getAll.Count}");
+                getAll = (await digikala.GetAllBasePage<GetAllBasePageDigikalaResult>()).BasePages;
+                Console.WriteLine($"list total {getAll.Count()}");
             }
 
             long x = 0;

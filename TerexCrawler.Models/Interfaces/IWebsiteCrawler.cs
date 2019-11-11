@@ -22,8 +22,8 @@ namespace TerexCrawler.Models.Interfaces
         string[] GetSitemapFromFiles(string[] path);
         void AddBasePage(B5_Url dto);
         void AddBasePages(List<B5_Url> dtos);
-        void AddProduct(DigikalaProductDTO dto);
-        List<DigikalaPageBaseDTO> GetAllBasePage<T>();
+        void AddProduct<T>(T dto);
+        Task<T> GetAllBasePage<T>();
         void CrawledProduct(string id);
     }
 }

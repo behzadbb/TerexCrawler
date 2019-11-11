@@ -598,22 +598,24 @@ namespace TerexCrawler.Services.Digikala
         {
             return string.Format("https://www.digikala.com/ajax/product/comments/list/{0}/?page={1}&mode=buyers", DKP, Page);
         }
-        public void AddProduct(DigikalaProductDTO dto)
+        public void AddProduct<T>(T dto)
         {
+            DigikalaProductDTO digikalaProduct = (DigikalaProductDTO)Convert.ChangeType(dto, typeof(DigikalaProductDTO));
             using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
             {
-                db.AddDgikalaProduct(ConvertProductDTOToEntity(dto));
+                db.AddDgikalaProduct(ConvertProductDTOToEntity(digikalaProduct));
             }
         }
 
-        public List<DigikalaPageBaseDTO> GetAllBasePage<T>()
+        public async Task<T> GetAllBasePage<T>()
         {
             List<DigikalaPageBaseDTO> dtos = new List<DigikalaPageBaseDTO>();
             using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
             {
                 dtos = db.GetAllBasePage();
             }
-            return dtos;
+            GetAllBasePageDigikalaResult result = new GetAllBasePageDigikalaResult() { BasePages = dtos };
+            return (T)Convert.ChangeType(result, typeof(GetAllBasePageDigikalaResult));
         }
 
         public void CrawledProduct(string id)
