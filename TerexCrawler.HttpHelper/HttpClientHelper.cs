@@ -47,6 +47,7 @@ namespace TerexCrawler.HttpHelper
                 {
                     if (changeAgent)
                     {
+                        client.DefaultRequestHeaders.Clear();
                         Random rnd = new Random();
                         int agentNum = rnd.Next(0, agents.Length - 1);
                         client.DefaultRequestHeaders.Add("User-Agent", agents[agentNum]);

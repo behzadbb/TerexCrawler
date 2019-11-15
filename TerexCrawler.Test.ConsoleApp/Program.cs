@@ -18,15 +18,16 @@ using MongoDB.Driver.Builders;
 using TerexCrawler.Models;
 using TerexCrawler.Models.Enums;
 using TerexCrawler.Services;
+using System.Text;
+using TerexCrawler.HttpHelper;
+using OpenQA.Selenium.Chrome;
+using HtmlAgilityPack;
+using TerexCrawler.Entites.Snappfood;
 
 namespace TerexCrawler.Test.ConsoleApp
 {
     class Program
     {
-        static MongoClient client = new MongoClient("mongodb://localhost");
-        static MongoServer server => client.GetServer();
-        static MongoDatabase db => server.GetDatabase("Digikala");
-
         public Program()
         {
 
@@ -47,6 +48,8 @@ namespace TerexCrawler.Test.ConsoleApp
             p("5- Get Product Page");
             p("6- Get Comments");
             p("7- Add Product To DB");
+            p("100- Get Site Map");
+            p("101- Get Site Map From Url");
             short methodNum = Convert.ToInt16(Console.ReadLine());
 
             switch (methodNum)
@@ -72,6 +75,15 @@ namespace TerexCrawler.Test.ConsoleApp
                 case 7:
                     digikala_7_AddProductToMongo();
                     break;
+                case 100:
+                    snappFood_100_Sitemap();
+                    break;
+                case 101:
+                    snappFood_101_SitemapFromSite();
+                    break;
+                case 102:
+                    snappFood_102_SitemapFromSite();
+                    break;
                 default:
                     break;
             }
@@ -80,6 +92,7 @@ namespace TerexCrawler.Test.ConsoleApp
             Console.ReadLine();
         }
 
+        #region Digikala
         private static int getDKPWithUrl(string url)
         {
             var indexDKP = url.LastIndexOf("dkp-");
@@ -103,7 +116,6 @@ namespace TerexCrawler.Test.ConsoleApp
             }
             return int.Parse(getDKP);
         }
-
         private static void digikala_SitemapToObject(string path)
         {
             //string path = @"C:\Digikala\100125842.xml";
@@ -122,7 +134,6 @@ namespace TerexCrawler.Test.ConsoleApp
                 //sitemap.CleanFile(path);
             }
         }
-
         private static void digikala_SitemapFolder()
         {
             string directoryPath = @"C:\Digikala\xml";
@@ -138,7 +149,6 @@ namespace TerexCrawler.Test.ConsoleApp
                 }
             }
         }
-
         private static void digikala_LoadSitemap()
         {
             string dirPath = @"C:\Digikala\xml\clean";
@@ -166,13 +176,12 @@ namespace TerexCrawler.Test.ConsoleApp
                 string url1 = "https://www.digikala.com/product/dkp-313420";
                 string url2 = "https://www.digikala.com/product/dkp-1675555";
                 string url3 = "https://www.digikala.com/product/dkp-676525";
-                string url4 = "https://www.digikala.com/product/dkp-10778/";
+                string url4 = "https://www.digikala.com/product/dkp-409062/";
                 //var page = digikala.GetPage(url2);
                 var s = await digikala.GetProduct<DigikalaProductDTO>(url4);
                 var jjj = JsonConvert.SerializeObject(s);
             }
         }
-
         private static void digikala_6_GetProductComments()
         {
             using (IWebsiteCrawler digikala = new DigikalaHelper())
@@ -184,90 +193,249 @@ namespace TerexCrawler.Test.ConsoleApp
                 //var jjj = JsonConvert.SerializeObject(s);
             }
         }
-
         private async static void digikala_7_AddProductToMongo()
         {
-            List<DigikalaPageBaseDTO> getAll = new List<DigikalaPageBaseDTO>();
-            using (IWebsiteCrawler digikala = new DigikalaHelper())
+            for (short i = 0; i < 120; i++)
             {
-                getAll = (await digikala.GetAllBasePage<GetAllBasePageDigikalaResult>()).BasePages;
-                Console.WriteLine($"list total {getAll.Count()}");
-            }
-
-            long x = 0;
-            short errorCount = 0;
-            foreach (var item in getAll)
-            {
-                try
+                List<DigikalaPageBaseDTO> getAll = new List<DigikalaPageBaseDTO>();
+                List<BasePage> pages = new List<BasePage>();
+                using (IWebsiteCrawler digikala = new DigikalaHelper())
                 {
-                    var _s = DateTime.Now;
-                    DigikalaProductDTO product = null;
-                    using (IWebsiteCrawler digikala = new DigikalaHelper())
+                    getAll = (await digikala.GetAllBasePage<GetAllBasePageDigikalaResult>()).BasePages;
+                    Console.WriteLine($"list total {getAll.Count()}");
+                    pages = getAll.Select(x => new BasePage
                     {
-                        product = await digikala.GetProduct<DigikalaProductDTO>(item.Loc);
-                    }
+                        Id = x._id,
+                        Loc = x.Loc
+                    }).ToList();
+                    getAll.Clear();
+                }
 
-                    if (product == null)
+                long x = 0;
+                short errorCount = 0;
+                foreach (var item in pages)
+                {
+                    try
                     {
-                        int dkp = getDKPWithUrl(item.Loc);
-                        Console.WriteLine($"Try Again , DKP - {dkp} Wait: {6000} Secs");
-                        System.Threading.Thread.Sleep(6000 * errorCount);
+                        var _s = DateTime.Now;
+                        DigikalaProductDTO product = null;
                         using (IWebsiteCrawler digikala = new DigikalaHelper())
                         {
                             product = await digikala.GetProduct<DigikalaProductDTO>(item.Loc);
                         }
+
+                        if (product == null)
+                        {
+                            int dkp = getDKPWithUrl(item.Loc);
+                            Console.WriteLine($"Try Again , DKP - {dkp} Wait: {2000} Secs");
+                            System.Threading.Thread.Sleep(2000 * errorCount);
+                            using (IWebsiteCrawler digikala = new DigikalaHelper())
+                            {
+                                product = await digikala.GetProduct<DigikalaProductDTO>(item.Loc);
+                            }
+                        }
+                        var _t = Math.Round((DateTime.Now - _s).TotalSeconds, 2);
+                        if (product != null)
+                        {
+                            ProductTemp prd = new ProductTemp();
+                            prd.BasePage = item;
+                            prd.DigikalaProduct = product;
+                            digikala_SaveProductBatch(prd);
+                            Console.WriteLine($"S{i},   {++x}  =  DKP-{product.DKP}    , Comment={(product.Comments != null ? product.Comments.Count() + "+  " : "0  ")} ,  in {_t} Secs ");
+                            if (x % 5 == 0)
+                            {
+                                Console.WriteLine("--------------");
+                                System.Threading.Thread.Sleep(100);
+                            }
+                            if (x % 100 == 0)
+                            {
+                                System.Threading.Thread.Sleep(500);
+                                Console.Clear();
+                            }
+                            errorCount = 0;
+                        }
+                        else
+                        {
+                            if (errorCount < 4)
+                            {
+                                errorCount += 1;
+                            }
+                            int dkp = getDKPWithUrl(item.Loc);
+                            Console.WriteLine($"{++x} = DKP-{dkp} , Wait: {2000 * errorCount} Secs ,  *** Error *** ,");
+                            System.Threading.Thread.Sleep(2000 * errorCount);
+                        }
                     }
-                    var _t = Math.Round((DateTime.Now - _s).TotalSeconds, 2);
-                    if (product != null)
+                    catch (Exception ex)
                     {
-                        using (IWebsiteCrawler digikala2 = new DigikalaHelper())
+                        if (errorCount < 4)
                         {
-                            digikala2.AddProduct(product);
-                            digikala2.CrawledProduct(item._id);
-                            Console.WriteLine($"{++x} = DKP-{product.DKP} , Comment={(product.Comments != null ? product.Comments.Count() + "+  " : "0  ")} ,  in {_t} Secs ");
+                            errorCount += 1;
                         }
-                        if (x % 5 == 0)
-                        {
-                            Console.WriteLine("--------------");
-                            System.Threading.Thread.Sleep(200);
-                        }
-                        if (x % 100 == 0)
-                        {
-                            System.Threading.Thread.Sleep(5000);
-                            Console.Clear();
-                        }
-                        errorCount = 0;
-                    }
-                    else
-                    {
-                        errorCount += 1;
                         int dkp = getDKPWithUrl(item.Loc);
-                        Console.WriteLine($"{++x} = DKP-{dkp} , Wait: {6000 * errorCount} Secs ,  *** Error *** ,");
-                        System.Threading.Thread.Sleep(6000 * errorCount);
+                        Console.WriteLine($"{++x} = DKP-{dkp} , Wait: {2000 * errorCount} Secs , *** Error ***   Problem");
+                        using (ILoger Logger = new MongoDBLoggerHelper())
+                        {
+                            LogDTO log = new LogDTO()
+                            {
+                                _id = ObjectId.GenerateNewId().ToString(),
+                                DateTime = DateTime.Now,
+                                Description = ex.Message.ToString(),
+                                ProjectId = (int)ProjectNames.Console,
+                                Url = item.Loc,
+                                MethodName = "Digikala - Console App",
+                                Title = "Get Product Error - " + dkp
+                            };
+                            Logger.AddLog(log);
+                        }
+                        System.Threading.Thread.Sleep(2000 * errorCount);
                     }
                 }
-                catch (Exception ex)
+            }
+            digikala_SaveProductBatch(null, true);
+        }
+
+        private static void digikala_SaveProductBatch(ProductTemp? productTemp = null, bool force = false)
+        {
+            if (productTemp.HasValue)
+            {
+                productTemps.Add(productTemp.Value);
+            }
+
+            if (productTemps.Count() >= 3 || force)
+            {
+                List<ProductTemp> temp = new List<ProductTemp>();
+                temp.AddRange(productTemps);
+                productTemps.Clear();
+                using (IWebsiteCrawler digikala2 = new DigikalaHelper())
                 {
-                    errorCount += 1;
-                    int dkp = getDKPWithUrl(item.Loc);
-                    Console.WriteLine($"{++x} = DKP-{dkp} , Wait: {6000 * errorCount} Secs , *** Error ***   Problem");
-                    using (ILoger Logger = new MongoDBLoggerHelper())
-                    {
-                        LogDTO log = new LogDTO()
-                        {
-                            _id = ObjectId.GenerateNewId().ToString(),
-                            DateTime = DateTime.Now,
-                            Description = ex.Message.ToString(),
-                            ProjectId = (int)ProjectNames.Console,
-                            Url = item.Loc,
-                            MethodName = "Digikala - Console App",
-                            Title = "Get Product Error - " + dkp
-                        };
-                        Logger.AddLog(log);
-                    }
-                    System.Threading.Thread.Sleep(6000 * errorCount);
+                    AddProductsDigikala addProducts = new AddProductsDigikala { digikalaProducts = temp.Select(x => x.DigikalaProduct).ToList() };
+                    digikala2.AddProducts(addProducts);
+                    digikala2.CrawledProducts(temp.Select(x => x.BasePage.Id).ToArray());
+                    Console.WriteLine($"{temp.Count()} Add To Database ");
                 }
             }
         }
+        struct BasePage
+        {
+            public string Loc { get; set; }
+            public string Id { get; set; }
+        }
+        struct ProductTemp
+        {
+            public BasePage BasePage { get; set; }
+            public DigikalaProductDTO DigikalaProduct { get; set; }
+        }
+        private static List<ProductTemp> productTemps = new List<ProductTemp>();
+        #endregion
+
+        #region
+        private static void snappFood_100_Sitemap()
+        {
+            string path = @"C:\Snappfood\sitemap.xml";
+            string[] readText = File.ReadAllLines(path);
+            string[] readTexts = readText.Where(x => x.Contains("/restaurant/menu/")).Select(x => x.Replace("\t\t<loc>", "").Replace("</loc>", "")).ToArray();
+
+            string path1 = @"C:\Snappfood\resturant.txt";
+
+            if (!File.Exists(path1))
+            {
+                File.WriteAllLines(path1, readTexts, Encoding.UTF8);
+            }
+            Console.WriteLine(readTexts.Count());
+        }
+        private static void snappFood_101_SitemapFromSite()
+        {
+            string[] user_agent = {
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:69.0) Gecko/20100101 Firefox/69.0",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.18362"
+            };
+            string sitemapUrl = @"https://snappfood.ir/sitemap.xml";
+            using (IHttpClientHelper client = new HttpClientHelper())
+            {
+                var cli = client.GetHttp(sitemapUrl, true, user_agent);
+                string[] lines = cli.Content.Split(
+                    new[] { "\r\n", "\r", "\n" },
+                    StringSplitOptions.None
+                    );
+
+                string[] readTexts = lines.Where(x => x.Contains("/restaurant/menu/")).Select(x => x.Replace("\t\t<loc>", "").Replace("</loc>", "")).ToArray();
+
+                string path1 = @"C:\Snappfood\resturant.txt";
+
+                if (!File.Exists(path1))
+                {
+                    File.WriteAllLines(path1, readTexts, Encoding.UTF8);
+                }
+                Console.WriteLine(readTexts.Count());
+            }
+        }
+        private static void snappFood_102_SitemapFromSite()
+        {
+            string[] user_agent = {
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:69.0) Gecko/20100101 Firefox/69.0",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.18362"
+            };
+            string sitemapUrl = @"https://snappfood.ir/sitemap.xml";
+            List<string> readTexts = new List<string>();
+            using (IHttpClientHelper client = new HttpClientHelper())
+            {
+                var cli = client.GetHttp(sitemapUrl, true, user_agent);
+                string[] lines = cli.Content.Split(
+                    new[] { "\r\n", "\r", "\n" },
+                    StringSplitOptions.None
+                    );
+
+                readTexts.AddRange(lines.Where(x => x.Contains("/restaurant/menu/")).Select(x => x.Replace("\t\t<loc>", "").Replace("</loc>", "")).ToList());
+            }
+            if (readTexts.Any())
+            {
+                foreach (string item in readTexts)
+                {
+                    string id = getSnappfoodIdByUrl(item);
+                    string url = getSnappfoodCommentLink(id, 0);
+                    using (IHttpClientHelper clientHelper = new RestSharpHelper())
+                    {
+                        var resultClient = clientHelper.GetHttp(url, true, user_agent);
+                        var comments = JsonConvert.DeserializeObject<Snappfood>(resultClient.Content);
+                        double pageCount = 0;
+                        pageCount = Math.Round((double)(comments.data.count / comments.data.pageSize));
+                        if (comments.data.comments != null && comments.data.comments.Any() && pageCount > 0)
+                        {
+                            for (int i = 1; i <= pageCount; i++)
+                            {
+                                System.Threading.Thread.Sleep(200);
+                                string url1 = getSnappfoodCommentLink(id, i);
+                                var resultClient1 = clientHelper.GetHttp(url1, true, user_agent);
+                                var comments1 = JsonConvert.DeserializeObject<Snappfood>(resultClient1.Content);
+                                if (comments1 != null && comments1.data.comments != null & comments1.data.comments.Any())
+                                {
+                                    comments.data.comments.AddRange(comments1.data.comments);
+                                }
+                            }
+                        }
+                        var cm = comments.data.comments.Select(x => x.commentText.Replace("\n",", ")).ToArray();
+                        var cmss = string.Join("\n", cm);
+                        var jsons= JsonConvert.SerializeObject(comments);
+                    }
+                }
+            }
+            int temp = 0;
+        }
+        private static string getSnappfoodCommentLink(string id, int pageNumber = 0)
+        {
+            return $"https://snappfood.ir/restaurant/comment/vendor/{id}/{pageNumber}";
+        }
+        private static string getSnappfoodIdByUrl(string url)
+        {
+            //string url = "https://snappfood.ir/restaurant/menu/31n4w0/%27%2Bitem.link%2B%27";
+            int start = url.IndexOf("menu/") + 5;
+            int lenght = url.Length - start;
+            url = url.Substring(start, lenght);
+            int end = url.IndexOf("/");
+            return url.Substring(0, end);
+        }
+        #endregion
     }
 }

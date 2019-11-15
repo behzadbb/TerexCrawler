@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -303,7 +304,19 @@ namespace TerexCrawler.Services.Digikala
         {
             try
             {
-                string content = await GetPage(url);
+                string content = string.Empty;
+                var res = client.GetHttp(url, true, user_agent);
+                if (res.Success)
+                {
+                    content=res.Content;
+                }
+                if (res.HttpStatusCode == (int)HttpStatusCode.NotFound)
+                {
+                    using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
+                    {
+                        db.RemoveBasePage(url);
+                    }
+                }
                 DigikalaProductDTO dto = new DigikalaProductDTO();
 
                 if (string.IsNullOrEmpty(content))
@@ -603,7 +616,15 @@ namespace TerexCrawler.Services.Digikala
             DigikalaProductDTO digikalaProduct = (DigikalaProductDTO)Convert.ChangeType(dto, typeof(DigikalaProductDTO));
             using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
             {
-                db.AddDgikalaProduct(ConvertProductDTOToEntity(digikalaProduct));
+                db.AddDigikalaProduct(ConvertProductDTOToEntity(digikalaProduct));
+            }
+        }
+        public void AddProducts<T>(T dto)
+        {
+            AddProductsDigikala digikalaProducts = (AddProductsDigikala)Convert.ChangeType(dto, typeof(AddProductsDigikala));
+            using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
+            {
+                db.AddDigikalaProducts(digikalaProducts.digikalaProducts.Select(x => ConvertProductDTOToEntity(x)).ToList());
             }
         }
 
@@ -623,6 +644,13 @@ namespace TerexCrawler.Services.Digikala
             using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
             {
                 db.CrwaledProduct(id);
+            }
+        }
+        public void CrawledProducts(string[] ids)
+        {
+            using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
+            {
+                db.CrwaledProducts(ids);
             }
         }
         private DigikalaProduct ConvertProductDTOToEntity(DigikalaProductDTO dto)

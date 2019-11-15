@@ -23,7 +23,9 @@ namespace TerexCrawler.Models.Interfaces
         void AddBasePage(B5_Url dto);
         void AddBasePages(List<B5_Url> dtos);
         void AddProduct<T>(T dto);
+        void AddProducts<T>(T dto);
         Task<T> GetAllBasePage<T>();
         void CrawledProduct(string id);
+        void CrawledProducts(string[] ids);
     }
 }

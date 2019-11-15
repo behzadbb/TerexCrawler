@@ -90,14 +90,14 @@ namespace TerexCrawler.DataLayer.Repository
             digikalaBasePages.InsertBatch(models);
         }
 
-        public void AddDgikalaProduct(DigikalaProduct dto)
+        public void AddDigikalaProduct(DigikalaProduct dto)
         {
             digikalaProducts.Insert(dto);
         }
 
-        public void AddDgikalaProducts(List<DigikalaProduct> dtos)
+        public async void AddDigikalaProducts(List<DigikalaProduct> dtos)
         {
-            digikalaProducts.Insert(dtos);
+            digikalaProducts.InsertBatch(dtos);
         }
 
         public List<DigikalaPageBaseDTO> GetAllBasePage()
@@ -128,6 +128,32 @@ namespace TerexCrawler.DataLayer.Repository
             var update = Update<DigikalaBasePage>.Set(p => p.CrawlDate, DateTime.Now).Set(p => p.Crawled, true);
 
             digikalaBasePages.Update(query, update);
+        }
+        public async void CrwaledProducts(string[] ids)
+        {
+            BsonArray array = new BsonArray();
+            array.AddRange(ids.Select(x => ObjectId.Parse(x)));
+            var query = Query<DigikalaBasePage>.In(x => x._id, array);
+            var basePages = digikalaBasePages.Find(query);
+            foreach (var item in basePages)
+            {
+                item.Crawled = true;
+                item.CrawlDate = DateTime.Now;
+                digikalaBasePages.Save(item);
+            }
+        }
+
+        public void RemoveBasePage(string url)
+        {
+            try
+            {
+                var query = Query<DigikalaBasePage>.Where(x => x.Loc == url);
+                digikalaBasePages.Remove(query);
+            }
+            catch (Exception)
+            {
+            }
+
         }
     }
 }
