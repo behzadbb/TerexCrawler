@@ -314,7 +314,7 @@ namespace TerexCrawler.Services.Digikala
                 {
                     using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
                     {
-                        db.RemoveBasePage(getDKPWithUrl(url).ToString());
+                        db.RemoveBasePage(url);
                     }
                 }
                 DigikalaProductDTO dto = new DigikalaProductDTO();
