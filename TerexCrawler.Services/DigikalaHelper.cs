@@ -314,19 +314,19 @@ namespace TerexCrawler.Services.Digikala
                 {
                     using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
                     {
-                        db.RemoveBasePage(url);
+                        db.RemoveBasePage(getDKPWithUrl(url).ToString());
                     }
                 }
                 DigikalaProductDTO dto = new DigikalaProductDTO();
 
                 if (string.IsNullOrEmpty(content))
                 {
-                    System.Threading.Thread.Sleep(1500);
+                    System.Threading.Thread.Sleep(200);
                     content = await GetPage1(url);
                 }
                 if (string.IsNullOrEmpty(content))
                 {
-                    System.Threading.Thread.Sleep(5000);
+                    System.Threading.Thread.Sleep(400);
                     content = await GetPage(url);
                 }
 
@@ -476,7 +476,7 @@ namespace TerexCrawler.Services.Digikala
                     Description = ex.Message.ToString(),
                     ProjectId = (int)ProjectNames.Services,
                     Url = url,
-                    MethodName = "Digikala - Digikala Helper",
+                    MethodName = "Digikala - Digikala Helper - GetProduct",
                     Title = "GetProduct"
                 };
                 Logger.AddLog(log);
@@ -583,10 +583,10 @@ namespace TerexCrawler.Services.Digikala
         private int getDKPWithUrl(string url)
         {
             var indexDKP = url.LastIndexOf("dkp-");
-            var lenghtDKP = url.Length - indexDKP;
-            var indexEndChar = url.Substring(indexDKP).IndexOf("/");
-
-            string getDKP = url.Substring(indexDKP, indexEndChar).Replace("dkp-", "");
+            int lenghtDKP = url.Length - indexDKP;
+            int indexEndChar = url.Substring(indexDKP).IndexOf("/");
+            var uu = url.Length;
+            string getDKP = url.Substring(indexDKP, indexEndChar<1 ? lenghtDKP : indexEndChar).Replace("dkp-", "");
 
             List<string> splitUrl = new List<string>();
             splitUrl.AddRange(getDKP.Split("-"));

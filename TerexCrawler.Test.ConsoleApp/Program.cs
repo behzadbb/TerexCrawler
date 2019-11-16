@@ -176,7 +176,7 @@ namespace TerexCrawler.Test.ConsoleApp
                 string url1 = "https://www.digikala.com/product/dkp-313420";
                 string url2 = "https://www.digikala.com/product/dkp-1675555";
                 string url3 = "https://www.digikala.com/product/dkp-676525";
-                string url4 = "https://www.digikala.com/product/dkp-409062/";
+                string url4 = "https://www.digikala.com/product/dkp-781586";
                 //var page = digikala.GetPage(url2);
                 var s = await digikala.GetProduct<DigikalaProductDTO>(url4);
                 var jjj = JsonConvert.SerializeObject(s);
@@ -227,8 +227,8 @@ namespace TerexCrawler.Test.ConsoleApp
                         if (product == null)
                         {
                             int dkp = getDKPWithUrl(item.Loc);
-                            Console.WriteLine($"Try Again , DKP - {dkp} Wait: {2000} Secs");
-                            System.Threading.Thread.Sleep(2000 * errorCount);
+                            Console.WriteLine($"Try Again , DKP - {dkp} Wait: {1000} Secs");
+                            System.Threading.Thread.Sleep(1000 * errorCount);
                             using (IWebsiteCrawler digikala = new DigikalaHelper())
                             {
                                 product = await digikala.GetProduct<DigikalaProductDTO>(item.Loc);
@@ -256,23 +256,23 @@ namespace TerexCrawler.Test.ConsoleApp
                         }
                         else
                         {
-                            if (errorCount < 4)
+                            if (errorCount < 3)
                             {
                                 errorCount += 1;
                             }
                             int dkp = getDKPWithUrl(item.Loc);
-                            Console.WriteLine($"{++x} = DKP-{dkp} , Wait: {2000 * errorCount} Secs ,  *** Error *** ,");
-                            System.Threading.Thread.Sleep(2000 * errorCount);
+                            Console.WriteLine($"{++x} = DKP-{dkp} , Wait: {1000 * errorCount} Secs ,  *** Error *** ,");
+                            System.Threading.Thread.Sleep(1000 * errorCount);
                         }
                     }
                     catch (Exception ex)
                     {
-                        if (errorCount < 4)
+                        if (errorCount < 3)
                         {
                             errorCount += 1;
                         }
                         int dkp = getDKPWithUrl(item.Loc);
-                        Console.WriteLine($"{++x} = DKP-{dkp} , Wait: {2000 * errorCount} Secs , *** Error ***   Problem");
+                        Console.WriteLine($"{++x} = DKP-{dkp} , Wait: {1000 * errorCount} Secs , *** Error ***   Problem");
                         using (ILoger Logger = new MongoDBLoggerHelper())
                         {
                             LogDTO log = new LogDTO()
@@ -287,7 +287,7 @@ namespace TerexCrawler.Test.ConsoleApp
                             };
                             Logger.AddLog(log);
                         }
-                        System.Threading.Thread.Sleep(2000 * errorCount);
+                        System.Threading.Thread.Sleep(1000 * errorCount);
                     }
                 }
             }
@@ -301,7 +301,7 @@ namespace TerexCrawler.Test.ConsoleApp
                 productTemps.Add(productTemp.Value);
             }
 
-            if (productTemps.Count() >= 3 || force)
+            if (productTemps.Count() >= 20 || force)
             {
                 List<ProductTemp> temp = new List<ProductTemp>();
                 temp.AddRange(productTemps);

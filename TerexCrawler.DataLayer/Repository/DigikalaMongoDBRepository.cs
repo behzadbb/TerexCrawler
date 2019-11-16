@@ -14,6 +14,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.IO;
+using System.Text.RegularExpressions;
 
 namespace TerexCrawler.DataLayer.Repository
 {
@@ -145,15 +146,8 @@ namespace TerexCrawler.DataLayer.Repository
 
         public void RemoveBasePage(string url)
         {
-            try
-            {
-                var query = Query<DigikalaBasePage>.Where(x => x.Loc == url);
-                digikalaBasePages.Remove(query);
-            }
-            catch (Exception)
-            {
-            }
-
+            var query = Query<DigikalaBasePage>.Matches(x => x.Loc, BsonRegularExpression.Create(new Regex(url)));
+            digikalaBasePages.Remove(query);
         }
     }
 }
