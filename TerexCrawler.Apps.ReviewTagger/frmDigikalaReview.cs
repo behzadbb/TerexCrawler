@@ -64,5 +64,20 @@ namespace TerexCrawler.Apps.ReviewTagger
 2
 ".Trim();
         }
+
+        private void txtSingleReview_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (Clipboard.GetText() != null && !string.IsNullOrEmpty(Clipboard.GetText()))
+            {
+                txtSingleReview.Text = Clipboard.GetText().Trim();
+                Clipboard.Clear();
+            }
+
+        }
+
+        private void txtSingleReview_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

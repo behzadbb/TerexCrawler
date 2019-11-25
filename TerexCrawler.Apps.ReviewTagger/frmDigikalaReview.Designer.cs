@@ -241,6 +241,8 @@
             this.txtSingleReview.Name = "txtSingleReview";
             this.txtSingleReview.Size = new System.Drawing.Size(1214, 32);
             this.txtSingleReview.TabIndex = 17;
+            this.txtSingleReview.MouseClick += new System.Windows.Forms.MouseEventHandler(this.txtSingleReview_MouseClick);
+            this.txtSingleReview.TextChanged += new System.EventHandler(this.txtSingleReview_TextChanged);
             // 
             // btnAddAspect
             // 
@@ -260,13 +262,14 @@
             // 
             this.txtReview.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(85)))), ((int)(((byte)(92)))), ((int)(((byte)(123)))));
             this.txtReview.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.txtReview.Font = new System.Drawing.Font("B Zar", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
+            this.txtReview.Font = new System.Drawing.Font("B Zar", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
             this.txtReview.ForeColor = System.Drawing.Color.Gainsboro;
             this.txtReview.Location = new System.Drawing.Point(154, 178);
+            this.txtReview.Margin = new System.Windows.Forms.Padding(20, 3, 20, 3);
             this.txtReview.Name = "txtReview";
             this.txtReview.Size = new System.Drawing.Size(1213, 268);
             this.txtReview.TabIndex = 19;
-            this.txtReview.Text = "";
+            this.txtReview.Text = "سلام\nخوبی؟\nیییییییییییییییییییییییییییییییییییییییییییی\n";
             // 
             // frmDigikalaReview
             // 

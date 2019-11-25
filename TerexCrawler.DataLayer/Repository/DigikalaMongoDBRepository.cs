@@ -153,7 +153,53 @@ namespace TerexCrawler.DataLayer.Repository
             catch (Exception)
             {
             }
+        }
 
+        public DigikalaProductDTO GetFirstProductByCategory(string category)
+        {
+            var laptop = digikalaProducts.FindAll()
+                        .Where(p => p.Category.Contains(category) && p.Comments.Any() && p.Comments.Count() > 0)
+                        .FirstOrDefault();
+            DigikalaProductDTO digikalaProduct = new DigikalaProductDTO();
+            digikalaProduct.AvrageRate = laptop.AvrageRate;
+            digikalaProduct.Brand = laptop.Brand;
+            digikalaProduct.Categories = laptop.Categories;
+            digikalaProduct.Category = laptop.Category;
+            digikalaProduct.Colors = laptop.Colors;
+            digikalaProduct.Comments = laptop.Comments.Select(x => new Models.DTO.Comment.CommentDTO
+            {
+                Author = x.Author,
+                BoughtPrice = x.BoughtPrice,
+                Color = x.Color,
+                CommentDate = x.CommentDate,
+                CommentDisLike = x.CommentDisLike,
+                CommentId = x.CommentId,
+                CommentLike = x.CommentLike,
+                CreateDate = x.CreateDate,
+                Id = x.Id,
+                NegativeAspect = x.NegativeAspect,
+                OpinionType = x.OpinionType,
+                PageId = x.PageId,
+                PositiveAspect = x.PositiveAspect,
+                Purchased = x.Purchased,
+                Review = x.Review,
+                Seller = x.Seller,
+                SellerLink = x.SellerLink,
+                Title = x.Title,
+                Size = x.Size
+            }).ToList();
+            digikalaProduct.DKP = laptop.DKP;
+            digikalaProduct.Features = laptop.Features == null ? null : laptop.Features.Select(x => new ProductFeaturesDTO { Title = x.Title, Features = x.Features }).ToList();
+            digikalaProduct.Guaranteed = laptop.Guaranteed;
+            digikalaProduct.MaxRate = laptop.MaxRate;
+            digikalaProduct.Price = laptop.Price;
+            digikalaProduct.RatingItems = laptop.RatingItems;
+            digikalaProduct.Title = laptop.Title;
+            digikalaProduct.TitleEN = laptop.TitleEN;
+            digikalaProduct.TotalParticipantsCount = laptop.TotalParticipantsCount;
+            digikalaProduct.Url = laptop.Url;
+
+            return digikalaProduct;
         }
     }
 }
