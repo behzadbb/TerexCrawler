@@ -45,6 +45,7 @@
             this.txtSingleReview = new System.Windows.Forms.TextBox();
             this.btnAddAspect = new System.Windows.Forms.Button();
             this.txtReview = new System.Windows.Forms.RichTextBox();
+            this.checkNeutral = new System.Windows.Forms.CheckedListBox();
             this.SuspendLayout();
             // 
             // textBox1
@@ -77,7 +78,7 @@
             this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.button1.Font = new System.Drawing.Font("B Nazanin", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
             this.button1.ForeColor = System.Drawing.Color.Silver;
-            this.button1.Location = new System.Drawing.Point(1297, 660);
+            this.button1.Location = new System.Drawing.Point(1257, 534);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(110, 50);
             this.button1.TabIndex = 3;
@@ -98,9 +99,9 @@
             // 
             // checkPositive
             // 
-            this.checkPositive.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(85)))), ((int)(((byte)(92)))), ((int)(((byte)(123)))));
+            this.checkPositive.BackColor = System.Drawing.Color.Gray;
             this.checkPositive.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.checkPositive.Font = new System.Drawing.Font("B Nazanin", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
+            this.checkPositive.Font = new System.Drawing.Font("B Nazanin", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
             this.checkPositive.ForeColor = System.Drawing.Color.Lime;
             this.checkPositive.FormattingEnabled = true;
             this.checkPositive.Items.AddRange(new object[] {
@@ -109,7 +110,7 @@
             "صفحه نمایش_گلس",
             "باتری_کیفیت",
             "باتری_مدیریت مصرف"});
-            this.checkPositive.Location = new System.Drawing.Point(154, 515);
+            this.checkPositive.Location = new System.Drawing.Point(25, 515);
             this.checkPositive.Name = "checkPositive";
             this.checkPositive.Size = new System.Drawing.Size(186, 308);
             this.checkPositive.TabIndex = 5;
@@ -122,9 +123,9 @@
             this.listBoxAspect.ForeColor = System.Drawing.Color.Lime;
             this.listBoxAspect.FormattingEnabled = true;
             this.listBoxAspect.ItemHeight = 24;
-            this.listBoxAspect.Location = new System.Drawing.Point(684, 515);
+            this.listBoxAspect.Location = new System.Drawing.Point(745, 511);
             this.listBoxAspect.Name = "listBoxAspect";
-            this.listBoxAspect.Size = new System.Drawing.Size(447, 312);
+            this.listBoxAspect.Size = new System.Drawing.Size(464, 312);
             this.listBoxAspect.TabIndex = 6;
             // 
             // comboBox1
@@ -136,9 +137,9 @@
             this.comboBox1.Items.AddRange(new object[] {
             "گزینه 1",
             "گزینه 2"});
-            this.comboBox1.Location = new System.Drawing.Point(1207, 737);
+            this.comboBox1.Location = new System.Drawing.Point(1225, 637);
             this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(200, 39);
+            this.comboBox1.Size = new System.Drawing.Size(144, 39);
             this.comboBox1.TabIndex = 8;
             // 
             // label2
@@ -203,9 +204,9 @@
             // 
             // checkNegative
             // 
-            this.checkNegative.BackColor = System.Drawing.Color.DarkGray;
+            this.checkNegative.BackColor = System.Drawing.Color.Gray;
             this.checkNegative.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.checkNegative.Font = new System.Drawing.Font("B Nazanin", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
+            this.checkNegative.Font = new System.Drawing.Font("B Nazanin", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
             this.checkNegative.ForeColor = System.Drawing.Color.Crimson;
             this.checkNegative.FormattingEnabled = true;
             this.checkNegative.Items.AddRange(new object[] {
@@ -214,7 +215,7 @@
             "صفحه نمایش_گلس",
             "باتری_کیفیت",
             "باتری_مدیریت مصرف"});
-            this.checkNegative.Location = new System.Drawing.Point(357, 515);
+            this.checkNegative.Location = new System.Drawing.Point(228, 515);
             this.checkNegative.Name = "checkNegative";
             this.checkNegative.Size = new System.Drawing.Size(186, 308);
             this.checkNegative.TabIndex = 15;
@@ -225,11 +226,11 @@
             this.label6.BackColor = System.Drawing.Color.Transparent;
             this.label6.Font = new System.Drawing.Font("B Nazanin", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
             this.label6.ForeColor = System.Drawing.Color.Silver;
-            this.label6.Location = new System.Drawing.Point(33, 448);
+            this.label6.Location = new System.Drawing.Point(42, 463);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(36, 31);
+            this.label6.Size = new System.Drawing.Size(85, 31);
             this.label6.TabIndex = 16;
-            this.label6.Text = "نظر";
+            this.label6.Text = "نظر انتخابی";
             // 
             // txtSingleReview
             // 
@@ -250,7 +251,7 @@
             this.btnAddAspect.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.btnAddAspect.Font = new System.Drawing.Font("B Nazanin", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
             this.btnAddAspect.ForeColor = System.Drawing.Color.Silver;
-            this.btnAddAspect.Location = new System.Drawing.Point(558, 619);
+            this.btnAddAspect.Location = new System.Drawing.Point(629, 626);
             this.btnAddAspect.Name = "btnAddAspect";
             this.btnAddAspect.Size = new System.Drawing.Size(110, 50);
             this.btnAddAspect.TabIndex = 18;
@@ -271,12 +272,31 @@
             this.txtReview.TabIndex = 19;
             this.txtReview.Text = "سلام\nخوبی؟\nیییییییییییییییییییییییییییییییییییییییییییی\n";
             // 
+            // checkNeutral
+            // 
+            this.checkNeutral.BackColor = System.Drawing.Color.Gray;
+            this.checkNeutral.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.checkNeutral.Font = new System.Drawing.Font("B Nazanin", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
+            this.checkNeutral.ForeColor = System.Drawing.Color.Black;
+            this.checkNeutral.FormattingEnabled = true;
+            this.checkNeutral.Items.AddRange(new object[] {
+            "صفحه تمایش_کیفیت",
+            "صفحه نمایش_اندازه",
+            "صفحه نمایش_گلس",
+            "باتری_کیفیت",
+            "باتری_مدیریت مصرف"});
+            this.checkNeutral.Location = new System.Drawing.Point(437, 515);
+            this.checkNeutral.Name = "checkNeutral";
+            this.checkNeutral.Size = new System.Drawing.Size(186, 308);
+            this.checkNeutral.TabIndex = 20;
+            // 
             // frmDigikalaReview
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(48)))), ((int)(((byte)(78)))));
             this.ClientSize = new System.Drawing.Size(1494, 845);
+            this.Controls.Add(this.checkNeutral);
             this.Controls.Add(this.txtReview);
             this.Controls.Add(this.btnAddAspect);
             this.Controls.Add(this.txtSingleReview);
@@ -324,5 +344,6 @@
         private System.Windows.Forms.TextBox txtSingleReview;
         private System.Windows.Forms.Button btnAddAspect;
         private System.Windows.Forms.RichTextBox txtReview;
+        private System.Windows.Forms.CheckedListBox checkNeutral;
     }
 }
