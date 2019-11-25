@@ -301,7 +301,7 @@ namespace TerexCrawler.Test.ConsoleApp
                 productTemps.Add(productTemp.Value);
             }
 
-            if (productTemps.Count() >= 3 || force)
+            if (productTemps.Count() >= 10 || force)
             {
                 List<ProductTemp> temp = new List<ProductTemp>();
                 temp.AddRange(productTemps);
