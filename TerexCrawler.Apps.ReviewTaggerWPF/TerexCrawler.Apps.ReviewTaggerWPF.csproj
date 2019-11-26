@@ -6,4 +6,8 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TerexCrawler.Entites\TerexCrawler.Entites.csproj" />
+  </ItemGroup>
+
 </Project>
