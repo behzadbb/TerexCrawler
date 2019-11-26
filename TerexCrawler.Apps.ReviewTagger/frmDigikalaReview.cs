@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+//using Review= TerexCrawler;
+//using MongoDB.Bson.Serialization.Attributes;
 
 namespace TerexCrawler.Apps.ReviewTagger
 {
@@ -16,7 +18,7 @@ namespace TerexCrawler.Apps.ReviewTagger
         {
             InitializeComponent();
         }
-
+        //Review review = null;
         private void richTextBox1_TextChanged(object sender, EventArgs e)
         {
 

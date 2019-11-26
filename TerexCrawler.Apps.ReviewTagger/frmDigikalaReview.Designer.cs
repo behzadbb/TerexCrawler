@@ -112,7 +112,7 @@
             "باتری_مدیریت مصرف"});
             this.checkPositive.Location = new System.Drawing.Point(25, 515);
             this.checkPositive.Name = "checkPositive";
-            this.checkPositive.Size = new System.Drawing.Size(186, 308);
+            this.checkPositive.Size = new System.Drawing.Size(186, 299);
             this.checkPositive.TabIndex = 5;
             // 
             // listBoxAspect
@@ -217,7 +217,7 @@
             "باتری_مدیریت مصرف"});
             this.checkNegative.Location = new System.Drawing.Point(228, 515);
             this.checkNegative.Name = "checkNegative";
-            this.checkNegative.Size = new System.Drawing.Size(186, 308);
+            this.checkNegative.Size = new System.Drawing.Size(186, 299);
             this.checkNegative.TabIndex = 15;
             // 
             // label6
@@ -287,7 +287,7 @@
             "باتری_مدیریت مصرف"});
             this.checkNeutral.Location = new System.Drawing.Point(437, 515);
             this.checkNeutral.Name = "checkNeutral";
-            this.checkNeutral.Size = new System.Drawing.Size(186, 308);
+            this.checkNeutral.Size = new System.Drawing.Size(186, 299);
             this.checkNeutral.TabIndex = 20;
             // 
             // frmDigikalaReview
