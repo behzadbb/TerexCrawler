@@ -677,7 +677,6 @@ namespace TerexCrawler.Services.Digikala
             }
             return m;
         }
-
         private string GetFeatureKey(string input)
         {
             if (string.IsNullOrEmpty(input))
@@ -696,7 +695,6 @@ namespace TerexCrawler.Services.Digikala
                 return doc.DocumentNode.SelectSingleNode("//a").InnerText.Replace("\n", "").Trim();
             }
         }
-
         private Comment ConvertCommentDTOToEntity(CommentDTO dto)
         {
             Comment m = new Comment()
@@ -723,6 +721,14 @@ namespace TerexCrawler.Services.Digikala
             };
 
             return m;
+        }
+        public async Task<T> GetFirstProductByCategory<T>(string category,string title)
+        {
+            using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
+            {
+                var result = db.GetFirstProductByCategory(category , title);
+                return (T)Convert.ChangeType(result, typeof(DigikalaProductDTO));
+            }
         }
     }
 }

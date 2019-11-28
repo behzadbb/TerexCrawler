@@ -9,11 +9,12 @@ namespace TerexCrawler.Entites
     public class Review
     {
         [BsonId]
-        public int rid { get; set; }
-        public string ProductID { get; set; }
+        public Guid rid { get; set; }
+        public long ProductID { get; set; }
         public List<sentence> sentences { get; set; }
     }
-    public class sentence {
+    public class sentence
+    {
         public int id { get; set; }
         public string Text { get; set; }
         public List<Opinion> Opinions { get; set; }

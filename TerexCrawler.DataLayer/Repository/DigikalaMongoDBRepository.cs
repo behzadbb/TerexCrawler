@@ -155,18 +155,19 @@ namespace TerexCrawler.DataLayer.Repository
             }
         }
 
-        public DigikalaProductDTO GetFirstProductByCategory(string category)
+        public DigikalaProductDTO GetFirstProductByCategory(string category, string title)
         {
-            var laptop = digikalaProducts.FindAll()
-                        .Where(p => p.Category.Contains(category) && p.Comments.Any() && p.Comments.Count() > 0)
-                        .FirstOrDefault();
+            var query = Query<DigikalaProduct>.Where(x => x.Category == category && x.Title.Contains(title) && x.Comments.Any() && !x.isTagged );
+            var product = digikalaProducts.FindOne(query);
+            //var laptop = digikalaProducts.FindOne();
             DigikalaProductDTO digikalaProduct = new DigikalaProductDTO();
-            digikalaProduct.AvrageRate = laptop.AvrageRate;
-            digikalaProduct.Brand = laptop.Brand;
-            digikalaProduct.Categories = laptop.Categories;
-            digikalaProduct.Category = laptop.Category;
-            digikalaProduct.Colors = laptop.Colors;
-            digikalaProduct.Comments = laptop.Comments.Select(x => new Models.DTO.Comment.CommentDTO
+            digikalaProduct._id = product._id.ToString();
+            digikalaProduct.AvrageRate = product.AvrageRate;
+            digikalaProduct.Brand = product.Brand;
+            digikalaProduct.Categories = product.Categories;
+            digikalaProduct.Category = product.Category;
+            digikalaProduct.Colors = product.Colors;
+            digikalaProduct.Comments = product.Comments.Select(x => new Models.DTO.Comment.CommentDTO
             {
                 Author = x.Author,
                 BoughtPrice = x.BoughtPrice,
@@ -188,17 +189,16 @@ namespace TerexCrawler.DataLayer.Repository
                 Title = x.Title,
                 Size = x.Size
             }).ToList();
-            digikalaProduct.DKP = laptop.DKP;
-            digikalaProduct.Features = laptop.Features == null ? null : laptop.Features.Select(x => new ProductFeaturesDTO { Title = x.Title, Features = x.Features }).ToList();
-            digikalaProduct.Guaranteed = laptop.Guaranteed;
-            digikalaProduct.MaxRate = laptop.MaxRate;
-            digikalaProduct.Price = laptop.Price;
-            digikalaProduct.RatingItems = laptop.RatingItems;
-            digikalaProduct.Title = laptop.Title;
-            digikalaProduct.TitleEN = laptop.TitleEN;
-            digikalaProduct.TotalParticipantsCount = laptop.TotalParticipantsCount;
-            digikalaProduct.Url = laptop.Url;
-
+            digikalaProduct.DKP = product.DKP;
+            digikalaProduct.Features = product.Features == null ? null : product.Features.Select(x => new ProductFeaturesDTO { Title = x.Title, Features = x.Features }).ToList();
+            digikalaProduct.Guaranteed = product.Guaranteed;
+            digikalaProduct.MaxRate = product.MaxRate;
+            digikalaProduct.Price = product.Price;
+            digikalaProduct.RatingItems = product.RatingItems;
+            digikalaProduct.Title = product.Title;
+            digikalaProduct.TitleEN = product.TitleEN;
+            digikalaProduct.TotalParticipantsCount = product.TotalParticipantsCount;
+            digikalaProduct.Url = product.Url;
             return digikalaProduct;
         }
     }

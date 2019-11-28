@@ -7,6 +7,7 @@ namespace TerexCrawler.Models.DTO.Digikala
 {
     public class DigikalaProductDTO
     {
+        public string _id { get; set; }
         public int DKP { get; set; }
         public string Url { get; set; }
         public string Title { get; set; }
@@ -23,6 +24,9 @@ namespace TerexCrawler.Models.DTO.Digikala
         public List<ProductFeaturesDTO> Features { get; set; }
         public List<string[]> RatingItems { get; set; }
         public List<CommentDTO> Comments { get; set; }
+        public bool isTagged { get; set; }
+        public DateTime TaggedDate { get; set; }
+        public string Tagger { get; set; }
     }
     public class ProductFeaturesDTO
     {

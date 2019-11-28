@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TerexCrawler.Entites\TerexCrawler.Entites.csproj" />
+    <ProjectReference Include="..\TerexCrawler.Services\TerexCrawler.Services.csproj" />
   </ItemGroup>
 
 </Project>

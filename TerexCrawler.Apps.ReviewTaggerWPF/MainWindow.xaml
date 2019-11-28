@@ -22,6 +22,8 @@
         <ListBox x:Name="listNeutral" Margin="959,451,336,10" Background="{x:Null}" Foreground="White" BorderBrush="LightGray" FlowDirection="RightToLeft" SelectionChanged="listNeutral_SelectionChanged" />
         <ListBox x:Name="listNegative" Margin="733,451,562,10" Background="{x:Null}" Foreground="#FFCBA39D" BorderBrush="red" FlowDirection="RightToLeft" SelectionChanged="listNegative_SelectionChanged" />
         <ListBox x:Name="listAspects" Margin="504,451,790,10" Background="{x:Null}" Foreground="White" BorderBrush="Aqua" FlowDirection="RightToLeft" />
+        <Button Content="Button" Name="btnNextProduct" HorizontalAlignment="Left" Margin="21,6,0,0" VerticalAlignment="Top" Height="30" Width="152" Click="btnNext_Click"/>
+        <Label Content="xxx/xxx" Name="lblCount" HorizontalAlignment="Left" Margin="1400,243,0,0" Foreground="White" FontSize="20" VerticalAlignment="Top" Width="82"/>
 
 
     </Grid>
