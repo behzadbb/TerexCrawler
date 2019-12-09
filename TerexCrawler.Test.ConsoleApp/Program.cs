@@ -393,31 +393,14 @@ namespace TerexCrawler.Test.ConsoleApp
             {
                 foreach (string item in readTexts)
                 {
-                    string id = getSnappfoodIdByUrl(item);
-                    string url = getSnappfoodCommentLink(id, 0);
-                    using (IHttpClientHelper clientHelper = new RestSharpHelper())
+                    Snappfood snappfood = new Snappfood();
+                    using (SnappfoodHelper snappfoodHelper = new SnappfoodHelper())
                     {
-                        var resultClient = clientHelper.GetHttp(url, true, user_agent);
-                        var comments = JsonConvert.DeserializeObject<Snappfood>(resultClient.Content);
-                        double pageCount = 0;
-                        pageCount = Math.Round((double)(comments.data.count / comments.data.pageSize));
-                        if (comments.data.comments != null && comments.data.comments.Any() && pageCount > 0)
+                        snappfood = snappfoodHelper.GetProduct<Snappfood>(item).Result;
+                        if (snappfood != null)
                         {
-                            for (int i = 1; i <= pageCount; i++)
-                            {
-                                System.Threading.Thread.Sleep(200);
-                                string url1 = getSnappfoodCommentLink(id, i);
-                                var resultClient1 = clientHelper.GetHttp(url1, true, user_agent);
-                                var comments1 = JsonConvert.DeserializeObject<Snappfood>(resultClient1.Content);
-                                if (comments1 != null && comments1.data.comments != null & comments1.data.comments.Any())
-                                {
-                                    comments.data.comments.AddRange(comments1.data.comments);
-                                }
-                            }
+                            snappfoodHelper.AddProducts(snappfood);
                         }
-                        var cm = comments.data.comments.Select(x => x.commentText.Replace("\n",", ")).ToArray();
-                        var cmss = string.Join("\n", cm);
-                        var jsons= JsonConvert.SerializeObject(comments);
                     }
                 }
             }
