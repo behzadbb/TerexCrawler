@@ -24,6 +24,7 @@ namespace TerexCrawler.Entites.Digikala
         public List<string[]> RatingItems { get; set; }
         public List<Comment> Comments { get; set; }
         public bool isTagged { get; set; }
+        public bool Reserved { get; set; }
         public DateTime TaggedDate { get; set; }
         public string Tagger { get; set; }
     }
