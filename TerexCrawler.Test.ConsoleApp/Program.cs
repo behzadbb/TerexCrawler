@@ -399,7 +399,7 @@ namespace TerexCrawler.Test.ConsoleApp
                         snappfood = snappfoodHelper.GetProduct<Snappfood>(item).Result;
                         if (snappfood != null)
                         {
-                            snappfoodHelper.AddProducts(snappfood);
+                            snappfoodHelper.AddProduct(snappfood);
                         }
                     }
                 }

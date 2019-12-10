@@ -163,10 +163,10 @@ namespace TerexCrawler.Services.Digikala
                 #region GetProduct
                 Snappfood product = new Snappfood();
                 string id = getSnappfoodIdByUrl(url);
-                url = getSnappfoodCommentLink(id, 0);
+                string tmp_url = getSnappfoodCommentLink(id, 0);
                 using (IHttpClientHelper clientHelper = new RestSharpHelper())
                 {
-                    var resultClient = clientHelper.GetHttp(url, true, user_agent);
+                    var resultClient = clientHelper.GetHttp(tmp_url, true, user_agent);
                     product = JsonConvert.DeserializeObject<Snappfood>(resultClient.Content);
                     double pageCount = 0;
                     pageCount = Math.Round((double)(product.data.count / product.data.pageSize));
@@ -196,8 +196,16 @@ namespace TerexCrawler.Services.Digikala
 
                         }
                     }
-                    var cm = product.data.comments.Select(x => x.commentText.Replace("\n", ", ")).ToArray();
-                    var cmss = string.Join("\n", cm);
+                    //var cm = product.data.comments.Select(x => x.commentText.Replace("\n", ", ")).ToArray();
+                    //var cmss = string.Join("\n", cm);
+                    product.Url = url;
+                    product.CreateDateTime = DateTime.Now;
+                    product.Id = ObjectId.GenerateNewId(DateTime.Now);
+                    product.Reserve = false;
+                    product.status = true;
+                    product.Tag = false;
+                    product.Tagger = "_";
+                    product.TagDate = DateTime.MinValue;
                 }
                 #endregion
 
@@ -276,6 +284,8 @@ namespace TerexCrawler.Services.Digikala
             return url.Substring(0, end);
         }
     }
+
+    
     public class AddProductsSnappfood
     {
         public List<Snappfood> Snappfoods { get; set; }
