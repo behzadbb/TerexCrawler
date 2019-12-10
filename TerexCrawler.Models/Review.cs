@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,8 +9,9 @@ namespace TerexCrawler.Models
     [Serializable]
     public class Review
     {
-        [BsonId]
-        public Guid rid { get; set; }
+        public ObjectId _id { get; set; }
+        public DateTime CreateDate { get; set; }
+        public int rid { get; set; }
         public long ProductID { get; set; }
         public List<sentence> sentences { get; set; }
     }
@@ -18,6 +20,7 @@ namespace TerexCrawler.Models
         public int id { get; set; }
         public string Text { get; set; }
         public List<Opinion> Opinions { get; set; }
+        public bool OutOfScope { get; set; }
     }
     public class Opinion
     {

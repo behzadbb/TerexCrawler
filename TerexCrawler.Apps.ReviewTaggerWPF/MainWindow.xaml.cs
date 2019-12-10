@@ -18,6 +18,7 @@ using TerexCrawler.Services.Digikala;
 using TerexCrawler.Models.DTO.Digikala;
 using TerexCrawler.Models;
 using TerexCrawler.Models.Enums;
+using MongoDB.Bson;
 
 namespace TerexCrawler.Apps.ReviewTaggerWPF
 {
@@ -30,7 +31,9 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
         DigikalaProductDTO digikalaProduct = new DigikalaProductDTO();
         List<Opinion> opinions = new List<Opinion>();
         List<sentence> sentences = new List<sentence>();
-        int sentenceId = 0;
+        private int _sentenceId = 0;
+        int sentenceId { get { return _sentenceId++; } }
+        void sentenceIdReset() { _sentenceId = 0; }
         int commentCount = 0;
         int commentCurrentIndex = -1;
         public MainWindow()
@@ -40,8 +43,21 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
 
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
-           //Opinions.AddRange(listAspects.ItemsSource);
-           //nextReview();
+            if (!string.IsNullOrEmpty(txtSelectReview.Text))
+            {
+                var sentence = new sentence()
+                {
+                    id = sentenceId,
+                    Text = txtSelectReview.Text.Trim()
+                };
+                if (opinions != null && opinions.Count() > 0)
+                {
+                    sentence.Opinions = opinions;
+                }
+                sentences.Add(sentence);
+                opinions.Clear();
+            }
+            //nextReview();
         }
 
         #region ListBox
@@ -89,12 +105,30 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
 
         private void btnNext_Click(object sender, RoutedEventArgs e)
         {
-            if (true)
+            if (opinions != null && opinions.Count() > 0 && !string.IsNullOrEmpty(txtSelectReview.Text))
             {
-
+                sentences.Add(new sentence
+                {
+                    id = sentenceId,
+                    Text = txtSelectReview.Text.Trim(),
+                    Opinions = opinions
+                });
+                opinions.Clear();
             }
+
             using (IWebsiteCrawler digikala = new DigikalaHelper())
             {
+                if (sentences != null && sentences.Count() > 0)
+                {
+
+                    review.sentences.AddRange(sentences);
+                    review.CreateDate = DateTime.Now;
+                    review._id = ObjectId.GenerateNewId();
+                    review.rid = digikalaProduct.DKP;
+                    sentences.Clear();
+                    sentenceIdReset();
+                    digikala.AddReviewToDB(review);
+                }
                 // Api
                 digikalaProduct = digikala.GetFirstProductByCategory<DigikalaProductDTO>("گوشی موبایل", "سامسونگ", "behzad").Result;
 
