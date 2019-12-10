@@ -11,9 +11,10 @@
 | Site | Link |
 | ------ | ------ |
 | Digikala | [www.Digikala.com] |
+| Snappfood | [www.snappfood.ir] |
 
 ##### Dependencies:
-  - DotNetCore SDK 2.2
+  - DotNetCore SDK 3.0
   - Code Editor: Visual Studio 2019 or Vs Code
 
 
