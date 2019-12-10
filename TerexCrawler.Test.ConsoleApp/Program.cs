@@ -176,7 +176,7 @@ namespace TerexCrawler.Test.ConsoleApp
                 string url1 = "https://www.digikala.com/product/dkp-313420";
                 string url2 = "https://www.digikala.com/product/dkp-1675555";
                 string url3 = "https://www.digikala.com/product/dkp-676525";
-                string url4 = "https://www.digikala.com/product/dkp-409062/";
+                string url4 = "https://www.digikala.com/product/dkp-781586";
                 //var page = digikala.GetPage(url2);
                 var s = await digikala.GetProduct<DigikalaProductDTO>(url4);
                 var jjj = JsonConvert.SerializeObject(s);
@@ -227,8 +227,8 @@ namespace TerexCrawler.Test.ConsoleApp
                         if (product == null)
                         {
                             int dkp = getDKPWithUrl(item.Loc);
-                            Console.WriteLine($"Try Again , DKP - {dkp} Wait: {2000} Secs");
-                            System.Threading.Thread.Sleep(2000 * errorCount);
+                            Console.WriteLine($"Try Again , DKP - {dkp} Wait: {1000} Secs");
+                            System.Threading.Thread.Sleep(1000 * errorCount);
                             using (IWebsiteCrawler digikala = new DigikalaHelper())
                             {
                                 product = await digikala.GetProduct<DigikalaProductDTO>(item.Loc);
@@ -256,23 +256,23 @@ namespace TerexCrawler.Test.ConsoleApp
                         }
                         else
                         {
-                            if (errorCount < 4)
+                            if (errorCount < 3)
                             {
                                 errorCount += 1;
                             }
                             int dkp = getDKPWithUrl(item.Loc);
-                            Console.WriteLine($"{++x} = DKP-{dkp} , Wait: {2000 * errorCount} Secs ,  *** Error *** ,");
-                            System.Threading.Thread.Sleep(2000 * errorCount);
+                            Console.WriteLine($"{++x} = DKP-{dkp} , Wait: {1000 * errorCount} Secs ,  *** Error *** ,");
+                            System.Threading.Thread.Sleep(1000 * errorCount);
                         }
                     }
                     catch (Exception ex)
                     {
-                        if (errorCount < 4)
+                        if (errorCount < 3)
                         {
                             errorCount += 1;
                         }
                         int dkp = getDKPWithUrl(item.Loc);
-                        Console.WriteLine($"{++x} = DKP-{dkp} , Wait: {2000 * errorCount} Secs , *** Error ***   Problem");
+                        Console.WriteLine($"{++x} = DKP-{dkp} , Wait: {1000 * errorCount} Secs , *** Error ***   Problem");
                         using (ILoger Logger = new MongoDBLoggerHelper())
                         {
                             LogDTO log = new LogDTO()
@@ -287,7 +287,7 @@ namespace TerexCrawler.Test.ConsoleApp
                             };
                             Logger.AddLog(log);
                         }
-                        System.Threading.Thread.Sleep(2000 * errorCount);
+                        System.Threading.Thread.Sleep(1000 * errorCount);
                     }
                 }
             }
@@ -301,7 +301,7 @@ namespace TerexCrawler.Test.ConsoleApp
                 productTemps.Add(productTemp.Value);
             }
 
-            if (productTemps.Count() >= 10 || force)
+            if (productTemps.Count() >= 20 || force)
             {
                 List<ProductTemp> temp = new List<ProductTemp>();
                 temp.AddRange(productTemps);
@@ -393,31 +393,14 @@ namespace TerexCrawler.Test.ConsoleApp
             {
                 foreach (string item in readTexts)
                 {
-                    string id = getSnappfoodIdByUrl(item);
-                    string url = getSnappfoodCommentLink(id, 0);
-                    using (IHttpClientHelper clientHelper = new RestSharpHelper())
+                    Snappfood snappfood = new Snappfood();
+                    using (SnappfoodHelper snappfoodHelper = new SnappfoodHelper())
                     {
-                        var resultClient = clientHelper.GetHttp(url, true, user_agent);
-                        var comments = JsonConvert.DeserializeObject<Snappfood>(resultClient.Content);
-                        double pageCount = 0;
-                        pageCount = Math.Round((double)(comments.data.count / comments.data.pageSize));
-                        if (comments.data.comments != null && comments.data.comments.Any() && pageCount > 0)
+                        snappfood = snappfoodHelper.GetProduct<Snappfood>(item).Result;
+                        if (snappfood != null)
                         {
-                            for (int i = 1; i <= pageCount; i++)
-                            {
-                                System.Threading.Thread.Sleep(200);
-                                string url1 = getSnappfoodCommentLink(id, i);
-                                var resultClient1 = clientHelper.GetHttp(url1, true, user_agent);
-                                var comments1 = JsonConvert.DeserializeObject<Snappfood>(resultClient1.Content);
-                                if (comments1 != null && comments1.data.comments != null & comments1.data.comments.Any())
-                                {
-                                    comments.data.comments.AddRange(comments1.data.comments);
-                                }
-                            }
+                            snappfoodHelper.AddProduct(snappfood);
                         }
-                        var cm = comments.data.comments.Select(x => x.commentText.Replace("\n",", ")).ToArray();
-                        var cmss = string.Join("\n", cm);
-                        var jsons= JsonConvert.SerializeObject(comments);
                     }
                 }
             }

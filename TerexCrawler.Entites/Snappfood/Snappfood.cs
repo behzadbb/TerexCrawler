@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MongoDB.Bson;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -34,9 +35,14 @@ namespace TerexCrawler.Entites.Snappfood
 
     public class Snappfood
     {
-        public int Id { get; set; }
+        public ObjectId Id { get; set; }
         public string Url { get; set; }
         public bool status { get; set; }
+        public bool Tag { get; set; }
+        public bool Reserve { get; set; }
+        public string Tagger { get; set; }
+        public DateTime TagDate { get; set; }
         public Data data { get; set; }
+        public DateTime CreateDateTime { get; set; }
     }
 }

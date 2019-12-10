@@ -14,6 +14,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.IO;
+using System.Text.RegularExpressions;
 
 namespace TerexCrawler.DataLayer.Repository
 {
