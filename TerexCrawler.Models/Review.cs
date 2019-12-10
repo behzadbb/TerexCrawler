@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace TerexCrawler.Entites
+namespace TerexCrawler.Models
 {
     [Serializable]
     public class Review

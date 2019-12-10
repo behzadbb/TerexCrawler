@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using TerexCrawler.Common;
 using TerexCrawler.DataLayer.Repository;
+using TerexCrawler.Entites;
 using TerexCrawler.Entites.Digikala;
 using TerexCrawler.HttpHelper;
 using TerexCrawler.Models;
@@ -722,13 +723,19 @@ namespace TerexCrawler.Services.Digikala
 
             return m;
         }
-        public async Task<T> GetFirstProductByCategory<T>(string category,string title)
+        public async Task<T> GetFirstProductByCategory<T>(string category, string title, string tagger)
         {
             using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
             {
-                var result = db.GetFirstProductByCategory(category , title);
+                var result = db.GetFirstProductByCategory(category, title, tagger);
                 return (T)Convert.ChangeType(result, typeof(DigikalaProductDTO));
             }
+        }
+
+        public bool AddReviewToDB(Review review)
+        {
+
+            return true;
         }
     }
 }

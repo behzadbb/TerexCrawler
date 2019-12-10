@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MongoDB.Bson" Version="2.9.2" />
+  </ItemGroup>
+  
+  <ItemGroup>
     <Folder Include="DTO\Snappfood\" />
   </ItemGroup>
 

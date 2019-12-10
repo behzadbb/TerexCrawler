@@ -102,6 +102,18 @@ namespace TerexCrawler.DataLayer.Repository
             snappfoodProducts.InsertBatch(dtos);
         }
 
+        public Snappfood GetFirstSnappfood(string category, string title, string tagger)
+        {
+            var query = Query<Snappfood>.Where(x => x.data.comments.Any() && !x.isTagged && !x.Reserve && x.data.comments.Count < 30);
+
+            var update = Update<Snappfood>.Set(p => p.Tagger, tagger).Set(p => p.Reserve, true);
+
+            snappfoodProducts.Update(query, update);
+            var product = snappfoodProducts.FindOne(query);
+            //var laptop = digikalaProducts.FindOne();
+            return product;
+        }
+
         public List<Snappfood> GetAllSnappfood()
         {
             var snappfoodsResult = snappfoodProducts.FindAll().ToList();

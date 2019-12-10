@@ -16,6 +16,8 @@ using TerexCrawler.Entites;
 using TerexCrawler.Models.Interfaces;
 using TerexCrawler.Services.Digikala;
 using TerexCrawler.Models.DTO.Digikala;
+using TerexCrawler.Models;
+using TerexCrawler.Models.Enums;
 
 namespace TerexCrawler.Apps.ReviewTaggerWPF
 {
@@ -26,8 +28,9 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
     {
         Review review = new Review();
         DigikalaProductDTO digikalaProduct = new DigikalaProductDTO();
-        List<Opinion> Opinions = new List<Opinion>();
-        public List<sentence> sentences = new List<sentence>();
+        List<Opinion> opinions = new List<Opinion>();
+        List<sentence> sentences = new List<sentence>();
+        int sentenceId = 0;
         int commentCount = 0;
         int commentCurrentIndex = -1;
         public MainWindow()
@@ -37,9 +40,8 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
 
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
-            var ss = listAspects.Items;
-            //Opinions.AddRange(listAspects.ItemsSource);
-            //nextReview();
+           //Opinions.AddRange(listAspects.ItemsSource);
+           //nextReview();
         }
 
         #region ListBox
@@ -47,27 +49,55 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
         {
             string item = listPositive.Items[listPositive.SelectedIndex].ToString();
             listAspects.Items.Add(item);
-            //listPositive.Items.RemoveAt(listPositive.SelectedIndex);
+            Opinion opinion = new Opinion();
+            opinion.category = item;
+            opinion.categoryClass = item;
+            opinion.polarity = PolarityType.positive.ToString();
+            opinion.polarityClass = (int)PolarityType.positive;
+
+            opinions.Add(opinion);
         }
 
         private void listNeutral_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             string item = listNeutral.Items[listNeutral.SelectedIndex].ToString();
             listAspects.Items.Add(item);
+
+            Opinion opinion = new Opinion();
+            opinion.category = item;
+            opinion.categoryClass = item;
+            opinion.polarity = PolarityType.neutral.ToString();
+            opinion.polarityClass = (int)PolarityType.neutral;
+
+            opinions.Add(opinion);
         }
 
         private void listNegative_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             string item = listNegative.Items[listNegative.SelectedIndex].ToString();
             listAspects.Items.Add(item);
+
+            Opinion opinion = new Opinion();
+            opinion.category = item;
+            opinion.categoryClass = item;
+            opinion.polarity = PolarityType.negative.ToString();
+            opinion.polarityClass = (int)PolarityType.negative;
+
+            opinions.Add(opinion);
         }
         #endregion
 
         private void btnNext_Click(object sender, RoutedEventArgs e)
         {
+            if (true)
+            {
+
+            }
             using (IWebsiteCrawler digikala = new DigikalaHelper())
             {
-                digikalaProduct = digikala.GetFirstProductByCategory<DigikalaProductDTO>("گوشی موبایل","سامسونگ").Result;
+                // Api
+                digikalaProduct = digikala.GetFirstProductByCategory<DigikalaProductDTO>("گوشی موبایل", "سامسونگ", "behzad").Result;
+
                 commentCount = digikalaProduct.Comments.Count();
                 nextReview();
                 txtProductId.Text = digikalaProduct.DKP.ToString();
@@ -76,6 +106,7 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
                 review.ProductID = digikalaProduct.DKP;
             }
         }
+
         private void nextReview()
         {
             commentCurrentIndex += 1;
@@ -89,6 +120,7 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
                 listNegative.ItemsSource = aspect;
                 listNeutral.ItemsSource = aspect;
                 listPositive.ItemsSource = aspect;
+                opinions.Clear();
             }
         }
     }

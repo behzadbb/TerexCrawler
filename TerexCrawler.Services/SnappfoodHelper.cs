@@ -203,7 +203,7 @@ namespace TerexCrawler.Services.Digikala
                     product.Id = ObjectId.GenerateNewId(DateTime.Now);
                     product.Reserve = false;
                     product.status = true;
-                    product.Tag = false;
+                    product.isTagged = false;
                     product.Tagger = "_";
                     product.TagDate = DateTime.MinValue;
                 }
@@ -282,6 +282,16 @@ namespace TerexCrawler.Services.Digikala
             url = url.Substring(start, lenght);
             int end = url.IndexOf("/");
             return url.Substring(0, end);
+        }
+
+        public Task<T> GetFirstProductByCategory<T>(string category, string title, string tagger)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool AddReviewToDB(Review review)
+        {
+            throw new NotImplementedException();
         }
     }
 

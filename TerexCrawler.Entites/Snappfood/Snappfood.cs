@@ -38,7 +38,7 @@ namespace TerexCrawler.Entites.Snappfood
         public ObjectId Id { get; set; }
         public string Url { get; set; }
         public bool status { get; set; }
-        public bool Tag { get; set; }
+        public bool isTagged { get; set; }
         public bool Reserve { get; set; }
         public string Tagger { get; set; }
         public DateTime TagDate { get; set; }

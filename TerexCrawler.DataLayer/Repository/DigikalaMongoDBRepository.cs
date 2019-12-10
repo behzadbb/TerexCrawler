@@ -15,6 +15,7 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.IO;
 using System.Text.RegularExpressions;
+using TerexCrawler.Models;
 
 namespace TerexCrawler.DataLayer.Repository
 {
@@ -46,6 +47,7 @@ namespace TerexCrawler.DataLayer.Repository
         private MongoDatabase db;
         private MongoCollection<DigikalaBasePage> digikalaBasePages;
         private MongoCollection<DigikalaProduct> digikalaProducts;
+        private MongoCollection<Review> digikalaReview;
 
         public DigikalaMongoDBRepository()
         {
@@ -156,11 +158,20 @@ namespace TerexCrawler.DataLayer.Repository
             }
         }
 
-        public DigikalaProductDTO GetFirstProductByCategory(string category, string title)
+        public DigikalaProductDTO GetFirstProductByCategory(string category, string title, string tagger)
         {
-            var query = Query<DigikalaProduct>.Where(x => x.Category == category && x.Title.Contains(title) && x.Comments.Any() && !x.isTagged );
+            var query = Query<DigikalaProduct>.Where(x => x.Category == category &&
+                                                          x.Title.Contains(title) &&
+                                                          x.Comments.Any() &&
+                                                          !x.isTagged &&
+                                                          x.Comments.Count < 30);
+
+            var update = Update<DigikalaProduct>.Set(p => p.Reserved, true).Set(p => p.Tagger, tagger);
+
+            digikalaProducts.Update(query, update);
+            System.Threading.Thread.Sleep(50);
+
             var product = digikalaProducts.FindOne(query);
-            //var laptop = digikalaProducts.FindOne();
             DigikalaProductDTO digikalaProduct = new DigikalaProductDTO();
             digikalaProduct._id = product._id.ToString();
             digikalaProduct.AvrageRate = product.AvrageRate;
@@ -201,6 +212,12 @@ namespace TerexCrawler.DataLayer.Repository
             digikalaProduct.TotalParticipantsCount = product.TotalParticipantsCount;
             digikalaProduct.Url = product.Url;
             return digikalaProduct;
+        }
+
+        public bool AddReview(Review review)
+        {
+            WriteConcernResult resBool = digikalaReview.Insert(review);
+            return true;
         }
     }
 }
