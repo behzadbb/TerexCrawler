@@ -43,21 +43,7 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
 
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
-            if (!string.IsNullOrEmpty(txtSelectReview.Text))
-            {
-                var sentence = new sentence()
-                {
-                    id = sentenceId,
-                    Text = txtSelectReview.Text.Trim()
-                };
-                if (opinions != null && opinions.Count() > 0)
-                {
-                    sentence.Opinions = opinions;
-                }
-                sentences.Add(sentence);
-                opinions.Clear();
-            }
-            //nextReview();
+            nextReview();
         }
 
         #region ListBox
@@ -120,10 +106,9 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
             {
                 if (sentences != null && sentences.Count() > 0)
                 {
-
                     review.sentences.AddRange(sentences);
                     review.CreateDate = DateTime.Now;
-                    review._id = ObjectId.GenerateNewId();
+                    review._id = ObjectId.GenerateNewId(DateTime.Now);
                     review.rid = digikalaProduct.DKP;
                     sentences.Clear();
                     sentenceIdReset();
@@ -150,12 +135,41 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
                 txtReview.Text = comment.Review;
                 txtReviewTitle.Text = comment.Title;
                 lblCount.Content = $"{commentCurrentIndex + 1} / {commentCount}";
-                List<string> aspect = new List<string> { "باتری#مدت شارژ", "باتری#کیفیت", "صفحه نمایش" };
-                listNegative.ItemsSource = aspect;
-                listNeutral.ItemsSource = aspect;
-                listPositive.ItemsSource = aspect;
-                opinions.Clear();
             }
+            List<string> aspect = new List<string> { "باتری#مدت شارژ", "باتری#کیفیت", "صفحه نمایش" };
+            listNegative.ItemsSource = aspect;
+            listNeutral.ItemsSource = aspect;
+            listPositive.ItemsSource = aspect;
+            opinions.Clear();
+        }
+
+        private void btnAddSentence_Click(object sender, RoutedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(txtSelectReview.Text))
+            {
+                var sentence = new sentence()
+                {
+                    id = sentenceId,
+                    Text = txtSelectReview.Text.Trim()
+                };
+                if (opinions != null && opinions.Count() > 0)
+                {
+                    sentence.Opinions = opinions;
+                }
+                if (opinions == null || opinions.Count() == 0)
+                {
+                    sentence.OutOfScope = true;
+                }
+                sentences.Add(sentence);
+                opinions.Clear();
+                txtReview.Text=txtReview.Text.Replace(txtSelectReview.Text.Trim(),"").Trim();
+            }
+
+            List<string> aspect = new List<string> { "باتری#مدت شارژ", "باتری#کیفیت", "صفحه نمایش" };
+            listNegative.ItemsSource = aspect;
+            listNeutral.ItemsSource = aspect;
+            listPositive.ItemsSource = aspect;
+            opinions.Clear();
         }
     }
 }
