@@ -16,14 +16,15 @@
         <Label Content="عنوان نظر" HorizontalAlignment="Left" FlowDirection="RightToLeft" Margin="1399,101,0,0" VerticalAlignment="Top" Width="91" Foreground="White"/>
         <TextBox Name="txtReviewTitle" HorizontalAlignment="Left" FlowDirection="RightToLeft" Margin="21,101,0,0" Text="" TextWrapping="Wrap" VerticalAlignment="Top" Width="1369" OpacityMask="Black" Background="#FF244358" Foreground="White"/>
         <Label Content="عنوان نظر" HorizontalAlignment="Left" FlowDirection="RightToLeft" Margin="1399,128,0,0" VerticalAlignment="Top" Width="91" Foreground="White"/>
-        <TextBox Name="txtReview" Margin="21,128,110,403" FlowDirection="RightToLeft" OpacityMask="Black" Background="#CC042328" Foreground="White" FontSize="18" FontFamily="b zar" AcceptsReturn="True" />
-        <Button Content="Button" Name="btnSave" HorizontalAlignment="Left" Margin="163,451,0,0" VerticalAlignment="Top" Width="157" Height="49" Click="btnSave_Click"/>
+        <TextBox Name="txtReview" Margin="21,128,110,466" FlowDirection="RightToLeft" OpacityMask="Black" Background="#CC042328" Foreground="White" FontSize="18" FontFamily="b zar" AcceptsReturn="True" />
+        <Button Content="ذخیره" Name="btnSave" HorizontalAlignment="Left" Margin="163,451,0,0" VerticalAlignment="Top" Width="157" Height="49" Click="btnSave_Click"/>
         <ListBox x:Name="listPositive" Margin="1185,451,110,10" Background="{x:Null}" Foreground="#FF97BB94" BorderBrush="GreenYellow" FlowDirection="RightToLeft" SelectionChanged="listPositive_SelectionChanged" />
         <ListBox x:Name="listNeutral" Margin="959,451,336,10" Background="{x:Null}" Foreground="White" BorderBrush="LightGray" FlowDirection="RightToLeft" SelectionChanged="listNeutral_SelectionChanged" />
         <ListBox x:Name="listNegative" Margin="733,451,562,10" Background="{x:Null}" Foreground="#FFCBA39D" BorderBrush="red" FlowDirection="RightToLeft" SelectionChanged="listNegative_SelectionChanged" />
         <ListBox x:Name="listAspects" Margin="504,451,790,10" Background="{x:Null}" Foreground="White" BorderBrush="Aqua" FlowDirection="RightToLeft" />
-        <Button Content="Button" Name="btnNextProduct" HorizontalAlignment="Left" Margin="21,6,0,0" VerticalAlignment="Top" Height="30" Width="152" Click="btnNext_Click"/>
+        <Button Content="نظر بعدی" Name="btnNextProduct" HorizontalAlignment="Left" Margin="21,6,0,0" VerticalAlignment="Top" Height="30" Width="152" Click="btnNext_Click"/>
         <Label Content="xxx/xxx" Name="lblCount" HorizontalAlignment="Left" Margin="1400,243,0,0" Foreground="White" FontSize="20" VerticalAlignment="Top" Width="82"/>
+        <TextBox x:Name="txtSelectReview" HorizontalAlignment="Left" FlowDirection="RightToLeft" Margin="21,382,0,0" Text="" TextWrapping="Wrap" VerticalAlignment="Top" Width="1369" OpacityMask="Black" Background="#FF244358" Foreground="White" Height="35"/>
 
 
     </Grid>
