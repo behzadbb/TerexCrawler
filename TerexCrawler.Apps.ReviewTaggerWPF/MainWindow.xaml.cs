@@ -30,8 +30,9 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
         Review review = new Review();
         DigikalaProductDTO digikalaProduct = new DigikalaProductDTO();
         List<Opinion> opinions = new List<Opinion>();
-        List<sentence> sentences = new List<sentence>();
+        static List<sentence> sentences = new List<sentence>();
         private int _sentenceId = 0;
+        string tagger = "behzad";
         int sentenceId { get { return _sentenceId++; } }
         void sentenceIdReset() { _sentenceId = 0; }
         int commentCount = 0;
@@ -106,13 +107,31 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
             {
                 if (sentences != null && sentences.Count() > 0)
                 {
+                    if (review.sentences == null)
+                    {
+                        review.sentences = new List<sentence>();
+                    }
                     review.sentences.AddRange(sentences);
+                    sentences.Clear();
+                }
+                if (review != null && review.sentences != null && review.sentences.Count() > 0)
+                { 
                     review.CreateDate = DateTime.Now;
                     review._id = ObjectId.GenerateNewId(DateTime.Now);
                     review.rid = digikalaProduct.DKP;
-                    sentences.Clear();
-                    sentenceIdReset();
-                    digikala.AddReviewToDB(review);
+
+                    bool s = digikala.AddReviewToDB(review, digikalaProduct._id, tagger);
+                    if (s)
+                    {
+                        sentences.Clear();
+                        sentenceIdReset();
+                        review = new Review();
+                    }
+                    else
+                    {
+                        MessageBox.Show("ثبت با مشکل روبرو شده است دوباره سعی کنید.", "Warning");
+                        return;
+                    }
                 }
                 // Api
                 digikalaProduct = digikala.GetFirstProductByCategory<DigikalaProductDTO>("گوشی موبایل", "سامسونگ", "behzad").Result;
@@ -147,29 +166,44 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
         {
             if (!string.IsNullOrEmpty(txtSelectReview.Text))
             {
-                var sentence = new sentence()
-                {
-                    id = sentenceId,
-                    Text = txtSelectReview.Text.Trim()
-                };
+                sentence sentence = new sentence();
                 if (opinions != null && opinions.Count() > 0)
                 {
-                    sentence.Opinions = opinions;
+                    var _opinions = opinions.Select(x => new Opinion { category = x.category, categoryClass = x.categoryClass, polarity = x.polarity, polarityClass = x.polarityClass }).ToList();
+                    sentence = new sentence()
+                    {
+                        id = sentenceId,
+                        Text = txtSelectReview.Text.Trim(),
+                        Opinions = _opinions
+                    };
+
                 }
                 if (opinions == null || opinions.Count() == 0)
                 {
-                    sentence.OutOfScope = true;
+                    sentence = new sentence()
+                    {
+                        id = sentenceId,
+                        Text = txtSelectReview.Text.Trim(),
+                        Opinions = new List<Opinion>(),
+                        OutOfScope = true
+                    };
                 }
                 sentences.Add(sentence);
-                opinions.Clear();
-                txtReview.Text=txtReview.Text.Replace(txtSelectReview.Text.Trim(),"").Trim();
+                var sen = sentences.ToList();
+                txtReview.Text = txtReview.Text.Replace(txtSelectReview.Text.Trim(), "").Trim();
+                txtSelectReview.Text = "";
             }
 
             List<string> aspect = new List<string> { "باتری#مدت شارژ", "باتری#کیفیت", "صفحه نمایش" };
             listNegative.ItemsSource = aspect;
             listNeutral.ItemsSource = aspect;
             listPositive.ItemsSource = aspect;
+            listAspects.Items.Clear();
             opinions.Clear();
+        }
+        private void AddSentence()
+        {
+
         }
     }
 }

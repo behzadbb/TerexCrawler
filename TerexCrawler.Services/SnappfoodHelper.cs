@@ -289,7 +289,7 @@ namespace TerexCrawler.Services.Digikala
             throw new NotImplementedException();
         }
 
-        public bool AddReviewToDB(Review review)
+        public bool AddReviewToDB(Review review, string id, string tagger)
         {
             throw new NotImplementedException();
         }

@@ -56,6 +56,7 @@ namespace TerexCrawler.DataLayer.Repository
             db = server.GetDatabase("Digikala");
             digikalaBasePages = db.GetCollection<DigikalaBasePage>("DigikalaBasePages");
             digikalaProducts = db.GetCollection<DigikalaProduct>("DigikalaProducts");
+            digikalaReview = db.GetCollection<Review>("DigikalaReviews");
         }
 
         public void AddDigikalaBasePage(DigikalaPageBaseDTO dto)
@@ -163,12 +164,14 @@ namespace TerexCrawler.DataLayer.Repository
             var query = Query<DigikalaProduct>.Where(x => x.Category == category &&
                                                           x.Title.Contains(title) &&
                                                           x.Comments.Any() &&
+                                                          x.Reserved == false &&
                                                           !x.isTagged &&
                                                           x.Comments.Count < 30);
 
             var update = Update<DigikalaProduct>.Set(p => p.Reserved, true).Set(p => p.Tagger, tagger);
 
             digikalaProducts.Update(query, update);
+
             System.Threading.Thread.Sleep(50);
 
             var product = digikalaProducts.FindOne(query);
@@ -216,8 +219,21 @@ namespace TerexCrawler.DataLayer.Repository
 
         public bool AddReview(Review review)
         {
-            WriteConcernResult resBool = digikalaReview.Insert(review);
+            digikalaReview.Insert(review);
             return true;
+        }
+
+        public void SetTaggedProduct(string id, string tagger)
+        {
+            var query = Query<DigikalaProduct>.Where(x => x._id == ObjectId.Parse(id));
+
+            var update = Update<DigikalaProduct>
+                .Set(p => p.Reserved, false)
+                .Set(p => p.Tagger, tagger)
+                .Set(p => p.TaggedDate, DateTime.Now)
+                .Set(p => p.isTagged, true);
+
+            digikalaProducts.Update(query, update);
         }
     }
 }

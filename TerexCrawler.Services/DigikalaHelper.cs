@@ -309,7 +309,7 @@ namespace TerexCrawler.Services.Digikala
                 var res = client.GetHttp(url, true, user_agent);
                 if (res.Success)
                 {
-                    content=res.Content;
+                    content = res.Content;
                 }
                 if (res.HttpStatusCode == (int)HttpStatusCode.NotFound)
                 {
@@ -587,7 +587,7 @@ namespace TerexCrawler.Services.Digikala
             int lenghtDKP = url.Length - indexDKP;
             int indexEndChar = url.Substring(indexDKP).IndexOf("/");
             var uu = url.Length;
-            string getDKP = url.Substring(indexDKP, indexEndChar<1 ? lenghtDKP : indexEndChar).Replace("dkp-", "");
+            string getDKP = url.Substring(indexDKP, indexEndChar < 1 ? lenghtDKP : indexEndChar).Replace("dkp-", "");
 
             List<string> splitUrl = new List<string>();
             splitUrl.AddRange(getDKP.Split("-"));
@@ -732,10 +732,32 @@ namespace TerexCrawler.Services.Digikala
             }
         }
 
-        public bool AddReviewToDB(Review review)
+        public bool AddReviewToDB(Review review, string id, string tagger)
         {
-
-            return true;
+            try
+            {
+                using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
+                {
+                    db.AddReview(review);
+                    db.SetTaggedProduct(id, tagger);
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogDTO log = new LogDTO()
+                {
+                    _id = ObjectId.GenerateNewId(DateTime.Now).ToString(),
+                    DateTime = DateTime.Now,
+                    Description = ex.Message,
+                    ProjectId = (int)ProjectNames.Services,
+                    Url = "DKP: " + review.ProductID,
+                    MethodName = "AddReviewToDB",
+                    Title = $"AddReviewToDB Error, Tagger: {tagger}"
+                };
+                Logger.AddLog(log);
+                return false;
+            }
         }
     }
 }
