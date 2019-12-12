@@ -235,5 +235,18 @@ namespace TerexCrawler.DataLayer.Repository
 
             digikalaProducts.Update(query, update);
         }
+
+        public object GetAllReviews()
+        {
+            List<Comment> comments = new List<Comment>();
+            var query = Query<DigikalaProduct>.Where(x => x.Comments != null && x.Comments.Count > 0);
+            List<DigikalaProduct> products = digikalaProducts.Find(query).ToList();//.Comments.FirstOrDefault().Review;
+            var ssss = from c in products.Select(x => x.Comments)
+                       from r in c.Select(x => x)
+                       select r.Review;
+            //string[] titles = products.Comments.Select(x => x.Title).ToArray();
+            //var aspects = products.Comments.Where(x => x.NegativeAspect.Any()).Select(x => x.NegativeAspect);
+            return ssss.ToArray();
+        }
     }
 }

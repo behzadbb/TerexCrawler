@@ -1,28 +1,22 @@
-﻿using System;
-using TerexCrawler.Common;
-using TerexCrawler.Models.DTO.XmlSitemap;
-using System.Linq;
-using System.IO;
-using System.IO.Compression;
-using System.Collections.Generic;
-using TerexCrawler.Services.Digikala;
-using TerexCrawler.Models.Interfaces;
-using System.Text.Unicode;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Driver;
-using TerexCrawler.Models.DTO.Page;
 using Newtonsoft.Json;
-using TerexCrawler.DataLayer.Context;
-using TerexCrawler.Models.DTO.Digikala;
-using MongoDB.Driver.Builders;
-using TerexCrawler.Models;
-using TerexCrawler.Models.Enums;
-using TerexCrawler.Services;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
-using TerexCrawler.HttpHelper;
-using OpenQA.Selenium.Chrome;
-using HtmlAgilityPack;
+using TerexCrawler.Common;
 using TerexCrawler.Entites.Snappfood;
+using TerexCrawler.HttpHelper;
+using TerexCrawler.Models;
+using TerexCrawler.Models.DTO.Digikala;
+using TerexCrawler.Models.DTO.Page;
+using TerexCrawler.Models.DTO.XmlSitemap;
+using TerexCrawler.Models.Enums;
+using TerexCrawler.Models.Interfaces;
+using TerexCrawler.Services;
+using TerexCrawler.Services.Digikala;
 
 namespace TerexCrawler.Test.ConsoleApp
 {
@@ -48,6 +42,7 @@ namespace TerexCrawler.Test.ConsoleApp
             p("5- Get Product Page");
             p("6- Get Comments");
             p("7- Add Product To DB");
+            p("9- get All Reviews");
             p("100- Get Site Map");
             p("101- Get Site Map From Url");
             short methodNum = Convert.ToInt16(Console.ReadLine());
@@ -74,6 +69,9 @@ namespace TerexCrawler.Test.ConsoleApp
                     break;
                 case 7:
                     digikala_7_AddProductToMongo();
+                    break;
+                case 9:
+                    digikala_getAllReviews_9();
                     break;
                 case 100:
                     snappFood_100_Sitemap();
@@ -326,6 +324,24 @@ namespace TerexCrawler.Test.ConsoleApp
             public DigikalaProductDTO DigikalaProduct { get; set; }
         }
         private static List<ProductTemp> productTemps = new List<ProductTemp>();
+
+        private async static void digikala_getAllReviews_9()
+        {
+            using (IWebsiteCrawler digikala = new DigikalaHelper())
+            {
+                var digikalaReviews = digikala.GetAllReviews<string[]>();
+                var reviews = digikalaReviews.Result;
+                int spliteSize = 50000;
+                float size = reviews.Length / spliteSize;
+                int itr = (int)Math.Round(size);
+                for (int i = 0; i <= itr; i++)
+                {
+                    string json = JsonConvert.SerializeObject(reviews.Skip(i * spliteSize).Take(spliteSize).ToArray(), Formatting.Indented);
+                    File.WriteAllText(@$"C:\Digikala\reviews\review-{i}.json", json, Encoding.UTF8);
+                }
+                //var sssssse= digikalaReviews.
+            }
+        }
         #endregion
 
         #region

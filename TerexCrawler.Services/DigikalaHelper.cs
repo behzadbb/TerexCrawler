@@ -759,5 +759,13 @@ namespace TerexCrawler.Services.Digikala
                 return false;
             }
         }
+        public async Task<T> GetAllReviews<T>()
+        {
+            using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
+            {
+                var ss= db.GetAllReviews();
+                return (T)Convert.ChangeType(ss, typeof(string[]));
+            }
+        }
     }
 }

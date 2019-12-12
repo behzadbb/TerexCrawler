@@ -29,5 +29,6 @@ namespace TerexCrawler.Models.Interfaces
         void CrawledProducts(string[] ids);
         Task<T> GetFirstProductByCategory<T>(string category, string title, string tagger);
         bool AddReviewToDB(Review review, string id, string tagger);
+        Task<T> GetAllReviews<T>();
     }
 }

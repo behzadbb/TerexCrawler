@@ -293,6 +293,16 @@ namespace TerexCrawler.Services.Digikala
         {
             throw new NotImplementedException();
         }
+
+        public object GetAllReviews()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<T> GetAllReviews<T>()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     
