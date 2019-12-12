@@ -24,7 +24,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TerexCrawler.Test.ConsoleAp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TerexCrawler.Apps.ReviewTagger", "TerexCrawler.Apps.ReviewTagger\TerexCrawler.Apps.ReviewTagger.csproj", "{56D86D97-67BE-4372-A6EB-B8333A3AE0D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TerexCrawler.Apps.ReviewTaggerWPF", "TerexCrawler.Apps.ReviewTaggerWPF\TerexCrawler.Apps.ReviewTaggerWPF.csproj", "{76827837-CC55-476A-AA77-C967B7A3E7A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TerexCrawler.Apps.ReviewTaggerWPF", "TerexCrawler.Apps.ReviewTaggerWPF\TerexCrawler.Apps.ReviewTaggerWPF.csproj", "{76827837-CC55-476A-AA77-C967B7A3E7A4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TerexCrawler.Apps.WebAppApi", "TerexCrawler.Apps.WebAppApi\TerexCrawler.Apps.WebAppApi.csproj", "{F2B8E6E0-55ED-4490-852D-443089E5440D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -68,6 +70,10 @@ Global
 		{76827837-CC55-476A-AA77-C967B7A3E7A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{76827837-CC55-476A-AA77-C967B7A3E7A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{76827837-CC55-476A-AA77-C967B7A3E7A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2B8E6E0-55ED-4490-852D-443089E5440D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2B8E6E0-55ED-4490-852D-443089E5440D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2B8E6E0-55ED-4490-852D-443089E5440D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2B8E6E0-55ED-4490-852D-443089E5440D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

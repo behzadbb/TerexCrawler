@@ -19,6 +19,7 @@ using TerexCrawler.Models.DTO.Digikala;
 using TerexCrawler.Models;
 using TerexCrawler.Models.Enums;
 using MongoDB.Bson;
+using TerexCrawler.Apps.ReviewTaggerWPF.Helpers;
 
 namespace TerexCrawler.Apps.ReviewTaggerWPF
 {
@@ -115,13 +116,23 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
                     sentences.Clear();
                 }
                 if (review != null && review.sentences != null && review.sentences.Count() > 0)
-                { 
+                {
                     review.CreateDate = DateTime.Now;
                     review._id = ObjectId.GenerateNewId(DateTime.Now);
                     review.rid = digikalaProduct.DKP;
-
-                    bool s = digikala.AddReviewToDB(review, digikalaProduct._id, tagger);
-                    if (s)
+                    AddReviewToDBParam param = new AddReviewToDBParam
+                    {
+                        review = review,
+                        id = digikalaProduct._id,
+                        tagger = tagger
+                    };
+                    bool resultAddReview = false;
+                    //bool resultAddReview = digikala.AddReviewToDB(param); // ☺ Api
+                    using (var Api = new WebAppApiCall())
+                    {
+                        resultAddReview = Api.GetFromApi<bool>("AddReview", param);
+                    }
+                    if (resultAddReview)
                     {
                         sentences.Clear();
                         sentenceIdReset();
@@ -133,8 +144,18 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
                         return;
                     }
                 }
-                // Api
-                digikalaProduct = digikala.GetFirstProductByCategory<DigikalaProductDTO>("گوشی موبایل", "سامسونگ", "behzad").Result;
+                GetFirstProductByCategoryParam getProductParam = new GetFirstProductByCategoryParam
+                {
+                    category = "گوشی موبایل",
+                    title = "",
+                    tagger = tagger
+                };
+                // ☺ Api
+                using (var Api = new WebAppApiCall())
+                {
+                    digikalaProduct = Api.GetFromApi<DigikalaProductDTO>("GetFirstProductByCategory", getProductParam);
+                }
+                //digikalaProduct = digikala.GetFirstProductByCategory<DigikalaProductDTO>(getProductParam).Result;
 
                 commentCount = digikalaProduct.Comments.Count();
                 nextReview();

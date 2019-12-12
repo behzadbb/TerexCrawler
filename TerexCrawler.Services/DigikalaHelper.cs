@@ -723,23 +723,23 @@ namespace TerexCrawler.Services.Digikala
 
             return m;
         }
-        public async Task<T> GetFirstProductByCategory<T>(string category, string title, string tagger)
+        public async Task<T> GetFirstProductByCategory<T>(GetFirstProductByCategoryParam param)
         {
             using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
             {
-                var result = db.GetFirstProductByCategory(category, title, tagger);
+                var result = db.GetFirstProductByCategory(param);
                 return (T)Convert.ChangeType(result, typeof(DigikalaProductDTO));
             }
         }
 
-        public bool AddReviewToDB(Review review, string id, string tagger)
+        public bool AddReviewToDB(AddReviewToDBParam param)
         {
             try
             {
                 using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
                 {
-                    db.AddReview(review);
-                    db.SetTaggedProduct(id, tagger);
+                    db.AddReview(param.review);
+                    db.SetTaggedProduct(param.id, param.tagger);
                 }
                 return true;
             }
@@ -751,9 +751,9 @@ namespace TerexCrawler.Services.Digikala
                     DateTime = DateTime.Now,
                     Description = ex.Message,
                     ProjectId = (int)ProjectNames.Services,
-                    Url = "DKP: " + review.ProductID,
+                    Url = "DKP: " + param.review.ProductID,
                     MethodName = "AddReviewToDB",
-                    Title = $"AddReviewToDB Error, Tagger: {tagger}"
+                    Title = $"AddReviewToDB Error, Tagger: {param.tagger}"
                 };
                 Logger.AddLog(log);
                 return false;

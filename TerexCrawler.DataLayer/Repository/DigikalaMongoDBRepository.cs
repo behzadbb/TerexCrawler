@@ -159,16 +159,16 @@ namespace TerexCrawler.DataLayer.Repository
             }
         }
 
-        public DigikalaProductDTO GetFirstProductByCategory(string category, string title, string tagger)
+        public DigikalaProductDTO GetFirstProductByCategory(GetFirstProductByCategoryParam param)
         {
-            var query = Query<DigikalaProduct>.Where(x => x.Category == category &&
-                                                          x.Title.Contains(title) &&
+            var query = Query<DigikalaProduct>.Where(x => x.Category == param.category &&
+                                                          (string.IsNullOrEmpty(param.title) || x.Title.Contains(param.title)) &&
                                                           x.Comments.Any() &&
                                                           x.Reserved == false &&
                                                           !x.isTagged &&
                                                           x.Comments.Count < 30);
 
-            var update = Update<DigikalaProduct>.Set(p => p.Reserved, true).Set(p => p.Tagger, tagger);
+            var update = Update<DigikalaProduct>.Set(p => p.Reserved, true).Set(p => p.Tagger, param.tagger);
 
             digikalaProducts.Update(query, update);
 

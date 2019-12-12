@@ -303,6 +303,16 @@ namespace TerexCrawler.Services.Digikala
         {
             throw new NotImplementedException();
         }
+
+        public bool AddReviewToDB(AddReviewToDBParam param)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<T> GetFirstProductByCategory<T>(GetFirstProductByCategoryParam param)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     
