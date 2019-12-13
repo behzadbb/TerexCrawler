@@ -264,6 +264,7 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
 
         private void btnDeleteAspect_Click(object sender, RoutedEventArgs e)
         {
+            fillAspects();
             opinions.Clear();
             listAspects.Items.Clear();
         }

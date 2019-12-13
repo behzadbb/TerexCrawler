@@ -18,7 +18,7 @@
 
         <Label Content="نظر" HorizontalAlignment="right" FlowDirection="RightToLeft" Margin="0,200,20,0" VerticalAlignment="Top" Width="49" FontSize="25" Foreground="White" Height="43"/>
 
-        <TextBox Name="txtReview" Width="1350" Height="200" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="30,65,0,0" FlowDirection="RightToLeft" OpacityMask="Black" Background="#CC042328" Foreground="White" FontSize="18" FontFamily="b Yekan" TextWrapping="WrapWithOverflow" AcceptsReturn="True" />
+        <TextBox Name="txtReview"  Height="200" VerticalAlignment="Top"  Margin="30,65,100,0" FlowDirection="RightToLeft" OpacityMask="Black" Background="#CC042328" Foreground="White" FontSize="18" FontFamily="b Yekan" TextWrapping="WrapWithOverflow" AcceptsReturn="True" />
 
         <Button Content="نظر بعدی" Name="btnSave" HorizontalAlignment="Left" Margin="30,666,0,0" VerticalAlignment="Top" Width="222" Height="49" FontSize="16" FontFamily="b yekan" Click="btnSave_Click"/>
         <ListBox x:Name="listPositive" Height="550" Width="175" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="1210,325,90,0" Background="{x:Null}" Foreground="#FF97BB94" BorderBrush="GreenYellow" FlowDirection="RightToLeft" SelectionChanged="listPositive_SelectionChanged" />
@@ -27,7 +27,7 @@
         <ListBox x:Name="listAspects" Height="300" VerticalAlignment="Top" Margin="290,325,904,0" Background="{x:Null}" Foreground="White" BorderBrush="Aqua" FontSize="18" FlowDirection="RightToLeft" />
         <Button Content="محصول بعدی" Name="btnNextProduct" HorizontalAlignment="Left" Margin="30,7,0,0" VerticalAlignment="Top" Height="46" Width="196" Click="btnNext_Click"/>
         <Label Content="xxx/xxx" Name="lblCount" HorizontalAlignment="Right" Margin="1400,175,10,0" Foreground="White" FontSize="16" VerticalAlignment="Top" Width="64"/>
-        <TextBox x:Name="txtSelectReview" HorizontalAlignment="Left" FlowDirection="RightToLeft" Margin="30,277,0,0" Text="" TextWrapping="Wrap" VerticalAlignment="Top" Width="1251" OpacityMask="Black" Background="#FF244358" Foreground="White" FontSize="18" FontFamily="b yekan" Height="43" MouseDoubleClick="txtSelectReview_MouseDoubleClick" />
+        <TextBox x:Name="txtSelectReview" FlowDirection="RightToLeft" Margin="30,277,160,0" Text="" TextWrapping="Wrap" VerticalAlignment="Top" OpacityMask="Black" Background="#FF244358" Foreground="White" FontSize="18" FontFamily="b yekan" Height="43" MouseDoubleClick="txtSelectReview_MouseDoubleClick" />
         <Button Content="ثبت نظر +" x:Name="btnAddSentence" HorizontalAlignment="Left" Margin="30,392,0,0" VerticalAlignment="Top" Width="222" Height="233" FontSize="25" FontFamily="b yekan" Foreground="Green" Click="btnAddSentence_Click"/>
         <Label Content="نظر انتخاب شده" Name="lblSelectReview" HorizontalAlignment="Right" FlowDirection="RightToLeft" Margin="0,282,51,0" VerticalAlignment="Top" Width="107" FontSize="14" Foreground="White" MouseDoubleClick="lblSelectReview_MouseDoubleClick"/>
         <Label Content="مـثـبـت" x:Name="lblSelectReview_Copy" HorizontalAlignment="Right" FlowDirection="RightToLeft" Margin="1404,355,20,0" VerticalAlignment="Top" Width="70" FontSize="22" FontFamily="B Yekan" Foreground="White" RenderTransformOrigin="0.538,0.414" />
