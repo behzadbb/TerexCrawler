@@ -19,6 +19,12 @@ namespace TerexCrawler.Apps.WebAppApi.Controllers
     [ApiController]
     public class DigikalaController : ControllerBase
     {
+        [HttpGet("{action}")]
+        public string testConnection()
+        {
+            return "ok - " + DateTime.Now;
+        }
+
         [HttpPost("{action}")]
         public AddReviewToDBResponse AddReviewtodb([FromBody]AddReviewToDBParam param)
         {

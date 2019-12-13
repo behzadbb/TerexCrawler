@@ -21,8 +21,8 @@ namespace TerexCrawler.DataLayer.Repository
             model.Loc = dto.Loc;
             model.Priority = dto.Priority;
 
-            db.DigikalaBasePages.Add(model);
-            db.SaveChanges();
+            //db.DigikalaBasePages.Add(model);
+            //db.SaveChanges();
         }
 
         public void AddDigikalaBasePages(List<DigikalaPageBaseDTO> dtos)
@@ -43,8 +43,8 @@ namespace TerexCrawler.DataLayer.Repository
                 models.Add(model);
             }
 
-            db.DigikalaBasePages.AddRange(models);
-            db.SaveChanges();
+            //db.DigikalaBasePages.AddRange(models);
+            //db.SaveChanges();
         }
 
         #region IDisposable Support
@@ -64,7 +64,7 @@ namespace TerexCrawler.DataLayer.Repository
         public void Dispose()
         {
             Dispose(true);
-            db.Dispose();
+            //db.Dispose();
         }
         #endregion
     }

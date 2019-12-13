@@ -9,5 +9,6 @@ namespace TerexCrawler.Models.DTO.Digikala
         public string category { get; set; }
         public string title { get; set; }
         public string tagger { get; set; }
+        public string Brand { get; set; }
     }
 }

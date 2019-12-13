@@ -4,7 +4,7 @@ using System.Text;
 
 namespace TerexCrawler.Models
 {
-    public struct LogDTO
+    public class LogDTO
     {
         public string _id { get; set; }
         public int ProjectId { get; set; }

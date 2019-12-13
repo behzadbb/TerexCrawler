@@ -20,6 +20,8 @@ using TerexCrawler.Models;
 using TerexCrawler.Models.Enums;
 using MongoDB.Bson;
 using TerexCrawler.Apps.ReviewTaggerWPF.Helpers;
+using TerexCrawler.Models.Const;
+using TerexCrawler.Models.DTO;
 
 namespace TerexCrawler.Apps.ReviewTaggerWPF
 {
@@ -33,7 +35,7 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
         List<Opinion> opinions = new List<Opinion>();
         static List<sentence> sentences = new List<sentence>();
         private int _sentenceId = 0;
-        string tagger = "behzad";
+        public User user { get; set; }
         int sentenceId { get { return _sentenceId++; } }
         void sentenceIdReset() { _sentenceId = 0; }
         int commentCount = 0;
@@ -51,43 +53,53 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
         #region ListBox
         private void listPositive_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            string item = listPositive.Items[listPositive.SelectedIndex].ToString();
-            listAspects.Items.Add(item);
-            Opinion opinion = new Opinion();
-            opinion.category = item;
-            opinion.categoryClass = item;
-            opinion.polarity = PolarityType.positive.ToString();
-            opinion.polarityClass = (int)PolarityType.positive;
+            if (listPositive.SelectedIndex != null && listPositive.SelectedItem != null && listPositive.SelectedIndex != -1)
+            {
+                string item = listPositive.Items[listPositive.SelectedIndex].ToString();
+                listAspects.Items.Add(item);
+                Opinion opinion = new Opinion();
+                opinion.category = item;
+                opinion.categoryClass = item;
+                opinion.polarity = PolarityType.positive.ToString();
+                opinion.polarityClass = (int)PolarityType.positive;
 
-            opinions.Add(opinion);
+                opinions.Add(opinion);
+            }
+
         }
 
         private void listNeutral_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            string item = listNeutral.Items[listNeutral.SelectedIndex].ToString();
-            listAspects.Items.Add(item);
+            if (listNeutral.SelectedIndex != null && listNeutral.SelectedItem != null && listNeutral.SelectedIndex != -1)
+            {
+                string item = listNeutral.Items[listNeutral.SelectedIndex].ToString();
+                listAspects.Items.Add(item);
 
-            Opinion opinion = new Opinion();
-            opinion.category = item;
-            opinion.categoryClass = item;
-            opinion.polarity = PolarityType.neutral.ToString();
-            opinion.polarityClass = (int)PolarityType.neutral;
+                Opinion opinion = new Opinion();
+                opinion.category = item;
+                opinion.categoryClass = item;
+                opinion.polarity = PolarityType.neutral.ToString();
+                opinion.polarityClass = (int)PolarityType.neutral;
 
-            opinions.Add(opinion);
+                opinions.Add(opinion);
+            }
         }
 
         private void listNegative_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            string item = listNegative.Items[listNegative.SelectedIndex].ToString();
-            listAspects.Items.Add(item);
+            if (listNegative.SelectedIndex != null && listNegative.SelectedItem != null && listNegative.SelectedIndex != -1)
+            {
+                string item = listNegative.Items[listNegative.SelectedIndex].ToString();
+                listAspects.Items.Add(item);
 
-            Opinion opinion = new Opinion();
-            opinion.category = item;
-            opinion.categoryClass = item;
-            opinion.polarity = PolarityType.negative.ToString();
-            opinion.polarityClass = (int)PolarityType.negative;
+                Opinion opinion = new Opinion();
+                opinion.category = item;
+                opinion.categoryClass = item;
+                opinion.polarity = PolarityType.negative.ToString();
+                opinion.polarityClass = (int)PolarityType.negative;
 
-            opinions.Add(opinion);
+                opinions.Add(opinion);
+            }
         }
         #endregion
 
@@ -124,7 +136,7 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
                     {
                         review = review,
                         id = digikalaProduct._id,
-                        tagger = tagger
+                        tagger = user.Username
                     };
                     AddReviewToDBResponse resultAddReview = new AddReviewToDBResponse() { Success = false };
                     //bool resultAddReview = digikala.AddReviewToDB(param); // ☺ Api
@@ -146,9 +158,10 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
                 }
                 GetFirstProductByCategoryParam getProductParam = new GetFirstProductByCategoryParam
                 {
-                    category = "گوشی موبایل",
-                    title = "",
-                    tagger = tagger
+                    category = user.Category,
+                    title = user.Title,
+                    Brand = user.Brand,
+                    tagger = user.Username
                 };
                 // ☺ Api
                 using (var Api = new WebAppApiCall())
@@ -176,10 +189,8 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
                 txtReviewTitle.Text = comment.Title;
                 lblCount.Content = $"{commentCurrentIndex + 1} / {commentCount}";
             }
-            List<string> aspect = new List<string> { "باتری#مدت شارژ", "باتری#کیفیت", "صفحه نمایش" };
-            listNegative.ItemsSource = aspect;
-            listNeutral.ItemsSource = aspect;
-            listPositive.ItemsSource = aspect;
+
+            fillAspects();
             opinions.Clear();
         }
 
@@ -215,16 +226,46 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
                 txtSelectReview.Text = "";
             }
 
-            List<string> aspect = new List<string> { "باتری#مدت شارژ", "باتری#کیفیت", "صفحه نمایش" };
-            listNegative.ItemsSource = aspect;
-            listNeutral.ItemsSource = aspect;
-            listPositive.ItemsSource = aspect;
+            fillAspects();
             listAspects.Items.Clear();
             opinions.Clear();
         }
-        private void AddSentence()
+        private void fillAspects()
         {
+            listNegative.UnselectAll();
+            //listNegative.Items.Clear();
+            listNegative.ItemsSource = Aspects.mobile;
 
+            listNeutral.UnselectAll();
+            //listNeutral.Items.Clear();
+            listNeutral.ItemsSource = Aspects.mobile;
+
+            listPositive.UnselectAll();
+            //listPositive.Items.Clear();
+            listPositive.ItemsSource = Aspects.mobile;
+        }
+
+        private void txtSelectReview_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            pasteReview();
+        }
+
+        private void lblSelectReview_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            pasteReview();
+        }
+        private void pasteReview()
+        {
+            if (string.IsNullOrEmpty(txtSelectReview.Text.Trim()) && !string.IsNullOrEmpty(Clipboard.GetText().Trim()))
+            {
+                txtSelectReview.Text = Clipboard.GetText();
+            }
+        }
+
+        private void btnDeleteAspect_Click(object sender, RoutedEventArgs e)
+        {
+            opinions.Clear();
+            listAspects.Items.Clear();
         }
     }
 }

@@ -4,7 +4,7 @@ using System.Text;
 using TerexCrawler.Models;
 using TerexCrawler.Models.Interfaces;
 using TerexCrawler.DataLayer.Context;
-using AutoMapper;
+//using AutoMapper;
 using TerexCrawler.Entites;
 using MongoDB.Driver;
 using MongoDB.Bson;
@@ -26,19 +26,13 @@ namespace TerexCrawler.Services
             logs = db.GetCollection<Log>("Logs");
         }
 
-        IMapper mapper = new Mapper(new MapperConfiguration(cfg => cfg.CreateMap<LogDTO, Log>()));
+        //IMapper mapper = new Mapper(new MapperConfiguration(cfg => cfg.CreateMap<LogDTO, Log>()));
         public void AddLog(LogDTO dto)
         {
             try
             {
-                Log log = new Log();
-                log._id = string.IsNullOrEmpty(dto._id) ? ObjectId.GenerateNewId() : ObjectId.Parse(dto._id);
-                log.Url = dto.Url;
-                log.DateTime = dto.DateTime;
-                log.Description = dto.Description;
-                log.MethodName = dto.Description;
-                log.Title = dto.Title;
-                logs.Insert(dto);
+                Log log = new Log(dto);
+                logs.Insert(log);
             }
             catch (Exception ex)
             {

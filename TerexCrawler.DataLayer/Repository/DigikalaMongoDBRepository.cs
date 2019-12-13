@@ -163,6 +163,7 @@ namespace TerexCrawler.DataLayer.Repository
         {
             var query = Query<DigikalaProduct>.Where(x => x.Category == param.category &&
                                                           (string.IsNullOrEmpty(param.title) || x.Title.Contains(param.title)) &&
+                                                          (string.IsNullOrEmpty(param.Brand) || x.Brand != null && x.Brand.Contains(param.Brand)) &&
                                                           x.Comments.Any() &&
                                                           x.Reserved == false &&
                                                           !x.isTagged);

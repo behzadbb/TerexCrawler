@@ -4,20 +4,18 @@ using System.Text;
 using TerexCrawler.Models;
 using TerexCrawler.Models.Interfaces;
 using TerexCrawler.DataLayer.Context;
-using AutoMapper;
 using TerexCrawler.Entites;
 
 namespace TerexCrawler.Services
 {
     public class LoggerHelper : ILoger
     {
-        protected ApplicationDbContext db = new ApplicationDbContext();
-        IMapper mapper = new Mapper(new MapperConfiguration(cfg => cfg.CreateMap<LogDTO, Log>()));
+        //protected ApplicationDbContext db = new ApplicationDbContext();
         public void AddLog(LogDTO dto)
         {
-            Log log = mapper.Map<Log>(dto);
-            db.Logs.Add(log);
-            db.SaveChangesAsync();
+            Log log = new Log(dto);
+            //db.Logs.Add(log);
+            //db.SaveChangesAsync();
         }
 
         #region IDisposable Support
@@ -29,7 +27,7 @@ namespace TerexCrawler.Services
             {
                 if (disposing)
                 {
-                    db.Dispose();
+                    //db.Dispose();
                 }
                 disposedValue = true;
             }
