@@ -738,7 +738,8 @@ namespace TerexCrawler.Services.Digikala
             {
                 using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
                 {
-                    db.AddReview(param.review);
+                    Review review = new Review(param.review);
+                    db.AddReview(review);
                     db.SetTaggedProduct(param.id, param.tagger);
                 }
                 return true;

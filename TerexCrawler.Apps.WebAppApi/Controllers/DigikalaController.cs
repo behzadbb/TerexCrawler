@@ -4,6 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using TerexCrawler.Models.DTO.Brand;
 using TerexCrawler.Models.DTO.Digikala;
 using TerexCrawler.Models.Interfaces;
@@ -15,18 +19,13 @@ namespace TerexCrawler.Apps.WebAppApi.Controllers
     [ApiController]
     public class DigikalaController : ControllerBase
     {
-        [HttpGet("{action}")]
-        public string addBase()
-        {
-            return "Salam";
-        }
-
         [HttpPost("{action}")]
-        public bool AddReview(AddReviewToDBParam param)
+        public AddReviewToDBResponse AddReviewtodb([FromBody]AddReviewToDBParam param)
         {
             using (IWebsiteCrawler digikala = new DigikalaHelper())
             {
-                return digikala.AddReviewToDB(param);
+                var result = digikala.AddReviewToDB(param);
+                return new AddReviewToDBResponse { Success = result };
             }
         }
 

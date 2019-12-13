@@ -28,7 +28,7 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        Review review = new Review();
+        ReviewDTO review = new ReviewDTO();
         DigikalaProductDTO digikalaProduct = new DigikalaProductDTO();
         List<Opinion> opinions = new List<Opinion>();
         static List<sentence> sentences = new List<sentence>();
@@ -118,7 +118,7 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
                 if (review != null && review.sentences != null && review.sentences.Count() > 0)
                 {
                     review.CreateDate = DateTime.Now;
-                    review._id = ObjectId.GenerateNewId(DateTime.Now);
+                    //review._id = ObjectId.GenerateNewId(DateTime.Now);
                     review.rid = digikalaProduct.DKP;
                     AddReviewToDBParam param = new AddReviewToDBParam
                     {
@@ -126,17 +126,17 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
                         id = digikalaProduct._id,
                         tagger = tagger
                     };
-                    bool resultAddReview = false;
+                    AddReviewToDBResponse resultAddReview = new AddReviewToDBResponse() { Success = false };
                     //bool resultAddReview = digikala.AddReviewToDB(param); // ☺ Api
                     using (var Api = new WebAppApiCall())
                     {
-                        resultAddReview = Api.GetFromApi<bool>("AddReview", param);
+                        resultAddReview = Api.GetFromApi<AddReviewToDBResponse>("AddReviewtodb", param);
                     }
-                    if (resultAddReview)
+                    if (resultAddReview.Success)
                     {
                         sentences.Clear();
                         sentenceIdReset();
-                        review = new Review();
+                        review = new ReviewDTO();
                     }
                     else
                     {
@@ -156,7 +156,7 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
                     digikalaProduct = Api.GetFromApi<DigikalaProductDTO>("GetFirstProductByCategory", getProductParam);
                 }
                 //digikalaProduct = digikala.GetFirstProductByCategory<DigikalaProductDTO>(getProductParam).Result;
-
+                commentCurrentIndex = -1;
                 commentCount = digikalaProduct.Comments.Count();
                 nextReview();
                 txtProductId.Text = digikalaProduct.DKP.ToString();

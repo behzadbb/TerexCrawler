@@ -165,8 +165,7 @@ namespace TerexCrawler.DataLayer.Repository
                                                           (string.IsNullOrEmpty(param.title) || x.Title.Contains(param.title)) &&
                                                           x.Comments.Any() &&
                                                           x.Reserved == false &&
-                                                          !x.isTagged &&
-                                                          x.Comments.Count < 30);
+                                                          !x.isTagged);
 
             var update = Update<DigikalaProduct>.Set(p => p.Reserved, true).Set(p => p.Tagger, param.tagger);
 
@@ -219,6 +218,10 @@ namespace TerexCrawler.DataLayer.Repository
 
         public bool AddReview(Review review)
         {
+            if (review._id == null || review._id.ToString().Contains("000"))
+            {
+                review._id = ObjectId.GenerateNewId(DateTime.Now);
+            }
             digikalaReview.Insert(review);
             return true;
         }
