@@ -22,6 +22,7 @@ using MongoDB.Bson;
 using TerexCrawler.Apps.ReviewTaggerWPF.Helpers;
 using TerexCrawler.Models.Const;
 using TerexCrawler.Models.DTO;
+using TerexCrawler.Models.DTO.Api;
 
 namespace TerexCrawler.Apps.ReviewTaggerWPF
 {
@@ -36,12 +37,18 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
         static List<sentence> sentences = new List<sentence>();
         private int _sentenceId = 0;
         public User user { get; set; }
+        public List<string> aspects { get; set; }
         int sentenceId { get { return _sentenceId++; } }
         void sentenceIdReset() { _sentenceId = 0; }
         int commentCount = 0;
         int commentCurrentIndex = -1;
         public MainWindow()
         {
+            using (var Api = new WebAppApiCall())
+            {
+                GetAspectsDTO getAspects = new GetAspectsDTO() { AspectType = (int)AspectTypes.Mobile };
+                aspects = Api.GetFromApi<GetAspectsResponseDTO>("GetAspect", getAspects).Aspects;
+            }
             InitializeComponent();
         }
 
@@ -234,15 +241,15 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
         {
             listNegative.UnselectAll();
             //listNegative.Items.Clear();
-            listNegative.ItemsSource = Aspects.mobile;
+            listNegative.ItemsSource = aspects;
 
             listNeutral.UnselectAll();
             //listNeutral.Items.Clear();
-            listNeutral.ItemsSource = Aspects.mobile;
+            listNeutral.ItemsSource = aspects;
 
             listPositive.UnselectAll();
             //listPositive.Items.Clear();
-            listPositive.ItemsSource = Aspects.mobile;
+            listPositive.ItemsSource = aspects;
         }
 
         private void txtSelectReview_MouseDoubleClick(object sender, MouseButtonEventArgs e)

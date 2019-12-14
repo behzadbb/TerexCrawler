@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using TerexCrawler.Models.DTO;
+using TerexCrawler.Apps.ReviewTaggerWPF.Helpers;
 
 namespace TerexCrawler.Apps.ReviewTaggerWPF
 {
@@ -27,22 +28,19 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
 
         private void btnLogin_Click(object sender, RoutedEventArgs e)
         {
-            List<User> users = new List<User>();
-            users.Add(new User { Username = "devila", Password = "germany", Category = "گوشی موبایل" });
-            users.Add(new User { Username = "NavidSharifi", Password = "navid", Category = "گوشی موبایل" });
-            users.Add(new User { Username = "Behzad", Password = "behzad", Category = "گوشی موبایل" });
-            users.Add(new User { Username = "Hamshagerdi", Password = "mehrteam", Category = "گوشی موبایل", Brand = "اپل" });
-            users.Add(new User { Username = "Setare", Password = "setare", Category = "گوشی موبایل" });
-            users.Add(new User { Username = "ftm", Password = "ftm", Category = "گوشی موبایل" });
-            users.Add(new User { Username = "user1", Password = "user1", Category = "گوشی موبایل" });
-
+            AuthResponse authResponse = new AuthResponse();
             if (!string.IsNullOrEmpty(txtUsername.Text) && !string.IsNullOrEmpty(txtPassword.Text))
             {
-                var user = users.Where(x => x.Username.ToLower() == txtUsername.Text.ToLower().Trim() && x.Password.ToLower() == txtPassword.Text.ToLower().Trim()).FirstOrDefault();
-                if (user != null)
+                UserDTO param = new UserDTO() { Username = txtUsername.Text.Trim(), Password = txtPassword.Text.Trim() };
+                using (var Api = new WebAppApiCall())
+                {
+                    authResponse = Api.GetFromApi<AuthResponse>("AddReviewtodb", param);
+                }
+                // var user = users.Where(x => x.Username.ToLower() == txtUsername.Text.ToLower().Trim() && x.Password.ToLower() == txtPassword.Text.ToLower().Trim()).FirstOrDefault();
+                if (authResponse != null && authResponse.Success)
                 {
                     MainWindow mainWindow = new MainWindow();
-                    mainWindow.user = user;
+                    mainWindow.user = authResponse.User;
                     mainWindow.Show();
                     this.Hide();
                 }
