@@ -36,7 +36,8 @@ namespace TerexCrawler.Models.Const
             "خدمات#ارسال",
             "خدمات#عمومی",
             "خدمات#کمپین",
-            "خدمات#گارانتی"};
+            "خدمات#گارانتی"
+        };
 
         public static List<string> laptop = new List<string>() {
             "موبایل#نوآوری",

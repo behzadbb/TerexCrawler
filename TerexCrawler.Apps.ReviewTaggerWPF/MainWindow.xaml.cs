@@ -47,7 +47,7 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
             using (var Api = new WebAppApiCall())
             {
                 GetAspectsDTO getAspects = new GetAspectsDTO() { AspectType = (int)AspectTypes.Mobile };
-                aspects = Api.GetFromApi<GetAspectsResponseDTO>("GetAspect", getAspects).Aspects;
+                aspects = Api.GetFromApi<GetAspectsResponseDTO>("GetAspects", getAspects).Aspects;
             }
             InitializeComponent();
         }

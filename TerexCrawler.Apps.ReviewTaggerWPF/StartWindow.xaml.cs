@@ -34,7 +34,7 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
                 UserDTO param = new UserDTO() { Username = txtUsername.Text.Trim(), Password = txtPassword.Text.Trim() };
                 using (var Api = new WebAppApiCall())
                 {
-                    authResponse = Api.GetFromApi<AuthResponse>("AddReviewtodb", param);
+                    authResponse = Api.GetFromApi<AuthResponse>("Auth", param);
                 }
                 // var user = users.Where(x => x.Username.ToLower() == txtUsername.Text.ToLower().Trim() && x.Password.ToLower() == txtPassword.Text.ToLower().Trim()).FirstOrDefault();
                 if (authResponse != null && authResponse.Success)
