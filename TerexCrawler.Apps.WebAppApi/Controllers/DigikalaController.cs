@@ -80,11 +80,12 @@ namespace TerexCrawler.Apps.WebAppApi.Controllers
         [HttpPost("{action}")]
         public GetAspectsResponseDTO GetAspects(GetAspectsDTO param)
         {
+            Aspects aspects = new Aspects();
             if (param.AspectType == (int)AspectTypes.Mobile)
-                return new GetAspectsResponseDTO { Aspects = Aspects.mobile };
-            else if (param.AspectType == (int)AspectTypes.Laptop)
-                return new GetAspectsResponseDTO { Aspects = Aspects.laptop };
-            return new GetAspectsResponseDTO { Aspects = Aspects.mobile };
+                return new GetAspectsResponseDTO { Aspects = aspects.Mobiles, Categories = aspects.MobileCategories, CategoriesTitle = aspects.MobileCategoriesTitle };
+            //else if (param.AspectType == (int)AspectTypes.Laptop)
+            //    return new GetAspectsResponseDTO { Aspects = Aspects.laptop };
+            return new GetAspectsResponseDTO { Aspects = aspects.Mobiles, Categories = aspects.MobileCategories, CategoriesTitle = aspects.MobileCategoriesTitle };
         }
     }
 }

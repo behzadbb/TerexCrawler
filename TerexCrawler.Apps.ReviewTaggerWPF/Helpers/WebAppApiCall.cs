@@ -44,7 +44,8 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF.Helpers
         }
         #endregion
 
-        private const string _baseUrl = "http://localhost:9487/api/digikala/";
+        //private const string _baseUrl = "http://localhost:9487/api/digikala/";
+        private const string _baseUrl = "http://185.112.32.241:1368/api/digikala/";
         public T GetFromApi<T>(string url, object obj = null)
         {
             T result = default(T);

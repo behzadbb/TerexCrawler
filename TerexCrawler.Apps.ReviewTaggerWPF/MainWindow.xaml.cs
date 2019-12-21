@@ -23,6 +23,7 @@ using TerexCrawler.Apps.ReviewTaggerWPF.Helpers;
 using TerexCrawler.Models.Const;
 using TerexCrawler.Models.DTO;
 using TerexCrawler.Models.DTO.Api;
+using System.ComponentModel;
 
 namespace TerexCrawler.Apps.ReviewTaggerWPF
 {
@@ -38,6 +39,12 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
         private int _sentenceId = 0;
         public User user { get; set; }
         public List<string> aspects { get; set; }
+        public List<Aspect> Aspects { get; set; }
+        public Dictionary<string, string> CategoryToTitle { get; set; }
+        public Dictionary<string, string> TitleToCategory { get; set; }
+        public Dictionary<string, string> FeaturesToCategory { get; set; }
+        public Dictionary<string, string> AspectToTitle { get; set; }
+        public Dictionary<string, string> TitleToAspect { get; set; }
         int sentenceId { get { return _sentenceId++; } }
         void sentenceIdReset() { _sentenceId = 0; }
         int commentCount = 0;
@@ -47,7 +54,20 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
             using (var Api = new WebAppApiCall())
             {
                 GetAspectsDTO getAspects = new GetAspectsDTO() { AspectType = (int)AspectTypes.Mobile };
-                aspects = Api.GetFromApi<GetAspectsResponseDTO>("GetAspects", getAspects).Aspects;
+                var res = Api.GetFromApi<GetAspectsResponseDTO>("GetAspects", getAspects);
+                Aspects = res.Aspects;
+                
+                AspectToTitle = new Dictionary<string, string>();
+                
+                AspectToTitle = res.Aspects.ToDictionary(a => a.Feature, x => x.Title);
+                TitleToAspect = new Dictionary<string, string>();
+                TitleToAspect = res.Aspects.ToDictionary(a => a.Title, a => a.Feature);
+                FeaturesToCategory = new Dictionary<string, string>();
+                FeaturesToCategory = res.Aspects.ToDictionary(a => a.Feature, a => a.Category);
+                CategoryToTitle = res.Categories;
+                TitleToCategory = res.CategoriesTitle;
+
+                aspects = res.Aspects.Select(x => $"{CategoryToTitle[x.Category]}#{x.Title}").ToList();
             }
             InitializeComponent();
         }
@@ -62,29 +82,33 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
         {
             if (listPositive.SelectedIndex != null && listPositive.SelectedItem != null && listPositive.SelectedIndex != -1)
             {
-                string item = listPositive.Items[listPositive.SelectedIndex].ToString();
-                listAspects.Items.Add(item);
+                string selectItem = listPositive.Items[listPositive.SelectedIndex].ToString();
+                string[] item = selectItem.Split('#');
+                listAspects.Items.Add(selectItem);
+
                 Opinion opinion = new Opinion();
-                opinion.category = item;
-                opinion.categoryClass = item;
+                string feature = TitleToAspect[item[1]];
+                opinion.category = TitleToCategory[item[0]];
+                opinion.categoryClass = feature;
                 opinion.polarity = PolarityType.positive.ToString();
                 opinion.polarityClass = (int)PolarityType.positive;
 
                 opinions.Add(opinion);
             }
-
         }
 
         private void listNeutral_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (listNeutral.SelectedIndex != null && listNeutral.SelectedItem != null && listNeutral.SelectedIndex != -1)
             {
-                string item = listNeutral.Items[listNeutral.SelectedIndex].ToString();
-                listAspects.Items.Add(item);
-
+                string selectItem = listNeutral.Items[listNeutral.SelectedIndex].ToString();
+                string[] item = selectItem.Split('#');
+                listAspects.Items.Add(selectItem);
+                
                 Opinion opinion = new Opinion();
-                opinion.category = item;
-                opinion.categoryClass = item;
+                string feature = TitleToAspect[item[1]];
+                opinion.category = TitleToCategory[item[0]];
+                opinion.categoryClass = feature;
                 opinion.polarity = PolarityType.neutral.ToString();
                 opinion.polarityClass = (int)PolarityType.neutral;
 
@@ -96,12 +120,14 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
         {
             if (listNegative.SelectedIndex != null && listNegative.SelectedItem != null && listNegative.SelectedIndex != -1)
             {
-                string item = listNegative.Items[listNegative.SelectedIndex].ToString();
-                listAspects.Items.Add(item);
+                string selectItem = listNegative.Items[listNegative.SelectedIndex].ToString();
+                string[] item = selectItem.Split('#');
+                listAspects.Items.Add(selectItem);
 
                 Opinion opinion = new Opinion();
-                opinion.category = item;
-                opinion.categoryClass = item;
+                string feature = TitleToAspect[item[1]];
+                opinion.category = TitleToCategory[item[0]];
+                opinion.categoryClass = feature;
                 opinion.polarity = PolarityType.negative.ToString();
                 opinion.polarityClass = (int)PolarityType.negative;
 
@@ -237,8 +263,19 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
             listAspects.Items.Clear();
             opinions.Clear();
         }
+        //struct newAspect
+        //{
+        //    public int Id { get; set; }
+        //    public string Title { get; set; }
+        //    public string Group { get; set; }
+        //};
         private void fillAspects()
         {
+            //List<newAspect> newAspects = Aspects.Select(x => new newAspect { Id = x.id, Title = x.Title, Group = CategoryToTitle[x.Category] }).ToList();
+            //ICollectionView view = CollectionViewSource.GetDefaultView(newAspects);
+            //view.GroupDescriptions.Add(new PropertyGroupDescription("Group"));
+            //view.SortDescriptions.Add(new SortDescription("Id", ListSortDirection.Ascending));
+
             listNegative.UnselectAll();
             //listNegative.Items.Clear();
             listNegative.ItemsSource = aspects;

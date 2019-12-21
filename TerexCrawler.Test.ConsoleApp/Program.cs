@@ -323,23 +323,38 @@ namespace TerexCrawler.Test.ConsoleApp
             public BasePage BasePage { get; set; }
             public DigikalaProductDTO DigikalaProduct { get; set; }
         }
+        struct Reviews
+        {
+            public List<string> reviews { get; set; }
+        }
         private static List<ProductTemp> productTemps = new List<ProductTemp>();
 
         private async static void digikala_getAllReviews_9()
         {
             using (IWebsiteCrawler digikala = new DigikalaHelper())
             {
-                var digikalaReviews = digikala.GetAllReviews<string[]>();
-                var reviews = digikalaReviews.Result;
-                int spliteSize = 50000;
-                float size = reviews.Length / spliteSize;
-                int itr = (int)Math.Round(size);
-                for (int i = 0; i <= itr; i++)
+                bool allReviews = true;
+                if (true)
                 {
-                    string json = JsonConvert.SerializeObject(reviews.Skip(i * spliteSize).Take(spliteSize).ToArray(), Formatting.Indented);
-                    File.WriteAllText(@$"C:\Digikala\reviews\review-{i}.json", json, Encoding.UTF8);
+                    var digikalaReviews = digikala.GetAllReviews<string[]>();
+                    var reviews = digikalaReviews.Result;
+
+                    string json = JsonConvert.SerializeObject(new Reviews { reviews = reviews.Distinct().ToList() });
+                    File.WriteAllText(@$"C:\Digikala\reviews\review-all.json", json, new UTF8Encoding(false));
                 }
-                //var sssssse= digikalaReviews.
+                else
+                {
+                    var digikalaReviews = digikala.GetAllReviews<string[]>();
+                    var reviews = digikalaReviews.Result;
+                    int spliteSize = 50000;
+                    float size = reviews.Length / spliteSize;
+                    int itr = (int)Math.Round(size);
+                    for (int i = 0; i <= itr; i++)
+                    {
+                        string json = JsonConvert.SerializeObject(new Reviews { reviews = reviews.Skip(i * spliteSize).Take(spliteSize).ToList() });
+                        File.WriteAllText(@$"C:\Digikala\reviews\review-{i + 1}.json", json, new UTF8Encoding(false));
+                    }
+                }
             }
         }
         #endregion
