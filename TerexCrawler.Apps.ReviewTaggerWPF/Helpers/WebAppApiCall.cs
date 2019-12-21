@@ -44,14 +44,15 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF.Helpers
         }
         #endregion
 
-        //private const string _baseUrl = "http://localhost:9487/api/digikala/";
-        private const string _baseUrl = "http://185.112.32.241:1368/api/digikala/";
+        private const string _baseUrl1 = "http://localhost:9487/api/digikala/";
+        private const string _baseUrl2 = "http://185.112.32.241:1368/api/digikala/";
+        private const string _baseUrl3 = "http://185.165.118.208/api/digikala/";
         public T GetFromApi<T>(string url, object obj = null)
         {
             T result = default(T);
             try
             {
-                url = _baseUrl + url;
+                url = _baseUrl3 + url;
                 result = ApiCallGeneric.ApiCall<T>(url, obj);
             }
             catch (Exception ex)

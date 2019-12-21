@@ -16,25 +16,25 @@
         <Label Content="عنوان نظر" HorizontalAlignment="Right" FlowDirection="RightToLeft" Margin="0,30,22,0" VerticalAlignment="Top" Width="91" Foreground="White"/>
         <TextBox Name="txtReviewTitle" FlowDirection="RightToLeft" Margin="250,35,102,0" Text="" TextWrapping="Wrap" VerticalAlignment="Top" OpacityMask="Black" Background="#FF244358" Foreground="White"/>
 
-        <Label Content="نظر" HorizontalAlignment="right" FlowDirection="RightToLeft" Margin="0,200,20,0" VerticalAlignment="Top" Width="49" FontSize="25" Foreground="White" Height="43"/>
+        <Label Content="نظر" HorizontalAlignment="Right" FlowDirection="RightToLeft" Margin="0,120,25,10" VerticalAlignment="Top" Width="49" FontSize="25" Foreground="White" Height="43"/>
 
         <TextBox Name="txtReview"  Height="200" VerticalAlignment="Top"  Margin="30,65,100,0" FlowDirection="RightToLeft" OpacityMask="Black" Background="#CC042328" Foreground="White" FontSize="18" FontFamily="b Yekan" TextWrapping="WrapWithOverflow" AcceptsReturn="True" />
 
         <Button Content="نظر بعدی" Name="btnSave" HorizontalAlignment="Left" Margin="30,666,0,30" VerticalAlignment="Bottom" Width="222" Height="49" FontSize="16" FontFamily="b yekan" Click="btnSave_Click"/>
 
-        <ListBox x:Name="listPositive" Width="150" HorizontalAlignment="Right" Margin="0,325,80,10" Background="{x:Null}" FontSize="10" Foreground="#FF97BB94" BorderBrush="GreenYellow" FlowDirection="RightToLeft" SelectionChanged="listPositive_SelectionChanged" />
-        <ListBox x:Name="listNeutral" Width="150" HorizontalAlignment="Right" Margin="0,320,320,10" Background="{x:Null}" FontSize="10" Foreground="White" BorderBrush="LightGray" FlowDirection="RightToLeft" SelectionChanged="listNeutral_SelectionChanged" />
-        <ListBox x:Name="listNegative" Width="150" HorizontalAlignment="Right" Margin="0,325,560,10" Background="{x:Null}" FontSize="10" Foreground="#FFCBA39D" BorderBrush="red" FlowDirection="RightToLeft" SelectionChanged="listNegative_SelectionChanged" />
+        <ListBox x:Name="listPositive" Width="180" HorizontalAlignment="Right" Margin="0,325,80,10" Background="{x:Null}" FontSize="12" Foreground="#FF97BB94" BorderBrush="GreenYellow" FlowDirection="RightToLeft" SelectionChanged="listPositive_SelectionChanged" />
+        <ListBox x:Name="listNeutral" Width="180" HorizontalAlignment="Right" Margin="0,325,334,10" Background="{x:Null}" FontSize="12" Foreground="White" BorderBrush="LightGray" FlowDirection="RightToLeft" SelectionChanged="listNeutral_SelectionChanged" />
+        <ListBox x:Name="listNegative" Width="180" HorizontalAlignment="Right" Margin="0,325,584,10" Background="{x:Null}" FontSize="12" Foreground="#FFCBA39D" BorderBrush="red" FlowDirection="RightToLeft" SelectionChanged="listNegative_SelectionChanged" />
         <ListBox x:Name="listAspects" HorizontalAlignment="Right" Width="150" Margin="0,325,798,100" Background="{x:Null}" Foreground="White" BorderBrush="Aqua" FontSize="15" FlowDirection="RightToLeft" />
 
         <Button Content="محصول بعدی" Name="btnNextProduct" HorizontalAlignment="Left" Margin="30,7,0,0" VerticalAlignment="Top" Height="46" Width="196" Click="btnNext_Click"/>
-        <Label Content="xxx/xxx" Name="lblCount" HorizontalAlignment="Right" Margin="1400,175,10,0" Foreground="White" FontSize="16" VerticalAlignment="Top" Width="64"/>
+        <Label Content="xxx/xxx" Name="lblCount" HorizontalAlignment="Right" Margin="0,175,10,10" Foreground="White" FontSize="16" VerticalAlignment="Top" Width="64"/>
         <TextBox x:Name="txtSelectReview" FlowDirection="RightToLeft" Margin="30,277,160,0" Text="" TextWrapping="Wrap" VerticalAlignment="Top" OpacityMask="Black" Background="#FF244358" Foreground="White" FontSize="18" FontFamily="b yekan" Height="43" MouseDoubleClick="txtSelectReview_MouseDoubleClick" />
         <Button Content="ثبت نظر +" x:Name="btnAddSentence" HorizontalAlignment="Left" Margin="30,358,0,0" VerticalAlignment="Top" Width="120" Height="233" FontSize="25" FontFamily="b yekan" Foreground="Green" Click="btnAddSentence_Click"/>
         <Label Content="نظر انتخاب شده" Name="lblSelectReview" HorizontalAlignment="Right" FlowDirection="RightToLeft" Margin="0,282,51,0" VerticalAlignment="Top" Width="107" FontSize="14" Foreground="White" MouseDoubleClick="lblSelectReview_MouseDoubleClick"/>
         <Label Content="مـثـبـت" x:Name="lblSelectReview_Copy" HorizontalAlignment="Right" FlowDirection="RightToLeft" Margin="0,355,10,0" VerticalAlignment="Top" Width="70" FontSize="22" FontFamily="B Yekan" Foreground="White" RenderTransformOrigin="0.538,0.414" />
-        <Label Content="خـنـثـی" x:Name="lblSelectReview_Copy1" HorizontalAlignment="Right" FlowDirection="RightToLeft" Margin="0,349,250,0" VerticalAlignment="Top" Width="70" FontSize="22" FontFamily="B Yekan" Foreground="White" RenderTransformOrigin="0.538,0.414" />
-        <Label Content="مـنـفـی" x:Name="lblSelectReview_Copy2" HorizontalAlignment="Right" FlowDirection="RightToLeft" Margin="0,355,480,0" VerticalAlignment="Top" Width="70" FontSize="22" FontFamily="B Yekan" Foreground="White" RenderTransformOrigin="0.538,0.414" />
+        <Label Content="خـنـثـی" x:Name="lblSelectReview_Copy1" HorizontalAlignment="Right" FlowDirection="RightToLeft" Margin="0,349,266,0" VerticalAlignment="Top" Width="70" FontSize="22" FontFamily="B Yekan" Foreground="White" RenderTransformOrigin="0.538,0.414" />
+        <Label Content="مـنـفـی" x:Name="lblSelectReview_Copy2" HorizontalAlignment="Right" FlowDirection="RightToLeft" Margin="0,355,514,0" VerticalAlignment="Top" Width="70" FontSize="22" FontFamily="B Yekan" Foreground="White" RenderTransformOrigin="0.538,0.414" />
         <Button Content="Delete" Name="btnDeleteAspect" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,650,826,20" Height="40" Width="93" Click="btnDeleteAspect_Click"/>
     </Grid>
 </Window>
