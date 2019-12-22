@@ -762,5 +762,15 @@ namespace TerexCrawler.Services.Digikala
                 return (T)Convert.ChangeType(ss, typeof(string[]));
             }
         }
+
+        public string GetSatatusReview()
+        {
+            using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
+            {
+                var product = db.GetCountReview();
+                var Sentences = db.GetCountSentences();
+                return $"Products: {product} , Sentences: {Sentences}";
+            }
+        }
     }
 }

@@ -48,6 +48,15 @@ namespace TerexCrawler.Apps.WebAppApi.Controllers
             }
         }
 
+        [HttpGet("{action}")]
+        public string GetStatus()
+        {
+            using (IWebsiteCrawler digikala = new DigikalaHelper())
+            {
+                return digikala.GetSatatusReview();
+            }
+        }
+
         [HttpPost("{action}")]
         public AuthResponse Auth(UserDTO user)
         {

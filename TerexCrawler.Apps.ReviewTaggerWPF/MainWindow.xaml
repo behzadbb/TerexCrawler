@@ -24,8 +24,8 @@
 
         <ListBox x:Name="listPositive" Width="180" HorizontalAlignment="Right" Margin="0,325,80,10" Background="{x:Null}" FontSize="12" Foreground="#FF97BB94" BorderBrush="GreenYellow" FlowDirection="RightToLeft" SelectionChanged="listPositive_SelectionChanged" />
         <ListBox x:Name="listNeutral" Width="180" HorizontalAlignment="Right" Margin="0,325,334,10" Background="{x:Null}" FontSize="12" Foreground="White" BorderBrush="LightGray" FlowDirection="RightToLeft" SelectionChanged="listNeutral_SelectionChanged" />
-        <ListBox x:Name="listNegative" Width="180" HorizontalAlignment="Right" Margin="0,325,584,10" Background="{x:Null}" FontSize="12" Foreground="#FFCBA39D" BorderBrush="red" FlowDirection="RightToLeft" SelectionChanged="listNegative_SelectionChanged" />
-        <ListBox x:Name="listAspects" HorizontalAlignment="Right" Width="150" Margin="0,325,798,100" Background="{x:Null}" Foreground="White" BorderBrush="Aqua" FontSize="15" FlowDirection="RightToLeft" />
+        <ListBox x:Name="listNegative" Width="180" HorizontalAlignment="Right" Margin="0,325,596,10" Background="{x:Null}" FontSize="12" Foreground="#FFCBA39D" BorderBrush="red" FlowDirection="RightToLeft" SelectionChanged="listNegative_SelectionChanged" />
+        <ListBox x:Name="listAspects" HorizontalAlignment="Right" Width="180" Margin="0,325,826,100" Background="{x:Null}" Foreground="White" BorderBrush="Aqua" FontSize="13" FlowDirection="RightToLeft" />
 
         <Button Content="محصول بعدی" Name="btnNextProduct" HorizontalAlignment="Left" Margin="30,7,0,0" VerticalAlignment="Top" Height="46" Width="196" Click="btnNext_Click"/>
         <Label Content="xxx/xxx" Name="lblCount" HorizontalAlignment="Right" Margin="0,175,10,10" Foreground="White" FontSize="16" VerticalAlignment="Top" Width="64"/>

@@ -252,5 +252,16 @@ namespace TerexCrawler.DataLayer.Repository
             //var aspects = products.Comments.Where(x => x.NegativeAspect.Any()).Select(x => x.NegativeAspect);
             return ssss.ToArray();
         }
+
+        public long GetCountReview()
+        {
+            return digikalaReview.Count();
+        }
+        
+        public long GetCountSentences()
+        {
+            var reviews = digikalaReview.FindAll().Where(x => x.sentences.Any() && x.sentences.Count() > 0);
+            return reviews.Sum(s => s.sentences.Count());
+        }
     }
 }

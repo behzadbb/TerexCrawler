@@ -313,6 +313,11 @@ namespace TerexCrawler.Services.Digikala
         {
             throw new NotImplementedException();
         }
+
+        public string GetSatatusReview()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     
