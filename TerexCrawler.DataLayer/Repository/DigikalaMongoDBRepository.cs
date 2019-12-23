@@ -219,12 +219,39 @@ namespace TerexCrawler.DataLayer.Repository
 
         public bool AddReview(Review review)
         {
-            if (review._id == null || review._id.ToString().Contains("000"))
+            var query = Query<Review>.Where(x => x.ProductID == review.ProductID);
+
+            var review1 = digikalaReview.FindOne(query);
+            if (review1 == null || !review1.sentences.Any())
             {
-                review._id = ObjectId.GenerateNewId(DateTime.Now);
+                if (review._id == null || review._id.ToString().Contains("000"))
+                {
+                    review._id = ObjectId.GenerateNewId(DateTime.Now);
+                }
+                digikalaReview.Insert(review);
+                return true;
             }
-            digikalaReview.Insert(review);
-            return true;
+
+            if (review1 != null)
+            {
+                foreach (var item in collection)
+                {
+
+                }
+            }
+
+            var update = Update<Review>.Set(p => p.Reserved, true).Set(p => p.Tagger, param.tagger);
+
+            digikalaProducts.Update(query, update);
+
+            System.Threading.Thread.Sleep(50);
+            var product = digikalaProducts.FindOne(query);
+
+
+
+
+
+            
         }
 
         public void SetTaggedProduct(string id, string tagger)
