@@ -754,6 +754,36 @@ namespace TerexCrawler.Services.Digikala
                 return false;
             }
         }
+
+        public bool AddReviewToDB_NewMethod(AddReviewToDBParam param)
+        {
+            try
+            {
+                using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
+                {
+                    Review review = new Review(param.review);
+                    db.AddReviewNew(review);
+                    db.SetTaggedProduct(param.id, param.tagger);
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogDTO log = new LogDTO()
+                {
+                    _id = ObjectId.GenerateNewId(DateTime.Now).ToString(),
+                    DateTime = DateTime.Now,
+                    Description = ex.Message,
+                    ProjectId = (int)ProjectNames.Services,
+                    Url = "DKP: " + param.review.ProductID,
+                    MethodName = "AddReviewToDB_NewMethod",
+                    Title = $"AddReviewToDB_NewMethod Error, Tagger: {param.tagger}"
+                };
+                Logger.AddLog(log);
+                return false;
+            }
+        }
+
         public async Task<T> GetAllReviews<T>()
         {
             using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())

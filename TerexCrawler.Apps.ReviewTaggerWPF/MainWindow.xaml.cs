@@ -243,6 +243,7 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
                     };
 
                 }
+
                 if (opinions == null || opinions.Count() == 0)
                 {
                     sentence = new sentence()
@@ -253,8 +254,59 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
                         OutOfScope = true
                     };
                 }
+
                 sentences.Add(sentence);
                 var sen = sentences.ToList();
+
+                if (sentences != null && sentences.Count() > 0)
+                {
+                    if (review.sentences == null)
+                    {
+                        review.sentences = new List<sentence>();
+                    }
+                    review.sentences.AddRange(sentences);
+                    sentences.Clear();
+                }
+
+                using (IWebsiteCrawler digikala = new DigikalaHelper())
+                {
+                    try
+                    {
+                        if (review != null && review.sentences != null && review.sentences.Count() > 0)
+                        {
+                            review.CreateDate = DateTime.Now;
+                            //review._id = ObjectId.GenerateNewId(DateTime.Now);
+                            review.rid = digikalaProduct.DKP;
+                            AddReviewToDBParam param = new AddReviewToDBParam
+                            {
+                                review = review,
+                                id = digikalaProduct._id,
+                                tagger = user.Username
+                            };
+                            AddReviewToDBResponse resultAddReview = new AddReviewToDBResponse() { Success = false };
+                            //bool resultAddReview = digikala.AddReviewToDB(param); // ☺ Api
+                            using (var Api = new WebAppApiCall())
+                            {
+                                resultAddReview = Api.GetFromApi<AddReviewToDBResponse>("AddReviewNew", param);
+                            }
+                            if (resultAddReview.Success)
+                            {
+                                sentences.Clear();
+                                sentenceIdReset();
+                            }
+                            else
+                            {
+                                MessageBox.Show("ثبت با مشکل روبرو شده است دوباره سعی کنید. _ دوباره سعی کن نشد به بهزاد بگو", "Warning");
+                                return;
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        MessageBox.Show("خطا در ارسال اطلاعات به سرور ، لطفا به بهزاد خبر دهید که برنامه کار نمیکنه !!!");
+                    }
+                }
+
                 txtReview.Text = txtReview.Text.Replace(txtSelectReview.Text.Trim(), "").Trim();
                 txtSelectReview.Text = "";
             }

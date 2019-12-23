@@ -31,5 +31,6 @@ namespace TerexCrawler.Models.Interfaces
         bool AddReviewToDB(AddReviewToDBParam param);
         Task<T> GetAllReviews<T>();
         string GetSatatusReview();
+        bool AddReviewToDB_NewMethod(AddReviewToDBParam param);
     }
 }

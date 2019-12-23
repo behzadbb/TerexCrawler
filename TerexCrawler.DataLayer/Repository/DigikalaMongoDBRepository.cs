@@ -227,6 +227,35 @@ namespace TerexCrawler.DataLayer.Repository
             return true;
         }
 
+        public bool AddReviewNew(Review review)
+        {
+            var query = Query<Review>.Where(x => x.ProductID == review.ProductID);
+
+            var r = digikalaReview.FindOne(query);
+            if (r == null)
+            {
+                if (review._id == null || review._id.ToString().Contains("000"))
+                {
+                    review._id = ObjectId.GenerateNewId(DateTime.Now);
+                }
+                digikalaReview.Insert(review);
+                return true;
+            }
+
+            foreach (var item in review.sentences)
+            {
+                if (!r.sentences.Where(x => x.Text == item.Text).Any())
+                {
+                    r.sentences.Add(item);
+
+                }
+            }
+            var update = Update<Review>.Set(p => p.sentences, r.sentences);
+
+            digikalaReview.Update(query, update);
+            return true;
+        }
+
         public void SetTaggedProduct(string id, string tagger)
         {
             var query = Query<DigikalaProduct>.Where(x => x._id == ObjectId.Parse(id));
@@ -257,7 +286,7 @@ namespace TerexCrawler.DataLayer.Repository
         {
             return digikalaReview.Count();
         }
-        
+
         public long GetCountSentences()
         {
             var reviews = digikalaReview.FindAll().Where(x => x.sentences.Any() && x.sentences.Count() > 0);

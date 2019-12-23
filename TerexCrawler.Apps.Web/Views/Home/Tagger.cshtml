@@ -1,0 +1,70 @@
+﻿@model TerexCrawler.Apps.Web.Models.TaggerVM
+@{
+    ViewData["Title"] = "Tagger";
+}
+<div class="row">
+    <div class="col-12">
+        <div>Welcome @Model.Tagger</div>
+    </div>
+    <div class="col-12">
+        <button type="button" class="btn btn-primary">
+            @Model.ProductName <span class="badge badge-light"> @Model.ProductId</span>
+            <span class="sr-only">product</span>
+        </button>
+    </div>
+</div>
+<div class="row">
+    <form>
+        @*
+            <input name="ProductId" id="ProductId" value="@Model.ProductId" type="hidden" />
+            <input name="cmJson" id="cmJson" value="@Model.CommentJson" type="hidden" />
+        *@
+        <div class="col-12" dir="rtl">
+            <div class="form-group">
+                <label class="control-label">عنوان نظر</label>
+                <input asp-for="CommentTitle" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label class="control-label">نظر</label>
+                <textarea asp-for="Review" class="form-control" rows="6"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">نظر انتخاب شده</label>
+                <textarea asp-for="SelectReview" class="form-control" style="font-size:18px;"></textarea>
+            </div>
+        </div>
+        
+
+        <div class="row">
+            <div class="col-12">
+                <div class="row">
+                    <div class="col-4">
+                        <h2>مثبت</h2>
+                        @foreach (var item in Model.AspectsVm)
+                        {
+                            <button type="button" class="btn btn-sm btn-outline-success" aspect="@item#Pos">@item</button>
+                        }
+                    </div>
+                    <div class="col-4">
+                        <h2>خنثی</h2>
+                        @foreach (var item in Model.AspectsVm)
+                        {
+                            <button type="button" class="btn btn-sm btn-outline-warning" aspect="@item#Nat">@item</button>
+                        }
+                    </div>
+                    <div class="col-4">
+                        <h2>منفی</h2>
+                        @foreach (var item in Model.AspectsVm)
+                        {
+                            <button type="button" class="btn btn-sm btn-outline-danger" aspect="@item#Neg">@item</button>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>

@@ -40,6 +40,16 @@ namespace TerexCrawler.Apps.WebAppApi.Controllers
         }
 
         [HttpPost("{action}")]
+        public AddReviewToDBResponse AddReviewNew([FromBody]AddReviewToDBParam param)
+        {
+            using (IWebsiteCrawler digikala = new DigikalaHelper())
+            {
+                var result = digikala.AddReviewToDB_NewMethod(param);
+                return new AddReviewToDBResponse { Success = result };
+            }
+        }
+
+        [HttpPost("{action}")]
         public DigikalaProductDTO GetFirstProductByCategory(GetFirstProductByCategoryParam param)
         {
             using (IWebsiteCrawler digikala = new DigikalaHelper())

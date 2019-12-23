@@ -318,6 +318,11 @@ namespace TerexCrawler.Services.Digikala
         {
             throw new NotImplementedException();
         }
+
+        public bool AddReviewToDB_NewMethod(AddReviewToDBParam param)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     

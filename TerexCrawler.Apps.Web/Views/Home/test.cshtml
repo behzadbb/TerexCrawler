@@ -1,0 +1,33 @@
+﻿@model TerexCrawler.Apps.Web.Models.TaggerTest
+
+@{
+    ViewData["Title"] = "test";
+}
+
+<h1>test</h1>
+
+<h4>TaggerTest</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="test">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Tagger" class="control-label"></label>
+                <input asp-for="Tagger" class="form-control" />
+                <span asp-validation-for="Tagger" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
