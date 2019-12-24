@@ -44,7 +44,7 @@ namespace TerexCrawler.Apps.Web.Models
         public string NatItem { get; set; }
         public string NegItem { get; set; }
         public string SelectReview { get; set; }
-        public int ProductId { get; set; }
+        public string ProductId { get; set; }
         public string Tagger { get; set; }
     }
     public class TaggerTest
