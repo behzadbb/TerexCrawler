@@ -66,13 +66,44 @@ namespace TerexCrawler.Apps.Web.Controllers
                         tagger.ProductCount = s.Comments.Count();
                         tagger.CommentJson = JsonConvert.SerializeObject(s.Comments);
                         tagger.CommentTitle = s.Comments.FirstOrDefault().Title;
+                        tagger.CountReview = s.Comments.Count();
+                        tagger.CountCurrent = 1;
                         tagger.Review = s.Comments.FirstOrDefault().Review;
+                        tagger.ProductId = s.DKP;
+                        tagger.idBson = s._id;
+                        //tagger.ProductDTO = s;
                     }
-
                     return View(tagger);
                 }
             }
             return Redirect("http://google.com");
+        }
+
+        [HttpPost]
+        public IActionResult AddLabel([FromBody]TaggerVMPost model)
+        {
+            if (model != null)
+            {
+                //var model = JsonConvert.DeserializeObject<TaggerVMPost>(id);
+                AddReviewToDBParam param = new AddReviewToDBParam();
+                param.id = model.idBson.ToString();
+                param.tagger = model.Tagger;
+                ReviewDTO review = new ReviewDTO();
+                review._id = "000";
+                review.CreateDate = DateTime.Now;
+                review.ProductID = model.ProductId;
+                review.rid = model.ProductId;
+                //using (IWebsiteCrawler digikala = new DigikalaHelper())
+                //{
+                //    var result = digikala.AddReviewToDB_NewMethod(param);
+                //    return new AddReviewToDBResponse { Success = result };
+                //}
+                return Ok("ثبت شد");
+            }
+            else
+            {
+                return NoContent();
+            }
         }
 
         public IActionResult Privacy(string id)

@@ -7,7 +7,7 @@
         <div>Welcome @Model.Tagger</div>
     </div>
     <div class="col-12">
-        <button type="button" class="btn btn-primary">
+        <button type="button" class="btn btn-primary"> شماره محصول: 
             @Model.ProductName <span class="badge badge-light"> @Model.ProductId</span>
             <span class="sr-only">product</span>
         </button>
@@ -25,7 +25,7 @@
                 <input asp-for="CommentTitle" class="form-control" />
             </div>
             <div class="form-group">
-                <label class="control-label">نظر</label>
+                <label class="control-label">نظر</label>&nsub;<label id="lblCount">@Model.CountCurrent</label><label>&nsub;از&nsub; @Model.CountReview</label>
                 <textarea asp-for="Review" class="form-control" rows="6"></textarea>
             </div>
 
@@ -33,31 +33,36 @@
                 <label class="control-label">نظر انتخاب شده</label>
                 <textarea asp-for="SelectReview" class="form-control" style="font-size:18px;"></textarea>
             </div>
+
+            <div class="form-group">
+                <label class="control-label" id="lblAspect">
+                </label>
+            </div>
         </div>
-        
+
 
         <div class="row">
             <div class="col-12">
-                <div class="row">
+                <div class="row" dir="rtl">
                     <div class="col-4">
                         <h2>مثبت</h2>
                         @foreach (var item in Model.AspectsVm)
                         {
-                            <button type="button" class="btn btn-sm btn-outline-success" aspect="@item#Pos">@item</button>
+                            <button type="button" class="btn btn-sm btn-outline-success aspect-btn-pos" aspect="@item" category="@item.Split('#')[1]">@item</button>
                         }
                     </div>
                     <div class="col-4">
                         <h2>خنثی</h2>
                         @foreach (var item in Model.AspectsVm)
                         {
-                            <button type="button" class="btn btn-sm btn-outline-warning" aspect="@item#Nat">@item</button>
+                            <button type="button" class="btn btn-sm btn-outline-warning aspect-btn-nat" aspect="@item" category="@item.Split('#')[1]">@item</button>
                         }
                     </div>
                     <div class="col-4">
                         <h2>منفی</h2>
                         @foreach (var item in Model.AspectsVm)
                         {
-                            <button type="button" class="btn btn-sm btn-outline-danger" aspect="@item#Neg">@item</button>
+                            <button type="button" class="btn btn-sm btn-outline-danger aspect-btn-neg" aspect="@item" category="@item.Split('#')[1]">@item</button>
                         }
                     </div>
                 </div>
@@ -65,6 +70,123 @@
             <div class="col-12">
             </div>
         </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
+
+        @Html.HiddenFor(m => m.CountReview)
+        @Html.HiddenFor(m => m.CountCurrent)
+        @Html.HiddenFor(m => m.Tagger)
+        @Html.HiddenFor(m => m.idBson)
+        @Html.HiddenFor(m => m.ProductId)
+        @Html.HiddenFor(m => m.PosItem)
+        @Html.HiddenFor(m => m.NatItem)
+        @Html.HiddenFor(m => m.NegItem)
+        @Html.HiddenFor(m => m.CommentJson)
+        <br />
+        <center>
+            <button type="button" id="btnSubmit" class="btn btn-lg col-8 btn-primary">ثبت</button>
+        </center>
+        <br />
+        <br />
+        <button type="button" id="btnDelete" class="btn btn-lg btn-outline-danger">حذف موارد انتخاب شده</button>
     </form>
 </div>
+
+<script>
+    $(document).ready(function () {
+        console.log("ready!");
+    });
+    $(".aspect-btn-pos").click(function () {
+        var aspect = $("#PosItem").val();
+        if (aspect) {
+            aspect += "*" + $(this).attr("aspect");
+        }
+        else {
+            aspect = $(this).attr("aspect");
+        }
+        $("#PosItem").val(aspect);
+        var aspectHtml = $("#lblAspect").html();
+        aspect = $(this).attr("aspect");
+        $("#lblAspect").html(aspectHtml + "<a class='btn btn-sm btn-success' style='margin-right:5px;'>" + aspect + "</a>");
+    });
+    $(".aspect-btn-nat").click(function () {
+        var aspect = $("#NatItem").val();
+        if (aspect) {
+            aspect += "*" + $(this).attr("aspect");
+        }
+        else {
+            aspect = $(this).attr("aspect");
+        }
+        $("#NatItem").val(aspect);
+        var aspectHtml = $("#lblAspect").html();
+        aspect = $(this).attr("aspect");
+        $("#lblAspect").html(aspectHtml + "<a class='btn btn-sm btn-warning' style='margin-right:5px;'>" + aspect + "</a>");
+    });
+    $(".aspect-btn-neg").click(function () {
+        var aspect = $("#NegItem").val();
+        if (aspect) {
+            aspect += "*" + $(this).attr("aspect");
+        }
+        else {
+            aspect = $(this).attr("aspect");
+        }
+        $("#NegItem").val(aspect);
+        var aspectHtml = $("#lblAspect").html();
+        aspect = $(this).attr("aspect");
+        $("#lblAspect").html(aspectHtml + "<a class='btn btn-sm btn-danger' style='margin-right:5px;'>" + aspect + "</a>");
+    });
+    $("#btnDelete").click(function () {
+        ClearAspect();
+    });
+
+    function ClearAspect() {
+        $("#NegItem").val("");
+        $("#NatItem").val("");
+        $("#PosItem").val("");
+        $("#lblAspect").empty();
+    }
+
+    function NextComment() {
+        var Count = @Model.CountReview;
+        var cmIndex = parseInt($("#CountCurrent").val())
+        if (Count > cmIndex) {
+            var json = $("#CommentJson").val();
+            var comments = JSON.parse(json);
+            var comment = comments[cmIndex];
+
+            $("#Review").val(comment.Review);
+            $("#CommentTitle").val(comment.Title);
+            $("#CountCurrent").val(cmIndex);
+            ClearAspect();
+        }
+    }
+    $("#btnSubmit").click(function () {
+        var pos = $("#PosItem").val();
+        var nat = $("#NatItem").val();
+        var neg = $("#NegItem").val();
+        var selectReview = $("#SelectReview").val();
+        var productId = $("#ProductId").val();
+        var tagger = $("#Tagger").val();
+        var idBson = $("#idBson").val();
+
+
+        var params = JSON.stringify({ idBson: idBson, PosItem: pos, NatItem: nat, NegItem: neg, SelectReview: selectReview, ProductId: productId, Tagger: tagger })
+        $.ajax({
+            type: "POST",
+            url: "/Home/AddLabel/",
+            data: params,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                if (data) {
+                    $("#lblCount").html();
+                    $("#lblCount").val();
+                }
+                else {
+                    alert("ثبت نشد");
+                }
+            },
+            failure: function (errMsg) {
+                alert("ثبت نشد");
+            }
+        });
+    });
+</script>
