@@ -115,12 +115,19 @@ namespace TerexCrawler.Apps.Web.Controllers
                     Opinions.AddRange(pos.Select(x => new Opinion { category = x[0], categoryClass = x[1], polarity = "neg", polarityClass = -1 }).ToList());
                 }
                 sentence.Opinions = Opinions;
-                review.sentences = sentence
-                //using (IWebsiteCrawler digikala = new DigikalaHelper())
-                //{
-                //    var result = digikala.AddReviewToDB_NewMethod(param);
-                //    return new AddReviewToDBResponse { Success = result };
-                //}
+                review.sentences = new List<sentence>();
+                review.sentences.Add(sentence);
+
+                param.review = new ReviewDTO();
+                param.review = review;
+                using (IWebsiteCrawler digikala = new DigikalaHelper())
+                {
+                    var result = digikala.AddReviewToDB_NewMethod(param);
+                    if (!result)
+                    {
+                        return NoContent();
+                    }
+                }
                 return Ok("ثبت شد");
             }
             else
@@ -136,7 +143,7 @@ namespace TerexCrawler.Apps.Web.Controllers
             if (aspect.Contains("*"))
             {
                 string[] labels = aspect.Split('*');
-                
+
                 foreach (var item in labels)
                 {
                     var s = item.Split('#');
@@ -145,7 +152,7 @@ namespace TerexCrawler.Apps.Web.Controllers
                 }
                 return result;
             }
-            var sss=aspect.Split('#');
+            var sss = aspect.Split('#');
             string[] ssss = { AspectsAir.TitleToCategory[sss[0]], AspectsAir.TitleToAspect[sss[1]] };
             result.Add(ssss);
             return result;

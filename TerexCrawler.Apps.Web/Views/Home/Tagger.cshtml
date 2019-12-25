@@ -7,7 +7,8 @@
         <div>Welcome @Model.Tagger</div>
     </div>
     <div class="col-12">
-        <button type="button" class="btn btn-primary"> شماره محصول: 
+        <button type="button" class="btn btn-primary">
+            شماره محصول:
             @Model.ProductName <span class="badge badge-light"> @Model.ProductId</span>
             <span class="sr-only">product</span>
         </button>
@@ -25,7 +26,7 @@
                 <input asp-for="CommentTitle" class="form-control" />
             </div>
             <div class="form-group">
-                <label class="control-label">نظر</label>&nsub;<label id="lblCount">@Model.CountCurrent</label><label>&nsub;از&nsub; @Model.CountReview</label>
+                <label class="control-label">نظر </label> <label id="lblCount">@Model.CountCurrent</label><label> از @Model.CountReview</label>
                 <textarea asp-for="Review" class="form-control" rows="6"></textarea>
             </div>
 
@@ -62,7 +63,7 @@
                         <h2>منفی</h2>
                         @foreach (var item in Model.AspectsVm)
                         {
-                            <button type="button" class="btn btn-sm btn-outline-danger aspect-btn-neg" aspect="@item" category="@item.Split('#')[1]">@item</button>
+                            <button type="button" class="btn btn-sm btn-outline-danger aspect-btn-neg" aspect="@item" category="@item.Split('#')[1]" title="@item.Split('#')[1]">@item</button>
                         }
                     </div>
                 </div>
@@ -167,8 +168,8 @@
         var tagger = $("#Tagger").val();
         var idBson = $("#idBson").val();
 
+        var params = JSON.stringify({ idBson: idBson, PosItem: pos, NatItem: nat, NegItem: neg, SelectReview: selectReview, ProductId: productId, Tagger: tagger });
 
-        var params = JSON.stringify({ idBson: idBson, PosItem: pos, NatItem: nat, NegItem: neg, SelectReview: selectReview, ProductId: productId, Tagger: tagger })
         $.ajax({
             type: "POST",
             url: "/Home/AddLabel/",
@@ -179,14 +180,27 @@
                 if (data) {
                     $("#lblCount").html();
                     $("#lblCount").val();
+
+                    swal({
+                        icon: 'success',
+                        title: "Success!",
+                        text: "Registered Review",
+                        showConfirmButton: false,
+                        timer: 300
+                    });
                 }
                 else {
-                    alert("ثبت نشد");
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Not Registered'
+                    });
                 }
             },
             failure: function (errMsg) {
                 alert("ثبت نشد");
             }
         });
+
     });
 </script>
