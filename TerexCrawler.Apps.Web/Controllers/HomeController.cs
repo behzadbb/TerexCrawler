@@ -14,6 +14,7 @@ using TerexCrawler.Services.Digikala;
 using Newtonsoft.Json;
 using TerexCrawler.Models.Const;
 using TerexCrawler.Apps.ReviewTaggerWPF;
+using Microsoft.AspNetCore.Http.Headers;
 
 namespace TerexCrawler.Apps.Web.Controllers
 {
