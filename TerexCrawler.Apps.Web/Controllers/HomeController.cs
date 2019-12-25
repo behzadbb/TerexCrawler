@@ -13,6 +13,7 @@ using TerexCrawler.Models.Interfaces;
 using TerexCrawler.Services.Digikala;
 using Newtonsoft.Json;
 using TerexCrawler.Models.Const;
+using TerexCrawler.Apps.ReviewTaggerWPF;
 
 namespace TerexCrawler.Apps.Web.Controllers
 {
@@ -31,7 +32,7 @@ namespace TerexCrawler.Apps.Web.Controllers
 
         public IActionResult Tagger(string id)
         {
-            Aspects aspects = new Aspects();
+            //Aspects aspects = new Aspects();
             List<User> users = new List<User>();
             users.Add(new User { Username = "devila", Password = "germany", Category = "گوشی موبایل" });
             users.Add(new User { Username = "NavidSharifi", Password = "navid", Category = "گوشی موبایل" });
@@ -66,13 +67,88 @@ namespace TerexCrawler.Apps.Web.Controllers
                         tagger.ProductCount = s.Comments.Count();
                         tagger.CommentJson = JsonConvert.SerializeObject(s.Comments);
                         tagger.CommentTitle = s.Comments.FirstOrDefault().Title;
+                        tagger.CountReview = s.Comments.Count();
+                        tagger.CountCurrent = 1;
                         tagger.Review = s.Comments.FirstOrDefault().Review;
+                        tagger.ProductId = s.DKP;
+                        tagger.idBson = s._id;
+                        //tagger.ProductDTO = s;
                     }
-
                     return View(tagger);
                 }
             }
             return Redirect("http://google.com");
+        }
+
+        [HttpPost]
+        public IActionResult AddLabel([FromBody]TaggerVMPost model)
+        {
+            if (model != null)
+            {
+                //var model = JsonConvert.DeserializeObject<TaggerVMPost>(id);
+                AddReviewToDBParam param = new AddReviewToDBParam();
+                param.id = model.idBson.ToString();
+                param.tagger = model.Tagger;
+                ReviewDTO review = new ReviewDTO();
+                review._id = "000";
+                review.CreateDate = DateTime.Now;
+                review.ProductID = int.Parse(model.ProductId);
+                review.rid = int.Parse(model.ProductId);
+
+                sentence sentence = new sentence();
+                sentence.Text = model.SelectReview;
+
+                List<Opinion> Opinions = new List<Opinion>();
+                if (!string.IsNullOrEmpty(model.PosItem))
+                {
+                    var pos = getAspects(model.PosItem);
+                    Opinions.AddRange(pos.Select(x => new Opinion { category = x[0], categoryClass = x[1], polarity = "pos", polarityClass = 1 }).ToList());
+                }
+                if (!string.IsNullOrEmpty(model.NatItem))
+                {
+                    var pos = getAspects(model.NatItem);
+                    Opinions.AddRange(pos.Select(x => new Opinion { category = x[0], categoryClass = x[1], polarity = "nat", polarityClass = 0 }).ToList());
+                }
+                if (!string.IsNullOrEmpty(model.NegItem))
+                {
+                    var pos = getAspects(model.NegItem);
+                    Opinions.AddRange(pos.Select(x => new Opinion { category = x[0], categoryClass = x[1], polarity = "neg", polarityClass = -1 }).ToList());
+                }
+                sentence.Opinions = Opinions;
+                review.sentences = sentence
+                //using (IWebsiteCrawler digikala = new DigikalaHelper())
+                //{
+                //    var result = digikala.AddReviewToDB_NewMethod(param);
+                //    return new AddReviewToDBResponse { Success = result };
+                //}
+                return Ok("ثبت شد");
+            }
+            else
+            {
+                return NoContent();
+            }
+        }
+
+        private List<string[]> getAspects(string aspect)
+        {
+            List<string[]> result = new List<string[]>();
+            Aspects aspects = new Aspects();
+            if (aspect.Contains("*"))
+            {
+                string[] labels = aspect.Split('*');
+                
+                foreach (var item in labels)
+                {
+                    var s = item.Split('#');
+                    string[] ss = { AspectsAir.TitleToCategory[s[0]], AspectsAir.TitleToAspect[s[1]] };
+                    result.Add(ss);
+                }
+                return result;
+            }
+            var sss=aspect.Split('#');
+            string[] ssss = { AspectsAir.TitleToCategory[sss[0]], AspectsAir.TitleToAspect[sss[1]] };
+            result.Add(ssss);
+            return result;
         }
 
         public IActionResult Privacy(string id)
