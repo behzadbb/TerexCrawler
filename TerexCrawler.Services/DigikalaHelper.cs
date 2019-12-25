@@ -2,6 +2,7 @@
 using MongoDB.Bson;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -788,7 +789,7 @@ namespace TerexCrawler.Services.Digikala
         {
             using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
             {
-                var ss= db.GetAllReviews();
+                var ss = db.GetAllReviews();
                 return (T)Convert.ChangeType(ss, typeof(string[]));
             }
         }
@@ -800,6 +801,38 @@ namespace TerexCrawler.Services.Digikala
                 var product = db.GetCountReview();
                 var Sentences = db.GetCountSentences();
                 return $"Products: {product} , Sentences: {Sentences}";
+            }
+        }
+
+        public List<Review> GetAllReviews1()
+        {
+            using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
+            {
+                string xml = @"<?xml version=""1.0"" encoding=""UTF-8"" standalone=""yes""?>";
+
+                var reviews = db.GetAllReviewsLabel();
+                //foreach (var review in reviews)
+                //{
+                //    xml += "<sentences>";
+                //    foreach (var sen in review.sentences)
+                //    {
+                //        xml += $"<sentence id={sen.id}>";
+                //        xml += $"<text>{sen.Text}</text>";
+                //        if (sen.Opinions.Any())
+                //        {
+                //            xml += "<aspectTerms>";
+                //            foreach (var op in sen.Opinions)
+                //            {
+                //                xml += @$"<aspectTerm term=""{op.categoryClass}"" polarity=""{op.polarity}""/>";
+                //            }
+                //            xml += "</aspectTerms>";
+                //        }
+                //        xml += $"<sentence>";
+                //    }
+                //    xml += "</sentences>";
+                //}
+                //File.WriteAllText(@"C:\Users\Administrator\Desktop\1.xml", xml);
+                return reviews;
             }
         }
     }

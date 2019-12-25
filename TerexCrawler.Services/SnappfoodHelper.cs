@@ -323,6 +323,16 @@ namespace TerexCrawler.Services.Digikala
         {
             throw new NotImplementedException();
         }
+
+        public string GetAllReviews1()
+        {
+            throw new NotImplementedException();
+        }
+
+        List<Review> IWebsiteCrawler.GetAllReviews1()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     

@@ -43,6 +43,7 @@ namespace TerexCrawler.Test.ConsoleApp
             p("6- Get Comments");
             p("7- Add Product To DB");
             p("9- get All Reviews");
+            p("10- get All Reviews to xml");
             p("100- Get Site Map");
             p("101- Get Site Map From Url");
             short methodNum = Convert.ToInt16(Console.ReadLine());
@@ -72,6 +73,9 @@ namespace TerexCrawler.Test.ConsoleApp
                     break;
                 case 9:
                     digikala_getAllReviews_9();
+                    break;
+                case 10:
+                    digikala_getAllReviewsXML_10();
                     break;
                 case 100:
                     snappFood_100_Sitemap();
@@ -355,6 +359,13 @@ namespace TerexCrawler.Test.ConsoleApp
                         File.WriteAllText(@$"C:\Digikala\reviews\review-{i + 1}.json", json, new UTF8Encoding(false));
                     }
                 }
+            }
+        }
+        private async static void digikala_getAllReviewsXML_10()
+        {
+            using (IWebsiteCrawler digikala = new DigikalaHelper())
+            {
+                var mm = digikala.GetAllReviews1();
             }
         }
         #endregion

@@ -8,6 +8,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using TerexCrawler.Models;
 using TerexCrawler.Models.Const;
 using TerexCrawler.Models.DTO;
 using TerexCrawler.Models.DTO.Api;
@@ -55,6 +56,15 @@ namespace TerexCrawler.Apps.WebAppApi.Controllers
             using (IWebsiteCrawler digikala = new DigikalaHelper())
             {
                 return digikala.GetFirstProductByCategory<DigikalaProductDTO>(param).Result;
+            }
+        }
+
+        [HttpGet("{action}")]
+        public List<Review> GetXml(GetFirstProductByCategoryParam param)
+        {
+            using (IWebsiteCrawler digikala = new DigikalaHelper())
+            {
+                return digikala.GetAllReviews1();
             }
         }
 

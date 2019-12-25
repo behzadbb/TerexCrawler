@@ -292,5 +292,9 @@ namespace TerexCrawler.DataLayer.Repository
             var reviews = digikalaReview.FindAll().Where(x => x.sentences.Any() && x.sentences.Count() > 0);
             return reviews.Sum(s => s.sentences.Count());
         }
+        public List<Review> GetAllReviewsLabel()
+        {
+            return digikalaReview.FindAll().ToList();
+        }
     }
 }
