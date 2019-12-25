@@ -45,6 +45,6 @@ namespace TerexCrawler.Models
         public string polarity { get; set; }
         public int polarityClass { get; set; }
         public string category { get; set; }
-        public string categoryClass { get; set; }
+        public string aspect { get; set; }
     }
 }

@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using TerexCrawler.Apps.ReviewTaggerWPF;
 
 namespace TerexCrawler.Apps.Web
 {
@@ -29,7 +28,7 @@ namespace TerexCrawler.Apps.Web
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            AspectsAir.FillAspect();
+            //AspectsAir.FillAspect();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

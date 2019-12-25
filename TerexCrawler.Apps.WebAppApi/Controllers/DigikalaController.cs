@@ -110,11 +110,11 @@ namespace TerexCrawler.Apps.WebAppApi.Controllers
         public GetAspectsResponseDTO GetAspects(GetAspectsDTO param)
         {
             Aspects aspects = new Aspects();
-            if (param.AspectType == (int)AspectTypes.Mobile)
-                return new GetAspectsResponseDTO { Aspects = aspects.Mobiles, Categories = aspects.MobileCategories, CategoriesTitle = aspects.MobileCategoriesTitle };
+            //if (param.AspectType == (int)AspectTypes.Mobile)
+            //    return new GetAspectsResponseDTO { Aspects = aspects, Categories = aspects.MobileCategories, CategoriesTitle = aspects.MobileCategoriesTitle };
             //else if (param.AspectType == (int)AspectTypes.Laptop)
             //    return new GetAspectsResponseDTO { Aspects = Aspects.laptop };
-            return new GetAspectsResponseDTO { Aspects = aspects.Mobiles, Categories = aspects.MobileCategories, CategoriesTitle = aspects.MobileCategoriesTitle };
+            return new GetAspectsResponseDTO { Aspects = aspects };
         }
     }
 }

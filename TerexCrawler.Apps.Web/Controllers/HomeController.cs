@@ -1,20 +1,17 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using TerexCrawler.Apps.Web.Models;
 using TerexCrawler.Models;
+using TerexCrawler.Models.Const;
 using TerexCrawler.Models.DTO;
 using TerexCrawler.Models.DTO.Digikala;
 using TerexCrawler.Models.Interfaces;
 using TerexCrawler.Services.Digikala;
-using Newtonsoft.Json;
-using TerexCrawler.Models.Const;
-using TerexCrawler.Apps.ReviewTaggerWPF;
-using Microsoft.AspNetCore.Http.Headers;
 
 namespace TerexCrawler.Apps.Web.Controllers
 {
@@ -28,6 +25,9 @@ namespace TerexCrawler.Apps.Web.Controllers
 
         public IActionResult Index()
         {
+            AspectLabel[] asp = { new AspectLabel { Aspect = "", Category = "", Polarity = "" } };
+            var m = new AddLabelParam { ProductId = "d", idBson = "gh", Tagger = "ssa", Text = "sss", AspectLabels = asp };
+            var s = JsonConvert.SerializeObject(m);
             return View();
         }
 
@@ -82,11 +82,13 @@ namespace TerexCrawler.Apps.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddLabel([FromBody]TaggerVMPost model)
+        public IActionResult AddLabel([FromBody]AddLabelParam model)
         {
+            Dictionary<string, int> pol = new Dictionary<string, int>() {
+                { "positive", 1 },{ "neutral", 0 },{ "negative", -1}
+            };
             if (model != null)
             {
-                //var model = JsonConvert.DeserializeObject<TaggerVMPost>(id);
                 AddReviewToDBParam param = new AddReviewToDBParam();
                 param.id = model.idBson.ToString();
                 param.tagger = model.Tagger;
@@ -97,29 +99,18 @@ namespace TerexCrawler.Apps.Web.Controllers
                 review.rid = int.Parse(model.ProductId);
 
                 sentence sentence = new sentence();
-                sentence.Text = model.SelectReview;
+                sentence.Text = model.Text;
 
                 List<Opinion> Opinions = new List<Opinion>();
-                if (!string.IsNullOrEmpty(model.PosItem))
+                if (model.AspectLabels.Count() > 0)
                 {
-                    var pos = getAspects(model.PosItem);
-                    Opinions.AddRange(pos.Select(x => new Opinion { category = x[0], categoryClass = x[1], polarity = "pos", polarityClass = 1 }).ToList());
+                    Opinions.AddRange(model.AspectLabels.Select(x => new Opinion { category = x.Category.ToUpper().Trim(), aspect = x.Aspect.ToUpper().Trim(), polarity = x.Polarity, polarityClass = pol[x.Polarity] }).ToList());
+                    sentence.Opinions = Opinions;
                 }
-                if (!string.IsNullOrEmpty(model.NatItem))
-                {
-                    var pos = getAspects(model.NatItem);
-                    Opinions.AddRange(pos.Select(x => new Opinion { category = x[0], categoryClass = x[1], polarity = "nat", polarityClass = 0 }).ToList());
-                }
-                if (!string.IsNullOrEmpty(model.NegItem))
-                {
-                    var pos = getAspects(model.NegItem);
-                    Opinions.AddRange(pos.Select(x => new Opinion { category = x[0], categoryClass = x[1], polarity = "neg", polarityClass = -1 }).ToList());
-                }
-                if (string.IsNullOrEmpty(model.PosItem) && string.IsNullOrEmpty(model.NatItem) && string.IsNullOrEmpty(model.NegItem))
+                if (Opinions.Count < 1)
                 {
                     sentence.OutOfScope = true;
                 }
-                sentence.Opinions = Opinions;
                 review.sentences = new List<sentence>();
                 review.sentences.Add(sentence);
 
@@ -144,22 +135,22 @@ namespace TerexCrawler.Apps.Web.Controllers
         private List<string[]> getAspects(string aspect)
         {
             List<string[]> result = new List<string[]>();
-            Aspects aspects = new Aspects();
-            if (aspect.Contains("*"))
-            {
-                string[] labels = aspect.Split('*');
+            //Aspects aspects = new Aspects();
+            //if (aspect.Contains("*"))
+            //{
+            //    string[] labels = aspect.Split('*');
 
-                foreach (var item in labels)
-                {
-                    var s = item.Split('#');
-                    string[] ss = { AspectsAir.TitleToCategory[s[0]], AspectsAir.TitleToAspect[s[1]] };
-                    result.Add(ss);
-                }
-                return result;
-            }
-            var sss = aspect.Split('#');
-            string[] ssss = { AspectsAir.TitleToCategory[sss[0]], AspectsAir.TitleToAspect[sss[1]] };
-            result.Add(ssss);
+            //    foreach (var item in labels)
+            //    {
+            //        var s = item.Split('#');
+            //        string[] ss = { AspectsAir.TitleToCategory[s[0]], AspectsAir.TitleToAspect[s[1]] };
+            //        result.Add(ss);
+            //    }
+            //    return result;
+            //}
+            //var sss = aspect.Split('#');
+            //string[] ssss = { AspectsAir.TitleToCategory[sss[0]], AspectsAir.TitleToAspect[sss[1]] };
+            //result.Add(ssss);
             return result;
         }
 

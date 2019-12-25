@@ -16,7 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TerexCrawler.Apps.ReviewTaggerWPF\TerexCrawler.Apps.ReviewTaggerWPF.csproj" />
     <ProjectReference Include="..\TerexCrawler.Models\TerexCrawler.Models.csproj" />
     <ProjectReference Include="..\TerexCrawler.Services\TerexCrawler.Services.csproj" />
   </ItemGroup>

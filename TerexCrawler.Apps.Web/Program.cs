@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using TerexCrawler.Apps.ReviewTaggerWPF;
 
 namespace TerexCrawler.Apps.Web
 {
@@ -15,7 +14,7 @@ namespace TerexCrawler.Apps.Web
         public static void Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();
-            AspectsAir.FillAspect();
+            //AspectsAir.FillAspect();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

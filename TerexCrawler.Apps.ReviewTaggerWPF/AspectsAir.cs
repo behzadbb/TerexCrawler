@@ -11,18 +11,8 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
         public static List<Aspect> FillAspect()
         {
             Aspects asct = new Aspects();
-            AspectToTitle = asct.Mobiles.ToDictionary(a => a.Feature, x => x.Title);
-
-            TitleToAspect = asct.Mobiles.ToDictionary(a => a.Title, a => a.Feature);
-            FeaturesToCategory = new Dictionary<string, string>();
-            FeaturesToCategory = asct.Mobiles.ToDictionary(a => a.Feature, a => a.Category);
-            CategoryToTitle = asct.MobileCategories;
-            TitleToCategory = asct.MobileCategoriesTitle;
-
-            AspectList = asct.Mobiles.Select(x => $"{CategoryToTitle[x.Category]}#{x.Title}").ToList();
-
-
-            return asct.Mobiles;
+            
+            return asct.AspectList;
         }
 
         public static List<Aspect> Aspects = FillAspect();

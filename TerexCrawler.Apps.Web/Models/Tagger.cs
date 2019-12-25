@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TerexCrawler.Apps.ReviewTaggerWPF;
 using TerexCrawler.Models;
 using TerexCrawler.Models.Const;
 using TerexCrawler.Models.DTO;
@@ -14,13 +13,11 @@ namespace TerexCrawler.Apps.Web.Models
     {
         public string idBson { get; set; }
         public ReviewDTO ReviewDTO { get; set; }
-        public List<string> AspectsVm { get; set; }
+        public Aspects Aspects { get; set; }
         public DigikalaProductDTO ProductDTO { get; set; }
         public int CountReview { get; set; }
         public int CountCurrent { get; set; }
-        public string PosItem { get; set; }
-        public string NatItem { get; set; }
-        public string NegItem { get; set; }
+        public string AspectLabel { get; set; }
         public int ProductCount { get; set; }
         public string CommentJson { get; set; }
         public User User { get; set; }
@@ -33,7 +30,7 @@ namespace TerexCrawler.Apps.Web.Models
         public string Tagger { get; set; }
         public TaggerVM()
         {
-            AspectsVm = AspectsAir.AspectList;
+            Aspects = new Aspects();
         }
     }
     
@@ -47,8 +44,24 @@ namespace TerexCrawler.Apps.Web.Models
         public string ProductId { get; set; }
         public string Tagger { get; set; }
     }
+
     public class TaggerTest
     {
         public string Tagger { get; set; }
+    }
+    public class AspectLabel
+    {
+        public string Category { get; set; }
+        public string Aspect { get; set; }
+        public string Polarity { get; set; }
+    }
+    public class AddLabelParam
+    {
+        public string ProductId { get; set; }
+        public string Tagger { get; set; }
+        public string idBson { get; set; }
+        public string Text { get; set; }
+
+        public AspectLabel[] AspectLabels { get; set; }
     }
 }

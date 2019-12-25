@@ -39,7 +39,7 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
         private int _sentenceId = 0;
         public User user { get; set; }
         public List<string> aspects { get; set; }
-        public List<Aspect> Aspects { get; set; }
+        public Aspects Aspects { get; set; }
         public Dictionary<string, string> CategoryToTitle { get; set; }
         public Dictionary<string, string> TitleToCategory { get; set; }
         public Dictionary<string, string> FeaturesToCategory { get; set; }
@@ -56,18 +56,6 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
                 GetAspectsDTO getAspects = new GetAspectsDTO() { AspectType = (int)AspectTypes.Mobile };
                 var res = Api.GetFromApi<GetAspectsResponseDTO>("GetAspects", getAspects);
                 Aspects = res.Aspects;
-                
-                AspectToTitle = new Dictionary<string, string>();
-                
-                AspectToTitle = res.Aspects.ToDictionary(a => a.Feature, x => x.Title);
-                TitleToAspect = new Dictionary<string, string>();
-                TitleToAspect = res.Aspects.ToDictionary(a => a.Title, a => a.Feature);
-                FeaturesToCategory = new Dictionary<string, string>();
-                FeaturesToCategory = res.Aspects.ToDictionary(a => a.Feature, a => a.Category);
-                CategoryToTitle = res.Categories;
-                TitleToCategory = res.CategoriesTitle;
-
-                aspects = res.Aspects.Select(x => $"{CategoryToTitle[x.Category]}#{x.Title}").ToList();
             }
             InitializeComponent();
         }
@@ -89,7 +77,7 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
                 Opinion opinion = new Opinion();
                 string feature = TitleToAspect[item[1]];
                 opinion.category = TitleToCategory[item[0]];
-                opinion.categoryClass = feature;
+                //opinion.categoryClass = feature;
                 opinion.polarity = PolarityType.positive.ToString();
                 opinion.polarityClass = (int)PolarityType.positive;
 
@@ -108,7 +96,7 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
                 Opinion opinion = new Opinion();
                 string feature = TitleToAspect[item[1]];
                 opinion.category = TitleToCategory[item[0]];
-                opinion.categoryClass = feature;
+                //opinion.categoryClass = feature;
                 opinion.polarity = PolarityType.neutral.ToString();
                 opinion.polarityClass = (int)PolarityType.neutral;
 
@@ -127,7 +115,7 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
                 Opinion opinion = new Opinion();
                 string feature = TitleToAspect[item[1]];
                 opinion.category = TitleToCategory[item[0]];
-                opinion.categoryClass = feature;
+                //opinion.categoryClass = feature;
                 opinion.polarity = PolarityType.negative.ToString();
                 opinion.polarityClass = (int)PolarityType.negative;
 
@@ -234,7 +222,7 @@ namespace TerexCrawler.Apps.ReviewTaggerWPF
                 sentence sentence = new sentence();
                 if (opinions != null && opinions.Count() > 0)
                 {
-                    var _opinions = opinions.Select(x => new Opinion { category = x.category, categoryClass = x.categoryClass, polarity = x.polarity, polarityClass = x.polarityClass }).ToList();
+                    var _opinions = opinions.Select(x => new Opinion { category = x.category, aspect = x.aspect, polarity = x.polarity, polarityClass = x.polarityClass }).ToList();
                     sentence = new sentence()
                     {
                         id = sentenceId,

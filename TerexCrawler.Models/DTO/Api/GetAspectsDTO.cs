@@ -11,8 +11,6 @@ namespace TerexCrawler.Models.DTO.Api
     }
     public class GetAspectsResponseDTO
     {
-        public List<Aspect> Aspects { get; set; }
-        public Dictionary<string, string> Categories { get; set; }
-        public Dictionary<string, string> CategoriesTitle { get; set; }
+        public Aspects Aspects { get; set; }
     }
 }
