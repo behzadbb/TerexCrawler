@@ -12,6 +12,7 @@
             @Model.ProductName <span class="badge badge-light"> @Model.ProductId</span>
             <span class="sr-only">product</span>
         </button>
+        <a class="btn btn-outline-dark" href="/Home/Tagger/@Model.Tagger">محصول بعدی</a>
     </div>
 </div>
 <div class="row">
@@ -26,7 +27,7 @@
                 <input asp-for="CommentTitle" class="form-control" />
             </div>
             <div class="form-group">
-                <label class="control-label">نظر </label> <label id="lblCount">@Model.CountCurrent</label><label> از @Model.CountReview</label>
+                <label class="control-label">نظر </label> <label id="lblCount">@(Model.CountCurrent + 1)</label><label> از @Model.CountReview</label>
                 <textarea asp-for="Review" class="form-control" rows="6"></textarea>
             </div>
 
@@ -40,7 +41,6 @@
                 </label>
             </div>
         </div>
-
 
         <div class="row">
             <div class="col-12">
@@ -72,8 +72,8 @@
             </div>
         </div>
 
-        @Html.HiddenFor(m => m.CountReview)
-        @Html.HiddenFor(m => m.CountCurrent)
+        <input type="hidden" id="CountReview" value="@Model.CountReview" />
+        <input type="hidden" id="CountCurrent" value="@Model.CountCurrent" />
         @Html.HiddenFor(m => m.Tagger)
         @Html.HiddenFor(m => m.idBson)
         @Html.HiddenFor(m => m.ProductId)
@@ -85,6 +85,7 @@
         <center>
             <button type="button" id="btnSubmit" class="btn btn-lg col-8 btn-primary">ثبت</button>
         </center>
+        <button type="button" class="btn btn-lg btn-info" id="btnNextComment">نطر بعدی</button>
         <br />
         <br />
         <button type="button" id="btnDelete" class="btn btn-lg btn-outline-danger">حذف موارد انتخاب شده</button>
@@ -147,7 +148,8 @@
 
     function NextComment() {
         var Count = @Model.CountReview;
-        var cmIndex = parseInt($("#CountCurrent").val())
+        var cmIndex = parseInt($("#CountCurrent").val());
+        cmIndex += 1;
         if (Count > cmIndex) {
             var json = $("#CommentJson").val();
             var comments = JSON.parse(json);
@@ -155,7 +157,8 @@
 
             $("#Review").val(comment.Review);
             $("#CommentTitle").val(comment.Title);
-            $("#CountCurrent").val(cmIndex);
+            $("#CountCurrent").val(cmIndex.toString());
+            $("#lblCount").html(cmIndex + 1);
             ClearAspect();
         }
     }
@@ -210,5 +213,9 @@
             }
         });
 
+    });
+
+    $("#btnNextComment").click(function () {
+        NextComment();
     });
 </script>

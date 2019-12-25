@@ -68,7 +68,7 @@ namespace TerexCrawler.Apps.Web.Controllers
                         tagger.CommentJson = JsonConvert.SerializeObject(s.Comments);
                         tagger.CommentTitle = s.Comments.FirstOrDefault().Title;
                         tagger.CountReview = s.Comments.Count();
-                        tagger.CountCurrent = 1;
+                        tagger.CountCurrent = 0;
                         tagger.Review = s.Comments.FirstOrDefault().Review;
                         tagger.ProductId = s.DKP;
                         tagger.idBson = s._id;
