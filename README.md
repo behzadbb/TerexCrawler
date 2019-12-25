@@ -14,7 +14,7 @@
 | Snappfood | [www.snappfood.ir] |
 
 ##### Dependencies:
-  - DotNetCore SDK 3.0
+  - DotNetCore SDK 3.1
   - Code Editor: Visual Studio 2019 or Vs Code
 
 
