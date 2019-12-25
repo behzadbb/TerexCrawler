@@ -114,6 +114,10 @@ namespace TerexCrawler.Apps.Web.Controllers
                     var pos = getAspects(model.NegItem);
                     Opinions.AddRange(pos.Select(x => new Opinion { category = x[0], categoryClass = x[1], polarity = "neg", polarityClass = -1 }).ToList());
                 }
+                if (string.IsNullOrEmpty(model.PosItem) && string.IsNullOrEmpty(model.NatItem) && string.IsNullOrEmpty(model.NegItem))
+                {
+                    sentence.OutOfScope = true;
+                }
                 sentence.Opinions = Opinions;
                 review.sentences = new List<sentence>();
                 review.sentences.Add(sentence);
@@ -128,7 +132,7 @@ namespace TerexCrawler.Apps.Web.Controllers
                         return NoContent();
                     }
                 }
-                return Ok("ثبت شد");
+                return Json(new { Message = "ثبت شد" });
             }
             else
             {
