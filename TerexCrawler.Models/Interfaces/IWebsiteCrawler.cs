@@ -30,8 +30,10 @@ namespace TerexCrawler.Models.Interfaces
         Task<T> GetFirstProductByCategory<T>(GetFirstProductByCategoryParam param);
         bool AddReviewToDB(AddReviewToDBParam param);
         Task<T> GetAllReviews<T>();
+        Task<T> GetAllReviewObjects<T>(string cat);
         string GetSatatusReview();
         bool AddReviewToDB_NewMethod(AddReviewToDBParam param);
         List<Review> GetAllReviews1();
+        List<sentence> GetTopSentences(int top);
     }
 }

@@ -281,6 +281,12 @@ namespace TerexCrawler.DataLayer.Repository
             //var aspects = products.Comments.Where(x => x.NegativeAspect.Any()).Select(x => x.NegativeAspect);
             return ssss.ToArray();
         }
+        public List<DigikalaProduct> GetAllReviews(string cat)
+        {
+            List<Comment> comments = new List<Comment>();
+            var query = Query<DigikalaProduct>.Where(x => x.Comments != null && x.Category == cat);
+            return digikalaProducts.Find(query).ToList();
+        }
 
         public long GetCountReview()
         {
@@ -295,6 +301,18 @@ namespace TerexCrawler.DataLayer.Repository
         public List<Review> GetAllReviewsLabel()
         {
             return digikalaReview.FindAll().ToList();
+        }
+
+        public List<sentence> GetTopSentences(int top = 10)
+        {
+            List<sentence> sentences = new List<sentence>();
+            var _temp = digikalaReview.FindAll().ToList();
+            var _temp1 = _temp.Select(x => x.sentences).ToList();
+            foreach (var item in _temp1)
+            {
+                sentences.AddRange(item);
+            }
+            return sentences.Take(top).ToList();
         }
     }
 }

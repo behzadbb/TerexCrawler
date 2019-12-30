@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using TerexCrawler.Common;
+using TerexCrawler.Entites.Digikala;
 using TerexCrawler.Entites.Snappfood;
 using TerexCrawler.HttpHelper;
 using TerexCrawler.Models;
@@ -76,6 +77,9 @@ namespace TerexCrawler.Test.ConsoleApp
                     break;
                 case 10:
                     digikala_getAllReviewsXML_10();
+                    break;
+                case 11:
+                    digikala_11_GetAllProduct();
                     break;
                 case 100:
                     snappFood_100_Sitemap();
@@ -366,6 +370,17 @@ namespace TerexCrawler.Test.ConsoleApp
             using (IWebsiteCrawler digikala = new DigikalaHelper())
             {
                 var mm = digikala.GetAllReviews1();
+            }
+        }
+        private async static void digikala_11_GetAllProduct()
+        {
+            using (IWebsiteCrawler digikala = new DigikalaHelper())
+            {
+                List<DigikalaProduct> mm = digikala.GetAllReviewObjects<List<DigikalaProduct>>("گوشی موبایل").Result;
+                //var ss = mm.Where(x => x.Category.Contains("")).Count();
+                var sss = mm.Where(x => x.Comments != null).Count();
+                var ssss = mm.Where(x => x.Comments != null);
+
             }
         }
         #endregion

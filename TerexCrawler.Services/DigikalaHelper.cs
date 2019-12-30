@@ -793,6 +793,14 @@ namespace TerexCrawler.Services.Digikala
                 return (T)Convert.ChangeType(ss, typeof(string[]));
             }
         }
+        public async Task<T> GetAllReviewObjects<T>(string cat)
+        {
+            using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
+            {
+                var ss = db.GetAllReviews(cat);
+                return (T)Convert.ChangeType(ss, typeof(List<DigikalaProduct>));
+            }
+        }
 
         public string GetSatatusReview()
         {
@@ -833,6 +841,14 @@ namespace TerexCrawler.Services.Digikala
                 //}
                 //File.WriteAllText(@"C:\Users\Administrator\Desktop\1.xml", xml);
                 return reviews;
+            }
+        }
+
+        public List<sentence> GetTopSentences(int top)
+        {
+            using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
+            {
+                return db.GetTopSentences(top);
             }
         }
     }

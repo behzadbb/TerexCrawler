@@ -333,6 +333,16 @@ namespace TerexCrawler.Services.Digikala
         {
             throw new NotImplementedException();
         }
+
+        public Task<T> GetAllReviewObjects<T>(string cat)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<sentence> GetTopSentences(int top)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     
