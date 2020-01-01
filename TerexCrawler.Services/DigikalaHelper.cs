@@ -848,7 +848,7 @@ namespace TerexCrawler.Services.Digikala
         {
             using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
             {
-                return db.GetTopSentences(top);
+                return db.GetTopSentences();
             }
         }
     }

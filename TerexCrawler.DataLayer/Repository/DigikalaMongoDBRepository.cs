@@ -303,7 +303,7 @@ namespace TerexCrawler.DataLayer.Repository
             return digikalaReview.FindAll().ToList();
         }
 
-        public List<sentence> GetTopSentences(int top = 10)
+        public List<sentence> GetTopSentences()
         {
             List<sentence> sentences = new List<sentence>();
             var _temp = digikalaReview.FindAll().ToList();
@@ -312,7 +312,7 @@ namespace TerexCrawler.DataLayer.Repository
             {
                 sentences.AddRange(item);
             }
-            return sentences.Take(top).ToList();
+            return sentences.ToList();
         }
     }
 }
