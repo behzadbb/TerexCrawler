@@ -1,18 +1,18 @@
 ﻿@model TerexCrawler.Apps.Web.Models.TaggerVM
 @{
-    ViewData["Title"] = "Tagger";
+    ViewData["Title"] = Model.ProductName;
 }
 <div class="row">
     <div class="col-12">
         <div>Welcome @Model.Tagger</div>
     </div>
-    <div class="col-12">
+    <div class="col-12" dir="rtl">
         <button type="button" class="btn btn-primary">
-            شماره محصول:
-            @Model.ProductName <span class="badge badge-light"> @Model.ProductId</span>
+            شماره محصول: <span class="badge badge-light"> @Model.ProductId</span>
             <span class="sr-only">product</span>
         </button>
         <a class="btn btn-outline-dark" href="/Home/Tagger/@Model.Tagger">محصول بعدی</a>
+        <strong class="text-primary">نام محصول: @Model.ProductName</strong>
     </div>
 </div>
 <div class="row">
@@ -22,8 +22,12 @@
             <input asp-for="CommentTitle" class="form-control" />
         </div>
         <div class="form-group">
-            <label class="control-label">نظر </label> <label id="lblCount">@(Model.CountCurrent + 1)</label><label> از @Model.CountReview</label>
-            <textarea asp-for="Review" class="form-control" style="font-size:20px;" rows="6"></textarea>
+            <div class="form-inline">
+                <label class="control-label">نظر </label> <label id="lblCount"> @(Model.CountCurrent + 1) </label><label> از @Model.CountReview</label>
+                <button type="button" class="btn btn-info text-left" id="btnNextComment">نطر بعدی</button>
+            </div>
+            <br />
+            <textarea asp-for="Review" class="form-control" style="font-size:20px;" rows="5"></textarea>
         </div>
 
         <div class="form-group input-group-lg">
@@ -84,16 +88,13 @@
     @Html.HiddenFor(m => m.idBson)
     @Html.HiddenFor(m => m.ProductId)
     @Html.HiddenFor(m => m.CommentJson)
-    
+
     <div class="col-12">
         <br />
         <br />
         <center>
             <button type="button" id="btnSubmit" class="btn btn-lg col-8 btn-primary">ثبت</button>
         </center>
-        <br />
-        <br />
-        <button type="button" class="btn btn-lg btn-info" id="btnNextComment">نطر بعدی</button>
         <br />
         <br />
         <button type="button" id="btnDelete" class="btn btn-lg btn-outline-danger">حذف موارد انتخاب شده</button>

@@ -7,9 +7,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using TerexCrawler.Apps.Web.Models;
+using TerexCrawler.Common;
 using TerexCrawler.Models;
 using TerexCrawler.Models.Const;
 using TerexCrawler.Models.DTO;
+using TerexCrawler.Models.DTO.Comment;
 using TerexCrawler.Models.DTO.Digikala;
 using TerexCrawler.Models.Interfaces;
 using TerexCrawler.Services.Digikala;
@@ -67,13 +69,30 @@ namespace TerexCrawler.Apps.Web.Controllers
                         param.title = _user.Title;
                         var s = digikala.GetFirstProductByCategory<DigikalaProductDTO>(param).Result;
                         tagger.ProductCount = s.Comments.Count();
-                        tagger.CommentJson = JsonConvert.SerializeObject(s.Comments);
+                        List<CommentDTO> comments = new List<CommentDTO>();
+                        using (var html = new HtmlHelper())
+                        {
+                            foreach (var item in s.Comments)
+                            {
+                                CommentDTO comment = new CommentDTO();
+                                comment = item;
+                                var _cm = html.CleanReview(item.Review);
+                                if (!string.IsNullOrEmpty(_cm))
+                                {
+                                    comment.Review = _cm.Replace(". ", "\n");
+                                }
+                                comments.Add(comment);
+                            }
+                        }
+
+                        tagger.CommentJson = JsonConvert.SerializeObject(comments);
                         tagger.CommentTitle = s.Comments.FirstOrDefault().Title;
                         tagger.CountReview = s.Comments.Count();
                         tagger.CountCurrent = 0;
                         tagger.Review = s.Comments.FirstOrDefault().Review;
                         tagger.ProductId = s.DKP;
                         tagger.idBson = s._id;
+                        tagger.ProductName = s.Title;
                         //tagger.ProductDTO = s;
                     }
                     return View(tagger);
@@ -210,7 +229,7 @@ namespace TerexCrawler.Apps.Web.Controllers
             return View();
         }
 
-        public IActionResult TopSentences ()
+        public IActionResult TopSentences()
         {
             using (IWebsiteCrawler digikala = new DigikalaHelper())
             {
@@ -220,7 +239,7 @@ namespace TerexCrawler.Apps.Web.Controllers
                 {
                     foreach (var op in item.Opinions)
                     {
-                        _sentences += $@"{item.Text.Replace(",", " ").Replace("  "," ")}	{op.category}_{op.aspect}	{op.polarityClass}" + "\r\n";
+                        _sentences += $@"{item.Text.Replace(",", " ").Replace("  ", " ")}	{op.category}_{op.aspect}	{op.polarityClass}" + "\r\n";
                     }
                 }
                 return File(Encoding.UTF8.GetBytes(_sentences), "text/csv", "TopSentences.csv");

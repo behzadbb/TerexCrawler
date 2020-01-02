@@ -339,31 +339,48 @@ namespace TerexCrawler.Test.ConsoleApp
 
         private async static void digikala_getAllReviews_9()
         {
+            List<string> reviews = new List<string>();
+            List<string> cleanReviews = new List<string>();
             using (IWebsiteCrawler digikala = new DigikalaHelper())
             {
                 bool allReviews = true;
                 if (true)
                 {
                     var digikalaReviews = digikala.GetAllReviews<string[]>();
-                    var reviews = digikalaReviews.Result;
-
-                    string json = JsonConvert.SerializeObject(new Reviews { reviews = reviews.Distinct().ToList() });
-                    File.WriteAllText(@$"C:\Digikala\reviews\review-all.json", json, new UTF8Encoding(false));
+                    reviews = digikalaReviews.Result.ToList();
                 }
                 else
                 {
                     var digikalaReviews = digikala.GetAllReviews<string[]>();
-                    var reviews = digikalaReviews.Result;
+                    reviews = digikalaReviews.Result.ToList();
                     int spliteSize = 50000;
-                    float size = reviews.Length / spliteSize;
+                    float size = reviews.Count / spliteSize;
                     int itr = (int)Math.Round(size);
                     for (int i = 0; i <= itr; i++)
                     {
-                        string json = JsonConvert.SerializeObject(new Reviews { reviews = reviews.Skip(i * spliteSize).Take(spliteSize).ToList() });
-                        File.WriteAllText(@$"C:\Digikala\reviews\review-{i + 1}.json", json, new UTF8Encoding(false));
+                        string json1 = JsonConvert.SerializeObject(new Reviews { reviews = reviews.Skip(i * spliteSize).Take(spliteSize).ToList() });
+                        File.WriteAllText(@$"C:\Digikala\reviews\review-{i + 1}.json", json1, new UTF8Encoding(false));
                     }
                 }
             }
+            using (var html = new HtmlHelper())
+            {
+                cleanReviews.Clear();
+                foreach (var item in reviews)
+                {
+                    if (!string.IsNullOrEmpty(item))
+                    {
+                        string _txt = html.CleanReview(item);
+                        if (!string.IsNullOrEmpty(_txt))
+                        {
+                            cleanReviews.Add(_txt);
+                        }
+                    }
+                }
+            }
+            string json = JsonConvert.SerializeObject(new Reviews { reviews = cleanReviews.Distinct().ToList() });
+
+            File.WriteAllText(@$"s:\Digikala\reviews\review-all.json", json, new UTF8Encoding(false));
         }
         private async static void digikala_getAllReviewsXML_10()
         {
