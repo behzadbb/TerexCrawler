@@ -299,9 +299,13 @@ namespace TerexCrawler.Services.Digikala
             throw new NotImplementedException();
         }
 
-        public Task<T> GetAllReviews<T>()
+        public async Task<T> GetAllReviews<T>()
         {
-            throw new NotImplementedException();
+            using (SnappfoodMongoDBRepository db = new SnappfoodMongoDBRepository())
+            {
+                var ss = db.GetAllReviews();
+                return (T)Convert.ChangeType(ss, typeof(string[]));
+            }
         }
 
         public bool AddReviewToDB(AddReviewToDBParam param)

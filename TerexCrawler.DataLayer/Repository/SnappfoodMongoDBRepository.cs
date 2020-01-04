@@ -120,6 +120,20 @@ namespace TerexCrawler.DataLayer.Repository
             return snappfoodsResult;
         }
 
+        public object GetAllReviews()
+        {
+            //List<Comment> comments = new List<Comment>();
+            var query = Query<Snappfood>.Where(x => x.data.comments.Count > 0);
+            var products = snappfoodProducts.FindAll().ToList();
+            var ssss = products.Select(x => x.data.comments.ToList());
+            var sssss = from c in products.Select(x => x.data.comments)
+                       from r in c.Select(x => x)
+                       select r.commentText;
+            //string[] titles = products.Comments.Select(x => x.Title).ToArray();
+            //var aspects = products.Comments.Where(x => x.NegativeAspect.Any()).Select(x => x.NegativeAspect);
+            return ssss.ToArray();
+        }
+
         //public void CrwaledProduct(string id)
         //{
         //    ObjectId _id = ObjectId.Parse(id);
