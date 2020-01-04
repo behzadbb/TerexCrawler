@@ -867,6 +867,18 @@ namespace TerexCrawler.Common
                 .Replace("7پردازنده", "7 پردازنده")
                 .Replace("8پردازنده", "8 پردازنده")
                 .Replace("9پردازنده", "9 پردازنده")
+
+                .Replace("0cm", "0 cm")
+                .Replace("1cm", "1 cm")
+                .Replace("2cm", "2 cm")
+                .Replace("3cm", "3 cm")
+                .Replace("4cm", "4 cm")
+                .Replace("5cm", "5 cm")
+                .Replace("6cm", "6 cm")
+                .Replace("7cm", "7 cm")
+                .Replace("8cm", "8 cm")
+                .Replace("9cm", "9 cm")
+
                 ;
 
         }
