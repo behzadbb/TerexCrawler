@@ -104,7 +104,7 @@ namespace TerexCrawler.DataLayer.Repository
 
         public Snappfood GetFirstSnappfood(string category, string title, string tagger)
         {
-            var query = Query<Snappfood>.Where(x => x.data.comments.Any() && !x.isTagged && !x.Reserve && x.data.comments.Count < 30);
+            var query = Query<Snappfood>.Where(x => x.Reviews.Any() && !x.isTagged && !x.Reserve && x.Reviews.Count < 30);
 
             var update = Update<Snappfood>.Set(p => p.Tagger, tagger).Set(p => p.Reserve, true);
 
@@ -116,22 +116,31 @@ namespace TerexCrawler.DataLayer.Repository
 
         public List<Snappfood> GetAllSnappfood()
         {
-            var snappfoodsResult = snappfoodProducts.FindAll().ToList();
-            return snappfoodsResult;
+            try
+            {
+                var snappfoodsResult = snappfoodProducts.FindAll().ToList();
+                return snappfoodsResult;
+            }
+            catch (Exception ex)
+            {
+                var msg = ex.Message;
+                return new List<Snappfood>();
+            }
+
         }
 
         public object GetAllReviews()
         {
             //List<Comment> comments = new List<Comment>();
-            var query = Query<Snappfood>.Where(x => x.data.comments.Count > 0);
+            var query = Query<Snappfood>.Where(x => x.Reviews.Count > 0);
             var products = snappfoodProducts.FindAll().ToList();
-            var ssss = products.Select(x => x.data.comments.ToList());
-            var sssss = from c in products.Select(x => x.data.comments)
-                       from r in c.Select(x => x)
-                       select r.commentText;
+            var ssss = products.Select(x => x.Reviews.ToList());
+            var sssss = from c in products.Select(x => x.Reviews)
+                        from r in c.Select(x => x)
+                        select r.CommentText;
             //string[] titles = products.Comments.Select(x => x.Title).ToArray();
             //var aspects = products.Comments.Where(x => x.NegativeAspect.Any()).Select(x => x.NegativeAspect);
-            return ssss.ToArray();
+            return sssss.ToArray();
         }
 
         //public void CrwaledProduct(string id)

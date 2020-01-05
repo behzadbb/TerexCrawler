@@ -13,6 +13,7 @@ using TerexCrawler.HttpHelper;
 using TerexCrawler.Models;
 using TerexCrawler.Models.DTO.Digikala;
 using TerexCrawler.Models.DTO.Page;
+using TerexCrawler.Models.DTO.Snappfood;
 using TerexCrawler.Models.DTO.XmlSitemap;
 using TerexCrawler.Models.Enums;
 using TerexCrawler.Models.Interfaces;
@@ -470,13 +471,14 @@ namespace TerexCrawler.Test.ConsoleApp
             {
                 foreach (string item in readTexts)
                 {
-                    Snappfood snappfood = new Snappfood();
+                    SnappfoodDTO dto = new SnappfoodDTO();
                     using (SnappfoodHelper snappfoodHelper = new SnappfoodHelper())
                     {
-                        snappfood = snappfoodHelper.GetProduct<Snappfood>(item).Result;
-                        if (snappfood != null)
+                        dto = snappfoodHelper.GetProduct<SnappfoodDTO>(item).Result;
+                        if (dto != null)
                         {
-                            snappfoodHelper.AddProduct(snappfood);
+                            snappfoodHelper.AddProduct(new Snappfood(dto));
+                            System.Threading.Thread.Sleep(200);
                         }
                     }
                 }

@@ -20,6 +20,7 @@ using TerexCrawler.Models;
 using TerexCrawler.Models.DTO.Comment;
 using TerexCrawler.Models.DTO.Digikala;
 using TerexCrawler.Models.DTO.Page;
+using TerexCrawler.Models.DTO.Snappfood;
 using TerexCrawler.Models.DTO.XmlSitemap;
 using TerexCrawler.Models.Enums;
 using TerexCrawler.Models.Interfaces;
@@ -161,13 +162,13 @@ namespace TerexCrawler.Services.Digikala
             try
             {
                 #region GetProduct
-                Snappfood product = new Snappfood();
+                SnappfoodDTO product = new SnappfoodDTO();
                 string id = getSnappfoodIdByUrl(url);
                 string tmp_url = getSnappfoodCommentLink(id, 0);
                 using (IHttpClientHelper clientHelper = new RestSharpHelper())
                 {
                     var resultClient = clientHelper.GetHttp(tmp_url, true, user_agent);
-                    product = JsonConvert.DeserializeObject<Snappfood>(resultClient.Content);
+                    product = JsonConvert.DeserializeObject<SnappfoodDTO>(resultClient.Content);
                     double pageCount = 0;
                     pageCount = Math.Round((double)(product.data.count / product.data.pageSize));
                     if (product.data.comments != null && product.data.comments.Any() && pageCount > 0)
@@ -176,7 +177,7 @@ namespace TerexCrawler.Services.Digikala
                         {
                             try
                             {
-                                System.Threading.Thread.Sleep(50);
+                                System.Threading.Thread.Sleep(25);
                                 string url1 = getSnappfoodCommentLink(id, i);
                                 var resultClient1 = clientHelper.GetHttp(url1, true, user_agent);
                                 if (!resultClient1.Success)
@@ -184,7 +185,9 @@ namespace TerexCrawler.Services.Digikala
                                     System.Threading.Thread.Sleep(500);
                                     resultClient1 = clientHelper.GetHttp(url1, true, user_agent);
                                 }
-                                var comments1 = JsonConvert.DeserializeObject<Snappfood>(resultClient1.Content);
+                                var comments1 = JsonConvert.DeserializeObject<SnappfoodDTO>(resultClient1.Content);
+                                comments1.data.comments.ForEach(x => x.replies = null);
+                                comments1.data.comments.ForEach(x => x.foods = new List<Food>());
                                 if (comments1 != null && comments1.data.comments != null & comments1.data.comments.Any())
                                 {
                                     product.data.comments.AddRange(comments1.data.comments);
@@ -200,16 +203,16 @@ namespace TerexCrawler.Services.Digikala
                     //var cmss = string.Join("\n", cm);
                     product.Url = url;
                     product.CreateDateTime = DateTime.Now;
-                    product.Id = ObjectId.GenerateNewId(DateTime.Now);
+                    product._id = ObjectId.GenerateNewId(DateTime.Now).ToString();
                     product.Reserve = false;
                     product.status = true;
                     product.isTagged = false;
                     product.Tagger = "_";
-                    product.TagDate = DateTime.MinValue;
+                    product.TagDate = DateTime.Now.AddYears(-10);
                 }
                 #endregion
 
-                return (T)Convert.ChangeType(product, typeof(Snappfood));
+                return (T)Convert.ChangeType(product, typeof(SnappfoodDTO));
             }
             catch (Exception ex)
             {

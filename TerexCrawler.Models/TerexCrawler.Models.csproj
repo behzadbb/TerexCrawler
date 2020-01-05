@@ -5,12 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="DTO\Snappfood\**" />
-    <EmbeddedResource Remove="DTO\Snappfood\**" />
-    <None Remove="DTO\Snappfood\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="MongoDB.Bson" Version="2.9.2" />
   </ItemGroup>
 
