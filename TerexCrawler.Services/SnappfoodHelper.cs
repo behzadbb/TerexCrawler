@@ -306,8 +306,10 @@ namespace TerexCrawler.Services.Digikala
         {
             using (SnappfoodMongoDBRepository db = new SnappfoodMongoDBRepository())
             {
-                var ss = db.GetAllReviews();
-                return (T)Convert.ChangeType(ss, typeof(string[]));
+                GetReviewsMinimumResponse response = new GetReviewsMinimumResponse();
+                List<SnappfoodMinInfo> reviews = db.GetAllReviewsMinumumInfo();
+                response.ReviewsMinimum.AddRange(reviews);
+                return (T)Convert.ChangeType(response, typeof(GetReviewsMinimumResponse));
             }
         }
 
@@ -349,6 +351,14 @@ namespace TerexCrawler.Services.Digikala
         public List<sentence> GetTopSentences(int top)
         {
             throw new NotImplementedException();
+        }
+
+        public void AddRawReviewsToDB(AddResturatsDBParam param)
+        {
+            using (SnappfoodMongoDBRepository db = new SnappfoodMongoDBRepository())
+            {
+                db.AddResturantReviews(param.resturantReviews.Select(x => new ResturantReviews(x)).ToList());
+            }
         }
     }
 

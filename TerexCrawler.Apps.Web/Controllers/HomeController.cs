@@ -245,5 +245,75 @@ namespace TerexCrawler.Apps.Web.Controllers
                 return File(Encoding.UTF8.GetBytes(_sentences), "text/csv", "TopSentences.csv");
             }
         }
+
+
+
+
+        public IActionResult TaggerSanppfood(string id)
+        {
+            //Aspects aspects = new Aspects();
+            List<User> users = new List<User>();
+            users.Add(new User { Username = "devila", Password = "germany", Category = "گوشی موبایل" });
+            users.Add(new User { Username = "NavidSharifi", Password = "navid", Category = "گوشی موبایل" });
+            users.Add(new User { Username = "Behzad", Password = "behzad", Category = "گوشی موبایل", Role = "admin" });
+            users.Add(new User { Username = "Hamshagerdi", Password = "mehrteam", Category = "گوشی موبایل", Brand = "اپل" });
+            users.Add(new User { Username = "Setare", Password = "setare", Category = "گوشی موبایل" });
+            users.Add(new User { Username = "ftm", Password = "ftm", Category = "گوشی موبایل" });
+            users.Add(new User { Username = "user1", Password = "user1", Category = "گوشی موبایل" });
+            users.Add(new User { Username = "jamali", Password = "jamali", Category = "گوشی موبایل" });
+            users.Add(new User { Username = "dr.faili", Password = "faili_ut", Category = "گوشی موبایل" });
+
+            if (!string.IsNullOrEmpty(id))
+            {
+                User _user = users.Where(x =>
+                                        x.Username.ToLower() == id.ToLower().Trim()
+                                        ).FirstOrDefault();
+
+                if (_user != null)
+                {
+                    TaggerVM tagger = new TaggerVM();
+                    tagger.User = _user;
+                    tagger.Tagger = _user.Username;
+
+                    using (IWebsiteCrawler digikala = new DigikalaHelper())
+                    {
+                        GetFirstProductByCategoryParam param = new GetFirstProductByCategoryParam();
+                        //param.Brand = _user.Brand;
+                        param.category = _user.Category;
+                        param.tagger = _user.Username;
+                        param.title = _user.Title;
+                        var s = digikala.GetFirstProductByCategory<DigikalaProductDTO>(param).Result;
+                        tagger.ProductCount = s.Comments.Count();
+                        List<CommentDTO> comments = new List<CommentDTO>();
+                        using (var html = new HtmlHelper())
+                        {
+                            foreach (var item in s.Comments)
+                            {
+                                CommentDTO comment = new CommentDTO();
+                                comment = item;
+                                var _cm = html.CleanReview(item.Review);
+                                if (!string.IsNullOrEmpty(_cm))
+                                {
+                                    comment.Review = _cm.Replace(". ", "\n");
+                                }
+                                comments.Add(comment);
+                            }
+                        }
+
+                        tagger.CommentJson = JsonConvert.SerializeObject(comments);
+                        tagger.CommentTitle = s.Comments.FirstOrDefault().Title;
+                        tagger.CountReview = s.Comments.Count();
+                        tagger.CountCurrent = 0;
+                        tagger.Review = s.Comments.FirstOrDefault().Review;
+                        tagger.ProductId = s.DKP;
+                        tagger.idBson = s._id;
+                        tagger.ProductName = s.Title;
+                        //tagger.ProductDTO = s;
+                    }
+                    return View(tagger);
+                }
+            }
+            return Redirect("http://google.com");
+        }
     }
 }

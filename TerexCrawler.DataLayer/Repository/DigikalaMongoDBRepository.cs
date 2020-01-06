@@ -16,6 +16,7 @@ using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.IO;
 using System.Text.RegularExpressions;
 using TerexCrawler.Models;
+using TerexCrawler.Entites.Snappfood;
 
 namespace TerexCrawler.DataLayer.Repository
 {
@@ -314,5 +315,7 @@ namespace TerexCrawler.DataLayer.Repository
             }
             return sentences.ToList();
         }
+
+        
     }
 }

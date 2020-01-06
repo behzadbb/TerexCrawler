@@ -15,6 +15,7 @@ using TerexCrawler.Models;
 using TerexCrawler.Models.DTO.Comment;
 using TerexCrawler.Models.DTO.Digikala;
 using TerexCrawler.Models.DTO.Page;
+using TerexCrawler.Models.DTO.Snappfood;
 using TerexCrawler.Models.DTO.XmlSitemap;
 using TerexCrawler.Models.Enums;
 using TerexCrawler.Models.Interfaces;
@@ -691,9 +692,9 @@ namespace TerexCrawler.Services.Digikala
                 return doc.DocumentNode.SelectSingleNode("//a").InnerText.Replace("\n", "").Trim();
             }
         }
-        private Comment ConvertCommentDTOToEntity(CommentDTO dto)
+        private Entites.Digikala.Comment ConvertCommentDTOToEntity(CommentDTO dto)
         {
-            Comment m = new Comment()
+            var m = new Entites.Digikala.Comment()
             {
                 Author = dto.Author,
                 BoughtPrice = dto.BoughtPrice,
@@ -850,6 +851,11 @@ namespace TerexCrawler.Services.Digikala
             {
                 return db.GetTopSentences();
             }
+        }
+
+        public void AddRawReviewsToDB(AddResturatsDBParam param)
+        {
+            throw new NotImplementedException();
         }
     }
 }

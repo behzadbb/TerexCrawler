@@ -16,6 +16,7 @@ using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.IO;
 using System.Text.RegularExpressions;
 using TerexCrawler.Entites.Snappfood;
+using TerexCrawler.Models.DTO.Snappfood;
 
 namespace TerexCrawler.DataLayer.Repository
 {
@@ -45,16 +46,20 @@ namespace TerexCrawler.DataLayer.Repository
         private MongoClient client;
         private MongoServer server;
         private MongoDatabase db;
+        private MongoDatabase dbRest;
         //private MongoCollection<DigikalaBasePage> digikalaBasePages;
         private MongoCollection<Snappfood> snappfoodProducts;
+        private MongoCollection<ResturantReviews> resturantCollection;
 
         public SnappfoodMongoDBRepository()
         {
             client = new MongoClient("mongodb://localhost");
             server = client.GetServer();
             db = server.GetDatabase("SnappfoodDB");
+            dbRest = server.GetDatabase("ResturantDB");
             //digikalaBasePages = db.GetCollection<DigikalaBasePage>("DigikalaBasePages");
             snappfoodProducts = db.GetCollection<Snappfood>("Resturants");
+            resturantCollection = dbRest.GetCollection<ResturantReviews>("ResturantReviews");
         }
 
         //public void AddDigikalaBasePage(DigikalaPageBaseDTO dto)
@@ -126,7 +131,6 @@ namespace TerexCrawler.DataLayer.Repository
                 var msg = ex.Message;
                 return new List<Snappfood>();
             }
-
         }
 
         public object GetAllReviews()
@@ -141,6 +145,32 @@ namespace TerexCrawler.DataLayer.Repository
             //string[] titles = products.Comments.Select(x => x.Title).ToArray();
             //var aspects = products.Comments.Where(x => x.NegativeAspect.Any()).Select(x => x.NegativeAspect);
             return sssss.ToArray();
+        }
+        
+        public List<SnappfoodMinInfo> GetAllReviewsMinumumInfo()
+        {
+            var query = Query<Snappfood>.Where(x => x.Reviews.Count > 0);
+            var products = snappfoodProducts.FindAll().ToList();
+            var reviewsinfo = new List<SnappfoodMinInfo>();
+            for (int i = 0; i < products.Count; i++)
+            {
+                var restId = products[i]._id.ToString();
+                reviewsinfo.AddRange(products[i].Reviews.Select(x => new SnappfoodMinInfo { RestId = restId, Review = x.CommentText }).ToList());
+            }
+            return reviewsinfo;
+        }
+
+        public async void AddResturantReview(ResturantReviews resturantReview)
+        {
+            resturantCollection.Insert(resturantReview);
+        }
+        public async void AddResturantReviews(List<ResturantReviews> resturantReviews)
+        {
+            resturantCollection.InsertBatch(resturantReviews);
+        }
+        public List<ResturantReviews> GetFirstResturantReview()
+        {
+            return resturantCollection.FindAll().ToList();
         }
 
         //public void CrwaledProduct(string id)

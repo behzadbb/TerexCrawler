@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using TerexCrawler.Models.DTO.Comment;
 using TerexCrawler.Models.DTO.Digikala;
 using TerexCrawler.Models.DTO.Page;
+using TerexCrawler.Models.DTO.Snappfood;
 using TerexCrawler.Models.DTO.XmlSitemap;
 
 namespace TerexCrawler.Models.Interfaces
@@ -35,5 +36,6 @@ namespace TerexCrawler.Models.Interfaces
         bool AddReviewToDB_NewMethod(AddReviewToDBParam param);
         List<Review> GetAllReviews1();
         List<sentence> GetTopSentences(int top);
+        void AddRawReviewsToDB(AddResturatsDBParam param);
     }
 }

@@ -501,48 +501,52 @@ namespace TerexCrawler.Test.ConsoleApp
 
         private static void snappFood_103_GetAllReviews()
         {
-            List<string> reviews = new List<string>();
+            List<SnappfoodMinInfo> reviews = new List<SnappfoodMinInfo>();
             List<string> cleanReviews = new List<string>();
+            List<ResturantReviewsDTO> resturantReviews = new List<ResturantReviewsDTO>();
             using (IWebsiteCrawler snapp = new SnappfoodHelper())
             {
-                bool allReviews = true;
-                if (true)
-                {
-                    var snappReviews = snapp.GetAllReviews<string[]>();
-                    reviews = snappReviews.Result.ToList();
-                }
-                else
-                {
-                    var snappReviews = snapp.GetAllReviews<string[]>();
-                    reviews = snappReviews.Result.ToList();
-                    int spliteSize = 50000;
-                    float size = reviews.Count / spliteSize;
-                    int itr = (int)Math.Round(size);
-                    for (int i = 0; i <= itr; i++)
-                    {
-                        string json1 = JsonConvert.SerializeObject(new Reviews { reviews = reviews.Skip(i * spliteSize).Take(spliteSize).ToList() });
-                        File.WriteAllText(@$"C:\Digikala\reviews\review-{i + 1}.json", json1, new UTF8Encoding(false));
-                    }
-                }
+                reviews = snapp.GetAllReviews<GetReviewsMinimumResponse>().Result.ReviewsMinimum;
             }
             using (var html = new HtmlHelper())
             {
                 cleanReviews.Clear();
-                foreach (var item in reviews)
+                for (int i = 0; i < reviews.Count; i++)
                 {
-                    if (!string.IsNullOrEmpty(item))
+                    if (!string.IsNullOrEmpty(reviews[i].Review))
                     {
-                        string _txt = html.CleanReview(item);
+                        string _txt = html.CleanReview(reviews[i].Review);
                         if (!string.IsNullOrEmpty(_txt))
                         {
-                            cleanReviews.Add(_txt);
+                            ResturantReviewsDTO rr = new ResturantReviewsDTO
+                            {
+                                Date = DateTime.Now,
+                                NumId = i,
+                                Rid = reviews[i].RestId,
+                                _id = ObjectId.GenerateNewId(DateTime.Now).ToString(),
+                                Review = _txt,
+                                Reserve = false,
+                                Seen = false,
+                                Tagged = false,
+                                Tagger = "_"
+                            };
+                            resturantReviews.Add(rr);
+                            //cleanReviews.Add(_txt);
                         }
                     }
                 }
             }
-            string json = JsonConvert.SerializeObject(new Reviews { reviews = cleanReviews.Distinct().ToList() });
 
-            File.WriteAllText(@$"s:\Digikala\reviews\review-all-snapp.json", json, new UTF8Encoding(false));
+            //string json = JsonConvert.SerializeObject(new Reviews { reviews = cleanReviews.Distinct().ToList() });
+
+            //File.WriteAllText(@$"s:\Digikala\reviews\review-all-snapp.json", json, new UTF8Encoding(false));
+            //json = "";
+            using (IWebsiteCrawler snapp = new SnappfoodHelper())
+            {
+                AddResturatsDBParam addResturats = new AddResturatsDBParam();
+                addResturats.resturantReviews = resturantReviews;
+                snapp.AddRawReviewsToDB(addResturats);
+            }
         }
         #endregion
     }
