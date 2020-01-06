@@ -8,6 +8,7 @@ namespace TerexCrawler.Models.DTO.Snappfood
     {
         public string RestId { get; set; }
         public string Review { get; set; }
+        public int CommentId { get; set; }
     }
 
     public class GetReviewsMinimumResponse

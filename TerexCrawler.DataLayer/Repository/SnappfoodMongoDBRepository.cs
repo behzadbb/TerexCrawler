@@ -107,16 +107,49 @@ namespace TerexCrawler.DataLayer.Repository
             snappfoodProducts.InsertBatch(dtos);
         }
 
-        public Snappfood GetFirstSnappfood(string category, string title, string tagger)
+        public ResturantReviewsDTO GetFirstSnappfood(string tagger)
         {
-            var query = Query<Snappfood>.Where(x => x.Reviews.Any() && !x.isTagged && !x.Reserve && x.Reviews.Count < 30);
+            var update = Update<ResturantReviews>.Set(p => p.Tagger, tagger).Set(p => p.Reserve, true).Set(p => p.ReserveDate, DateTime.Now);
+            try
+            {
+                var query1 = Query<ResturantReviews>.Where(x => x.Reserve && !x.Tagged && x.Tagger == tagger && !x.Reject);
+                var review1 = resturantCollection.FindOne(query1);
+                if (review1 != null && review1.Review !=null && review1.Review !="")
+                {
 
-            var update = Update<Snappfood>.Set(p => p.Tagger, tagger).Set(p => p.Reserve, true);
+                    var query3 = Query<ResturantReviews>.Where(x => x._id == review1._id);
+                    resturantCollection.Update(query3, update);
+                    return review1.ConvertToDTO();
+                }
+            }
+            catch (Exception)
+            {
+            }
 
-            snappfoodProducts.Update(query, update);
-            var product = snappfoodProducts.FindOne(query);
-            //var laptop = digikalaProducts.FindOne();
-            return product;
+            var query2 = Query<ResturantReviews>.Where(x => !x.Reserve && !x.Tagged && !x.Reject);
+            var review2 = resturantCollection.FindOne(query2);
+
+            var query4 = Query<ResturantReviews>.Where(x => x._id == review2._id);
+            resturantCollection.Update(query4, update);
+
+            return review2.ConvertToDTO();
+        }
+
+        public void SetReject(int id,string tagger)
+        {
+            try
+            {
+                var query1 = Query<ResturantReviews>.Where(x => x._id == id);
+                var review1 = resturantCollection.FindOne(query1);
+                if (review1 != null && review1.Review != null && review1.Review != "")
+                {
+                    var update = Update<ResturantReviews>.Set(p => p.Tagger, tagger).Set(p => p.Reject, true).Set(p => p.TagDate, DateTime.Now).Set(p => p.Tagged, false);
+                    resturantCollection.Update(query1, update);
+                }
+            }
+            catch (Exception)
+            {
+            }
         }
 
         public List<Snappfood> GetAllSnappfood()
@@ -155,7 +188,7 @@ namespace TerexCrawler.DataLayer.Repository
             for (int i = 0; i < products.Count; i++)
             {
                 var restId = products[i]._id.ToString();
-                reviewsinfo.AddRange(products[i].Reviews.Select(x => new SnappfoodMinInfo { RestId = restId, Review = x.CommentText }).ToList());
+                reviewsinfo.AddRange(products[i].Reviews.Select(x => new SnappfoodMinInfo { RestId = restId, Review = x.CommentText, CommentId = x.CommentId }).ToList());
             }
             return reviewsinfo;
         }
@@ -167,6 +200,7 @@ namespace TerexCrawler.DataLayer.Repository
         public async void AddResturantReviews(List<ResturantReviews> resturantReviews)
         {
             resturantCollection.InsertBatch(resturantReviews);
+
         }
         public List<ResturantReviews> GetFirstResturantReview()
         {

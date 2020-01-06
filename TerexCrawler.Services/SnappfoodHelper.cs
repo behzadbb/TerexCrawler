@@ -287,10 +287,6 @@ namespace TerexCrawler.Services.Digikala
             return url.Substring(0, end);
         }
 
-        public Task<T> GetFirstProductByCategory<T>(string category, string title, string tagger)
-        {
-            throw new NotImplementedException();
-        }
 
         public bool AddReviewToDB(Review review, string id, string tagger)
         {
@@ -318,9 +314,13 @@ namespace TerexCrawler.Services.Digikala
             throw new NotImplementedException();
         }
 
-        public Task<T> GetFirstProductByCategory<T>(GetFirstProductByCategoryParam param)
+        public async Task<T> GetFirstProductByCategory<T>(GetFirstProductByCategoryParam param)
         {
-            throw new NotImplementedException();
+            using (SnappfoodMongoDBRepository db = new SnappfoodMongoDBRepository())
+            {
+                ResturantReviewsDTO reviews = db.GetFirstSnappfood(param.tagger);
+                return (T)Convert.ChangeType(reviews, typeof(ResturantReviewsDTO));
+            }
         }
 
         public string GetSatatusReview()

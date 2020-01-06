@@ -94,6 +94,9 @@ namespace TerexCrawler.Test.ConsoleApp
                 case 103:
                     snappFood_103_GetAllReviews();
                     break;
+                case 104:
+                    snappFood_104_GetFirstReview();
+                    break;
                 default:
                     break;
             }
@@ -518,17 +521,20 @@ namespace TerexCrawler.Test.ConsoleApp
                         string _txt = html.CleanReview(reviews[i].Review);
                         if (!string.IsNullOrEmpty(_txt))
                         {
-                            ResturantReviewsDTO rr = new ResturantReviewsDTO
+                            ResturantReviewsDTO rr = new ResturantReviewsDTO()
                             {
-                                Date = DateTime.Now,
-                                NumId = i,
-                                Rid = reviews[i].RestId,
-                                _id = ObjectId.GenerateNewId(DateTime.Now).ToString(),
+                                _id = i,
+                                CommentId = reviews[i].CommentId,
+                                RestId = reviews[i].RestId,
                                 Review = _txt,
+                                Date = DateTime.Now,
                                 Reserve = false,
                                 Seen = false,
                                 Tagged = false,
-                                Tagger = "_"
+                                Tagger = "_",
+                                TagDate = DateTime.Now.AddDays(-60),
+                                ReserveDate = DateTime.Now.AddDays(-60),
+                                Reject = false,
                             };
                             resturantReviews.Add(rr);
                             //cleanReviews.Add(_txt);
@@ -546,6 +552,17 @@ namespace TerexCrawler.Test.ConsoleApp
                 AddResturatsDBParam addResturats = new AddResturatsDBParam();
                 addResturats.resturantReviews = resturantReviews;
                 snapp.AddRawReviewsToDB(addResturats);
+            }
+        }
+
+        private static void snappFood_104_GetFirstReview()
+        {
+            using (IWebsiteCrawler snapp = new SnappfoodHelper())
+            {
+                GetFirstProductByCategoryParam param = new GetFirstProductByCategoryParam();
+
+                param.tagger = "behzad";
+                var reviews = snapp.GetFirstProductByCategory<ResturantReviewsDTO>(param).Result;
             }
         }
         #endregion

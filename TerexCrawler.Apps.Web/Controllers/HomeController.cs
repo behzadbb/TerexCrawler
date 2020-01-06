@@ -13,6 +13,7 @@ using TerexCrawler.Models.Const;
 using TerexCrawler.Models.DTO;
 using TerexCrawler.Models.DTO.Comment;
 using TerexCrawler.Models.DTO.Digikala;
+using TerexCrawler.Models.DTO.Snappfood;
 using TerexCrawler.Models.Interfaces;
 using TerexCrawler.Services.Digikala;
 
@@ -271,49 +272,41 @@ namespace TerexCrawler.Apps.Web.Controllers
 
                 if (_user != null)
                 {
-                    TaggerVM tagger = new TaggerVM();
+                    TaggerResturantVM tagger = new TaggerResturantVM();
                     tagger.User = _user;
                     tagger.Tagger = _user.Username;
 
-                    using (IWebsiteCrawler digikala = new DigikalaHelper())
+                    using (IWebsiteCrawler snappfood = new SnappfoodHelper())
                     {
                         GetFirstProductByCategoryParam param = new GetFirstProductByCategoryParam();
-                        //param.Brand = _user.Brand;
-                        param.category = _user.Category;
                         param.tagger = _user.Username;
                         param.title = _user.Title;
-                        var s = digikala.GetFirstProductByCategory<DigikalaProductDTO>(param).Result;
-                        tagger.ProductCount = s.Comments.Count();
-                        List<CommentDTO> comments = new List<CommentDTO>();
-                        using (var html = new HtmlHelper())
-                        {
-                            foreach (var item in s.Comments)
-                            {
-                                CommentDTO comment = new CommentDTO();
-                                comment = item;
-                                var _cm = html.CleanReview(item.Review);
-                                if (!string.IsNullOrEmpty(_cm))
-                                {
-                                    comment.Review = _cm.Replace(". ", "\n");
-                                }
-                                comments.Add(comment);
-                            }
-                        }
+                        var s = snappfood.GetFirstProductByCategory<ResturantReviewsDTO>(param).Result;
+                        string[] comments = s.Review.Split(". ");
 
-                        tagger.CommentJson = JsonConvert.SerializeObject(comments);
-                        tagger.CommentTitle = s.Comments.FirstOrDefault().Title;
-                        tagger.CountReview = s.Comments.Count();
+                        //tagger.ProductCount = s.Review.Count();
+                        //tagger.CommentJson = JsonConvert.SerializeObject(comments);
+                        //tagger.CommentTitle = s.Review;
+                        tagger.Review = s.Review;
+                        //tagger.CountReview = s.Comments.Count();
+                        tagger.CountReview = 1;
                         tagger.CountCurrent = 0;
-                        tagger.Review = s.Comments.FirstOrDefault().Review;
-                        tagger.ProductId = s.DKP;
+                        tagger.ProductId = s.RestId;
                         tagger.idBson = s._id;
-                        tagger.ProductName = s.Title;
+                        //tagger.ProductName = "";
                         //tagger.ProductDTO = s;
                     }
                     return View(tagger);
                 }
             }
             return Redirect("http://google.com");
+        }
+
+        public IActionResult ResturantRejectReview([FromBody]RejectReviewParam model)
+        {
+
+
+            return Json(new RejectReviewResponse());
         }
     }
 }

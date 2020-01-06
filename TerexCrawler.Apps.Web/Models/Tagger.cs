@@ -64,4 +64,31 @@ namespace TerexCrawler.Apps.Web.Models
 
         public AspectLabel[] AspectLabels { get; set; }
     }
+
+
+    public class TaggerResturantVM
+    {
+        public int idBson { get; set; }
+        //public ReviewDTO ReviewDTO { get; set; }
+        public ResturantAspects Aspects { get; set; }
+        //public DigikalaProductDTO ProductDTO { get; set; }
+        public int CountReview { get; set; }
+        public int CountCurrent { get; set; }
+        public string AspectLabel { get; set; }
+        //public int ProductCount { get; set; }
+        //public string CommentJson { get; set; }
+        public User User { get; set; }
+        //public string ProductName { get; set; }
+        //public string CommentTitle { get; set; }
+        public string Review { get; set; }
+        public string SelectReview { get; set; }
+        public string ProductId { get; set; }
+        public int UserId { get; set; }
+        public string Tagger { get; set; }
+        public TaggerResturantVM()
+        {
+            Aspects = new ResturantAspects();
+        }
+    }
+
 }
