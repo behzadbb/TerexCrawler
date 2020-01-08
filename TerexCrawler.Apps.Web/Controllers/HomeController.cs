@@ -35,18 +35,29 @@ namespace TerexCrawler.Apps.Web.Controllers
             return View();
         }
 
-        public IActionResult Tagger(string id)
+        public IActionResult Label(string id)
         {
             //Aspects aspects = new Aspects();
             List<User> users = new List<User>();
             users.Add(new User { Username = "devila", Password = "germany", Category = "گوشی موبایل" });
             users.Add(new User { Username = "NavidSharifi", Password = "navid", Category = "گوشی موبایل" });
-            users.Add(new User { Username = "Behzad", Password = "behzad", Category = "گوشی موبایل", Role = "admin" });
             users.Add(new User { Username = "Hamshagerdi", Password = "mehrteam", Category = "گوشی موبایل", Brand = "اپل" });
             users.Add(new User { Username = "Setare", Password = "setare", Category = "گوشی موبایل" });
             users.Add(new User { Username = "ftm", Password = "ftm", Category = "گوشی موبایل" });
             users.Add(new User { Username = "user1", Password = "user1", Category = "گوشی موبایل" });
+
             users.Add(new User { Username = "jamali", Password = "jamali", Category = "گوشی موبایل" });
+            users.Add(new User { Username = "jamali_s", Password = "jamali", Category = "گوشی موبایل", Brand="سامسونگ" });
+            users.Add(new User { Username = "jamali_a", Password = "jamali", Category = "گوشی موبایل", Brand= "اپل" });
+            users.Add(new User { Username = "jamali_h", Password = "jamali", Category = "گوشی موبایل", Brand= "هوآوی" });
+            users.Add(new User { Username = "jamali_sh", Password = "jamali", Category = "گوشی موبایل", Brand= "شیائومی" });
+
+            users.Add(new User { Username = "Behzad", Password = "behzad", Category = "گوشی موبایل", Role = "admin" });
+            users.Add(new User { Username = "Behzad_s", Password = "behzad", Category = "گوشی موبایل", Brand="سامسونگ" });
+            users.Add(new User { Username = "Behzad_a", Password = "behzad", Category = "گوشی موبایل", Brand= "اپل" });
+            users.Add(new User { Username = "Behzad_h", Password = "behzad", Category = "گوشی موبایل", Brand= "هوآوی" });
+            users.Add(new User { Username = "Behzad_sh", Password = "behzad", Category = "گوشی موبایل", Brand= "شیائومی" });
+            
             users.Add(new User { Username = "dr.faili", Password = "faili_ut", Category = "گوشی موبایل" });
 
             if (!string.IsNullOrEmpty(id))
