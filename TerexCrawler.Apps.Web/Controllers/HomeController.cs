@@ -29,10 +29,15 @@ namespace TerexCrawler.Apps.Web.Controllers
 
         public IActionResult Index()
         {
-            AspectLabel[] asp = { new AspectLabel { Aspect = "", Category = "", Polarity = "" } };
-            var m = new AddLabelParam { ProductId = "d", idBson = "gh", Tagger = "ssa", Text = "sss", AspectLabels = asp };
-            var s = JsonConvert.SerializeObject(m);
             return View();
+        }
+
+        public string GetStatus()
+        {
+            using (IWebsiteCrawler digikala = new DigikalaHelper())
+            {
+                return digikala.GetSatatusReview();
+            }
         }
 
         public IActionResult Label(string id)
@@ -319,5 +324,6 @@ namespace TerexCrawler.Apps.Web.Controllers
 
             return Json(new RejectReviewResponse());
         }
+
     }
 }
