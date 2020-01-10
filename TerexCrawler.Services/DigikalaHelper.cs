@@ -765,7 +765,10 @@ namespace TerexCrawler.Services.Digikala
                 {
                     Review review = new Review(param.review);
                     db.AddReviewNew(review);
-                    db.SetTaggedProduct(param.id, param.tagger);
+                    if (param.AutoOff)
+                    {
+                        db.SetTaggedProduct(param.id, param.tagger);
+                    }
                 }
                 return true;
             }
@@ -817,30 +820,34 @@ namespace TerexCrawler.Services.Digikala
         {
             using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
             {
-                string xml = @"<?xml version=""1.0"" encoding=""UTF-8"" standalone=""yes""?>";
+                string xml = @"<?xml version=""1.0"" encoding=""UTF-8"" standalone=""yes""?>" + "\n";
+                xml += "<Reviews>\n";
 
                 var reviews = db.GetAllReviewsLabel();
-                //foreach (var review in reviews)
-                //{
-                //    xml += "<sentences>";
-                //    foreach (var sen in review.sentences)
-                //    {
-                //        xml += $"<sentence id={sen.id}>";
-                //        xml += $"<text>{sen.Text}</text>";
-                //        if (sen.Opinions.Any())
-                //        {
-                //            xml += "<aspectTerms>";
-                //            foreach (var op in sen.Opinions)
-                //            {
-                //                xml += @$"<aspectTerm term=""{op.categoryClass}"" polarity=""{op.polarity}""/>";
-                //            }
-                //            xml += "</aspectTerms>";
-                //        }
-                //        xml += $"<sentence>";
-                //    }
-                //    xml += "</sentences>";
-                //}
-                //File.WriteAllText(@"C:\Users\Administrator\Desktop\1.xml", xml);
+                foreach (var review in reviews)
+                {
+                    xml += $"    <Review rid=\"{review.rid}\">\n";
+                    xml += "        <sentences>\n";
+                    for (int i = 0; i < review.sentences.Count; i++)
+                    {
+                        xml += $@"            <sentence id=""{review.rid}:{i}"">"+"\n";
+                        xml += $"                <text>{review.sentences[i].Text}</text>\n";
+                        if (review.sentences[i].Opinions.Any())
+                        {
+                            xml += "                <Opinions>\n";
+                            foreach (var op in review.sentences[i].Opinions)
+                            {
+                                xml += @$"                    <Opinion target=""{op.category}"" category=""{op.category}#{op.aspect}"" polarity=""{op.polarity}"" />"+"\n";
+                            }
+                            xml += "                </Opinions>\n";
+                        }
+                        xml += $"            </sentence>\n";
+                    }
+                    xml += "        </sentences>\n";
+                    xml += "    </Review>\n";
+                }
+                xml += "</Reviews>";
+                File.WriteAllText(@"C:\Users\Administrator\Desktop\1.xml", xml);
                 return reviews;
             }
         }

@@ -82,6 +82,12 @@ namespace TerexCrawler.Test.ConsoleApp
                 case 11:
                     digikala_11_GetAllProduct();
                     break;
+                case 12:
+                    digikala_12_LoadLabelReview();
+                    break;
+                case 13:
+                    digikala_13_GetStatus();
+                    break;
                 case 100:
                     snappFood_100_Sitemap();
                     break;
@@ -407,9 +413,108 @@ namespace TerexCrawler.Test.ConsoleApp
 
             }
         }
+        private async static void digikala_12_LoadLabelReview()
+        {
+            string old = @"S:\digikala\label\AllReviews-OldLabel-1_10_2020.json";
+            string last = @"S:\digikala\label\AllReviews-LastLabel-1_10_2020.json";
+
+            string oldText = File.ReadAllText(old);
+            string lastText = File.ReadAllText(last);
+
+            var oldReviews = JsonConvert.DeserializeObject<List<ReviewDTO>>(oldText);
+            var lastReviews = JsonConvert.DeserializeObject<List<ReviewDTO>>(lastText);
+
+            List<ReviewDTO> mixReviews = new List<ReviewDTO>();
+            List<ReviewDTO> _mixReviews = new List<ReviewDTO>();
+            mixReviews.AddRange(oldReviews);
+            mixReviews.AddRange(lastReviews);
+
+            int countBefore = mixReviews.Count();
+
+            var _result = mixReviews.GroupBy(x => x.ProductID).Select(z => new ReviewCount { rid = (long)z.Key, count = z.Count() }).ToList();
+            List<long> listDupPid = _result.Where(x => x.count > 1).Select(x => x.rid).ToList();
+            var duplicate = oldReviews.Where(x => listDupPid.Contains(x.ProductID)).ToList();
+            var _oldReviews = oldReviews.Except(duplicate).ToList();
+
+            mixReviews.Clear();
+            mixReviews.AddRange(_oldReviews);
+            mixReviews.AddRange(lastReviews);
+
+            int op_bf = 0;
+            int op_af = 0;
+            var _result1 = mixReviews.GroupBy(x => x.ProductID).Select(z => new ReviewCount { rid = (long)z.Key, count = z.Count() }).ToList();
+            foreach (var rev in mixReviews)
+            {
+                ReviewDTO _review = new ReviewDTO();
+                _review.sentences = new List<sentence>();
+                _review.ProductID = rev.ProductID;
+                _review.CreateDate = rev.CreateDate;
+                _review.rid = rev.rid;
+                _review._id = rev._id;
+                List<sentence> sentences = new List<sentence>();
+                foreach (var _sent in rev.sentences)
+                {
+                    sentence sent = new sentence();
+                    sent.Opinions = new List<Opinion>();
+                    sent.id = _sent.id;
+                    sent.Text = _sent.Text;
+                    if (_sent.Opinions != null)
+                    {
+                        foreach (var op in _sent.Opinions)
+                        {
+                            if (!sent.Opinions.Where(x => x.category == op.category && x.aspect == op.aspect).Any())
+                            {
+                                sent.Opinions.Add(op);
+                            }
+                            else
+                            {
+                                op_bf += 1;
+                                Console.WriteLine("_|_");
+                            }
+                        }
+
+                        sent.OutOfScope = false;
+                    }
+                    else
+                    {
+                        sent.OutOfScope = true;
+                    }
+                    sentences.Add(sent);
+                }
+                _review.sentences.AddRange(sentences);
+                _mixReviews.Add(_review);
+            }
+
+
+            using (IWebsiteCrawler digikala = new DigikalaHelper())
+            {
+                foreach (var item in _mixReviews)
+                {
+                    AddReviewToDBParam param = new AddReviewToDBParam();
+                    param.AutoOff = false;
+                    param.review = item;
+                    var result = digikala.AddReviewToDB_NewMethod(param);
+                }
+            }
+        }
+
+        struct ReviewCount
+        {
+            public long rid { get; set; }
+            public int count { get; set; }
+        }
+
+        private async static void digikala_13_GetStatus()
+        {
+            using (IWebsiteCrawler digikala = new DigikalaHelper())
+            {
+                var jhkkj = digikala.GetAllReviews1();
+                Console.WriteLine(digikala.GetSatatusReview());
+            }
+        }
         #endregion
 
-        #region
+        #region Snappfood - Resturant
         private static void snappFood_100_Sitemap()
         {
             string path = @"C:\Snappfood\sitemap.xml";

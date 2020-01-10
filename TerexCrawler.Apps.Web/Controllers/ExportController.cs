@@ -22,5 +22,22 @@ namespace TerexCrawler.Apps.Web.Controllers
                 return File(Encoding.UTF8.GetBytes(json), "text/json", $"AllReviews-{id}-{DateTime.Now.ToShortDateString()}.json");
             }
         }
+
+        public IActionResult TopSentences()
+        {
+            using (IWebsiteCrawler digikala = new DigikalaHelper())
+            {
+                var sentences = digikala.GetTopSentences(100);
+                string _sentences = "";
+                foreach (var item in sentences)
+                {
+                    foreach (var op in item.Opinions)
+                    {
+                        _sentences += $@"{item.Text.Replace(",", " ").Replace("  ", " ")}	{op.category}_{op.aspect}	{op.polarityClass}" + "\r\n";
+                    }
+                }
+                return File(Encoding.UTF8.GetBytes(_sentences), "text/csv", "TopSentences.csv");
+            }
+        }
     }
 }

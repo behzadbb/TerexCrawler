@@ -6,9 +6,14 @@ namespace TerexCrawler.Models.DTO.Digikala
 {
     public class AddReviewToDBParam
     {
+        public bool AutoOff { get; set; }
         public string id { get; set; }
         public string tagger { get; set; }
         public ReviewDTO review { get; set; }
+        public AddReviewToDBParam()
+        {
+            AutoOff = true;
+        }
     }
 
     public class AddReviewToDBResponse
