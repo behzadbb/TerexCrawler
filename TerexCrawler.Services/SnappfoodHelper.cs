@@ -360,6 +360,11 @@ namespace TerexCrawler.Services.Digikala
                 db.AddResturantReviews(param.resturantReviews.Select(x => new ResturantReviews(x)).ToList());
             }
         }
+
+        public List<Review> GetLabelReviews()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     

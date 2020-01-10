@@ -857,5 +857,14 @@ namespace TerexCrawler.Services.Digikala
         {
             throw new NotImplementedException();
         }
+
+        public List<Review> GetLabelReviews()
+        {
+            using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
+            {
+                var allReviews = db.GetAllReviewsLabel();
+                return allReviews;
+            }
+        }
     }
 }

@@ -36,6 +36,7 @@ namespace TerexCrawler.Models.Interfaces
         bool AddReviewToDB_NewMethod(AddReviewToDBParam param);
         List<Review> GetAllReviews1();
         List<sentence> GetTopSentences(int top);
+        List<Review> GetLabelReviews();
         void AddRawReviewsToDB(AddResturatsDBParam param);
     }
 }
