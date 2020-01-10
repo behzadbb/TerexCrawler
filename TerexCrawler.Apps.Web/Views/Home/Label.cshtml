@@ -11,7 +11,8 @@
             شماره محصول: <span class="badge badge-light"> @Model.ProductId</span>
             <span class="sr-only">product</span>
         </button>
-        <a class="btn btn-outline-dark" href="/Home/Label/@Model.Tagger">محصول بعدی</a>
+        <span>  </span>
+        <a class="btn btn-outline-info" href="/Home/Label/@Model.Tagger">محصول بعدی</a>
         <strong class="text-primary">نام محصول: @Model.ProductName</strong>
     </div>
 </div>
@@ -23,7 +24,8 @@
         </div>
         <div class="form-group">
             <div class="form-inline">
-                <label class="control-label">نظر </label> <label id="lblCount"> @(Model.CountCurrent + 1) </label><label> از @Model.CountReview</label>
+                <label class="control-label">نظر </label><span> </span><label id="lblCount"> @(Model.CountCurrent + 1) </label><span> </span><label> از @Model.CountReview</label>
+                <span> </span>
                 <button type="button" class="btn btn-info text-left" id="btnNextComment">نطر بعدی</button>
             </div>
             <br />
@@ -47,11 +49,10 @@
             <div class="col-12">
                 <div class="row" dir="rtl">
                     <div class="col-12" id="dv1">
-
                         <h2>دسته جنبه</h2>
                         @foreach (var item in Model.Aspects.CategoryList)
                         {
-                            <button type="button" class="btn btn-lg btn-outline-secondary btn-category" style="font-size:25px" category="@item.CategoryName" categoryId="@item.id">@item.CategoryTitle</button>
+                            <button type="button" class="btn btn-lg btn-outline-success btn-category" style="font-size:25px" category="@item.CategoryName" categoryId="@item.id">@item.CategoryTitle</button>
                         }
                     </div>
                     <div id="dv2" class="col-12" style="display:none;">
@@ -61,13 +62,12 @@
                         {
                             <button type="button" class="btn btn-lg btn-outline-info aspect-btn-a" style="font-size:25px" aspect="@item.Feature" category="@item.id">@item.Title</button>
                         }
-
                     </div>
                     <div id="dvPol" class="col-12" style="display:none; width:100%;">
 
                         <h2>قطبیت</h2>
                         <button type="button" class="btn btn-lg btn-outline-success btn-pol" style="font-size:25px" polarity="positive">مثبت</button>
-                        <button type="button" class="btn btn-lg btn-outline-warning btn-pol" style="font-size:20px" polarity="neutral">خنثی</button>
+                        <button type="button" class="btn btn-lg btn-outline-warning btn-pol" style="font-size:25px" polarity="neutral">خنثی</button>
                         <button type="button" class="btn btn-lg btn-outline-danger btn-pol" style="font-size:25px" polarity="negative">منفی</button>
 
                     </div>
@@ -93,11 +93,12 @@
         <br />
         <br />
         <center>
-            <button type="button" id="btnSubmit" class="btn btn-lg col-8 btn-primary">ثبت</button>
+            <button type="button" id="btnSubmit" class="btn btn-lg col-8 btn-outline-success">ثبت</button>
         </center>
         <br />
         <br />
         <button type="button" id="btnDelete" class="btn btn-lg btn-outline-danger">حذف موارد انتخاب شده</button>
+        <button type="button" id="btnHazm" class="btn btn-lg btn-outline-info">نرمال سازی متن توسط هضم</button>
     </div>
 </div>
 
@@ -187,7 +188,7 @@
     }
     $("#btnSubmit").click(function () {
         var params = $("#hdnAspectLabel").val();
-        var selectReview = $("#SelectReview").val();
+        var selectReview = $("#SelectReview").val().replace("\r\n", "").replace("\n", "");
         var productId = $("#ProductId").val();
         var tagger = $("#Tagger").val();
         var idBson = $("#idBson").val();
@@ -212,6 +213,7 @@
                     //ClearAspect();
                     $("#lblAspect").empty();
                     $("#SelectReview").val("");
+                    $("#hdnAspectLabel").val("");
                 }
                 else {
                     Swal.fire({
@@ -234,5 +236,20 @@
 
     $("#btnNextComment").click(function () {
         NextComment();
+    });
+
+    var server = 'http://api.sobhe.ir:5000/api';
+	var normalize = function(data) {
+		$.post(server + '/normalize', data)
+            .done(function (normalized_text) {
+                var res = normalized_text.split(". ");
+                var newReview = res.join("\r\n");
+                $('#Review').val(newReview);
+			})
+	};
+
+    $("#btnHazm").click(function () {
+        var Review = $("#Review").val();
+        normalize({'text': Review});
     });
 </script>
