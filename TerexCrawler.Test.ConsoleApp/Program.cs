@@ -452,8 +452,43 @@ namespace TerexCrawler.Test.ConsoleApp
                 _review.rid = rev.rid;
                 _review._id = rev._id;
                 List<sentence> sentences = new List<sentence>();
+                List<Opinion> _lastOpinion1 = new List<Opinion>();
+                List<Opinion> _lastOpinion2 = new List<Opinion>();
                 foreach (var _sent in rev.sentences)
                 {
+                    if (_sent.Opinions != null && _sent.Opinions.Count() > 0)
+                    {
+                        _lastOpinion2.Clear();
+                        _lastOpinion2 = _sent.Opinions.ToList();
+                    }
+                    else
+                    {
+                        _lastOpinion2.Clear();
+                    }
+                    if (_lastOpinion1.Count() > 0 && _sent.Opinions != null && _sent.Opinions.Count() > _lastOpinion1.Count())
+                    {
+                        bool isDuplicate = true;
+                        for (int i = 0; i < _lastOpinion1.Count; i++)
+                        {
+                            if (_lastOpinion1[i].category == _sent.Opinions[i].category &&
+                                _lastOpinion1[i].aspect == _sent.Opinions[i].aspect &&
+                                _lastOpinion1[i].polarity == _sent.Opinions[i].polarity)
+                            {
+                                isDuplicate = true;
+                            }
+                            else
+                            {
+                                isDuplicate = false;
+                            }
+                        }
+                        if (isDuplicate)
+                        {
+                            var _sent_temp = _sent.Opinions.Skip(_lastOpinion1.Count()).ToList();
+                            _sent.Opinions.Clear();
+                            _sent.Opinions.AddRange(_sent_temp.ToList());
+                        }
+                    }
+
                     sentence sent = new sentence();
                     sent.Opinions = new List<Opinion>();
                     sent.id = _sent.id;
@@ -480,6 +515,10 @@ namespace TerexCrawler.Test.ConsoleApp
                         sent.OutOfScope = true;
                     }
                     sentences.Add(sent);
+                    sentences.ToList();
+                    _lastOpinion1.Clear();
+                    _lastOpinion1.AddRange(_lastOpinion2.ToList());
+                    _lastOpinion2.Clear();
                 }
                 _review.sentences.AddRange(sentences);
                 _mixReviews.Add(_review);
@@ -504,11 +543,101 @@ namespace TerexCrawler.Test.ConsoleApp
             public int count { get; set; }
         }
 
+        class Aspect
+        {
+            public string Name { get; set; }
+            public int count { get; set; }
+            public string polarity { get; set; }
+        }
+        class Category
+        {
+            public string Name { get; set; }
+            public int count { get; set; }
+            public string polarity { get; set; }
+        }
+        class AspectCategory
+        {
+            public string aspect { get; set; }
+            public string category { get; set; }
+            public int count { get; set; }
+            public string polarity { get; set; }
+        }
         private async static void digikala_13_GetStatus()
         {
+            List<Aspect> aspects = new List<Aspect>();
+            List<Category> categories = new List<Category>();
+            List<AspectCategory> aspectCategories = new List<AspectCategory>();
             using (IWebsiteCrawler digikala = new DigikalaHelper())
             {
-                var jhkkj = digikala.GetAllReviews1();
+
+                //var jhkkj = digikala.GetAllReviews1();
+                List<sentence> sentences = new List<sentence>();
+                List<Opinion> opinions = new List<Opinion>();
+                var data = digikala.GetLabelReviews();
+                foreach (var rev in data)
+                {
+                    if (rev.sentences != null && rev.sentences.Count() > 0)
+                    {
+                        sentences.AddRange(rev.sentences);
+                    }
+                }
+                sentences.ToList();
+                foreach (var sentence in sentences)
+                {
+                    if (sentence.Opinions != null && sentence.Opinions.Count() > 0)
+                    {
+                        foreach (var op in sentence.Opinions)
+                        {
+                            var q1 = aspects.Where(x => x.Name == op.aspect && x.polarity == op.polarity).Any();
+                            if (q1)
+                            {
+                                var s=aspects.Where(x => x.Name == op.aspect && x.polarity == op.polarity).FirstOrDefault();
+                                s.count += 1;
+                            }
+                            else
+                            {
+                                aspects.Add(new Aspect { Name = op.aspect, count = 1, polarity = op.polarity });
+                            }
+                            var q2 = categories.Where(x => x.Name == op.category && x.polarity == op.polarity).Any();
+                            if (q2)
+                            {
+                                var s1=categories.Where(x => x.Name == op.category && x.polarity == op.polarity).FirstOrDefault();
+                                s1.count += 1;
+                            }
+                            else
+                            {
+                                categories.Add(new Category { Name = op.category, count = 1, polarity = op.polarity });
+                            }
+                            var q3 = aspectCategories.Where(x => x.aspect == op.aspect && x.category == op.category && x.polarity == op.polarity).Any();
+                            if (q3)
+                            {
+                                var s2= aspectCategories.Where(x => x.aspect == op.aspect && x.category == op.category && x.polarity == op.polarity).FirstOrDefault();
+                                s2.count += 1;
+                            }
+                            else
+                            {
+                                aspectCategories.Add(new AspectCategory { category = op.category, aspect = op.aspect, count = 1, polarity = op.polarity });
+                            }
+                            opinions.Add(op);
+                        }
+                    }
+                }
+                opinions.ToList();
+                string aspp = "";
+                foreach (var item in aspects)
+                {
+                    aspp += $"{item.Name}	{item.polarity}	{item.count}\n";
+                }
+                string cats = "";
+                foreach (var item in categories)
+                {
+                    cats += $"{item.Name}	{item.polarity}	{item.count}\n";
+                }
+                string aspectCats = "";
+                foreach (var item in aspectCategories)
+                {
+                    aspectCats += $"{item.category}	{item.aspect}	{item.polarity}	{item.count}\n";
+                }
                 Console.WriteLine(digikala.GetSatatusReview());
             }
         }

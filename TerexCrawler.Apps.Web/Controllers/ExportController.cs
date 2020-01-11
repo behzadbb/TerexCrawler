@@ -33,7 +33,7 @@ namespace TerexCrawler.Apps.Web.Controllers
                 {
                     foreach (var op in item.Opinions)
                     {
-                        _sentences += $@"{item.Text.Replace(",", " ").Replace("  ", " ")}	{op.category}_{op.aspect}	{op.polarityClass}" + "\r\n";
+                        _sentences += $@"{item.Text.Replace(",", " ").Replace("  ", " ")}	{op.category}_{op.aspect}	{op.polarity}" + "\r\n";
                     }
                 }
                 return File(Encoding.UTF8.GetBytes(_sentences), "text/csv", "TopSentences.csv");
