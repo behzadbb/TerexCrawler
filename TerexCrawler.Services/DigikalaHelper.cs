@@ -873,5 +873,10 @@ namespace TerexCrawler.Services.Digikala
                 return allReviews;
             }
         }
+
+        public void RejectReview(int id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -207,6 +207,13 @@ namespace TerexCrawler.DataLayer.Repository
             return resturantCollection.FindAll().ToList();
         }
 
+        public async void Reject(int id)
+        {
+            var query = Query<ResturantReviews>.Where(x => x._id == id);
+            var update = Update<ResturantReviews>.Set(p => p.Reject, true);
+            resturantCollection.Update(query, update);
+        }
+
         //public void CrwaledProduct(string id)
         //{
         //    ObjectId _id = ObjectId.Parse(id);

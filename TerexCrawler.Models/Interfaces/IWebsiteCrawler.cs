@@ -38,5 +38,6 @@ namespace TerexCrawler.Models.Interfaces
         List<sentence> GetTopSentences(int top);
         List<Review> GetLabelReviews();
         void AddRawReviewsToDB(AddResturatsDBParam param);
+        void RejectReview(int id);
     }
 }

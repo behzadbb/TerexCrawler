@@ -303,12 +303,7 @@ namespace TerexCrawler.Apps.Web.Controllers
             return Redirect("http://google.com");
         }
 
-        public IActionResult ResturantRejectReview([FromBody]RejectReviewParam model)
-        {
-
-
-            return Json(new RejectReviewResponse());
-        }
+        
 
     }
 }

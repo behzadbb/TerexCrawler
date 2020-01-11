@@ -365,6 +365,14 @@ namespace TerexCrawler.Services.Digikala
         {
             throw new NotImplementedException();
         }
+
+        public void RejectReview(int id)
+        {
+            using (SnappfoodMongoDBRepository db = new SnappfoodMongoDBRepository())
+            {
+                db.Reject(id);
+            }
+        }
     }
 
     
