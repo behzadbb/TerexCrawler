@@ -17,6 +17,7 @@ using MongoDB.Bson.IO;
 using System.Text.RegularExpressions;
 using TerexCrawler.Entites.Snappfood;
 using TerexCrawler.Models.DTO.Snappfood;
+using TerexCrawler.Models;
 
 namespace TerexCrawler.DataLayer.Repository
 {
@@ -50,6 +51,7 @@ namespace TerexCrawler.DataLayer.Repository
         //private MongoCollection<DigikalaBasePage> digikalaBasePages;
         private MongoCollection<Snappfood> snappfoodProducts;
         private MongoCollection<ResturantReviews> resturantCollection;
+        private MongoCollection<Review> resturantReview;
 
         public SnappfoodMongoDBRepository()
         {
@@ -60,6 +62,7 @@ namespace TerexCrawler.DataLayer.Repository
             //digikalaBasePages = db.GetCollection<DigikalaBasePage>("DigikalaBasePages");
             snappfoodProducts = db.GetCollection<Snappfood>("Resturants");
             resturantCollection = dbRest.GetCollection<ResturantReviews>("ResturantReviews");
+            resturantReview = dbRest.GetCollection<Review>("resturantReview");
         }
 
         //public void AddDigikalaBasePage(DigikalaPageBaseDTO dto)
@@ -112,7 +115,7 @@ namespace TerexCrawler.DataLayer.Repository
             var update = Update<ResturantReviews>.Set(p => p.Tagger, tagger).Set(p => p.Reserve, true).Set(p => p.ReserveDate, DateTime.Now);
             try
             {
-                var query1 = Query<ResturantReviews>.Where(x => x.Reserve && !x.Tagged && x.Tagger == tagger && !x.Reject);
+                var query1 = Query<ResturantReviews>.Where(x => x.Reserve && !x.Tagged && x.Tagger == tagger && !x.Reject );
                 var review1 = resturantCollection.FindOne(query1);
                 if (review1 != null && review1.Review !=null && review1.Review !="")
                 {
@@ -125,8 +128,9 @@ namespace TerexCrawler.DataLayer.Repository
             catch (Exception)
             {
             }
-
-            var query2 = Query<ResturantReviews>.Where(x => !x.Reserve && !x.Tagged && !x.Reject);
+            Random rnd1 = new Random();
+            int randId1 = rnd1.Next(100, 464000) + rnd1.Next(3, 3000);
+            var query2 = Query<ResturantReviews>.Where(x => x._id > randId1 && !x.Reserve && !x.Tagged && !x.Reject);
             var review2 = resturantCollection.FindOne(query2);
 
             var query4 = Query<ResturantReviews>.Where(x => x._id == review2._id);
@@ -214,32 +218,46 @@ namespace TerexCrawler.DataLayer.Repository
             resturantCollection.Update(query, update);
         }
 
-        //public void CrwaledProduct(string id)
-        //{
-        //    ObjectId _id = ObjectId.Parse(id);
-        //    var query = Query<DigikalaBasePage>.EQ(p => p._id, _id);
-        //    var update = Update<DigikalaBasePage>.Set(p => p.CrawlDate, DateTime.Now).Set(p => p.Crawled, true);
+        public bool AddReviewNew(Review review)
+        {
+            var query = Query<Review>.Where(x => x.ProductID == review.ProductID);
 
-        //    digikalaBasePages.Update(query, update);
-        //}
-        //public async void CrwaledProducts(string[] ids)
-        //{
-        //    BsonArray array = new BsonArray();
-        //    array.AddRange(ids.Select(x => ObjectId.Parse(x)));
-        //    var query = Query<DigikalaBasePage>.In(x => x._id, array);
-        //    var basePages = digikalaBasePages.Find(query);
-        //    foreach (var item in basePages)
-        //    {
-        //        item.Crawled = true;
-        //        item.CrawlDate = DateTime.Now;
-        //        digikalaBasePages.Save(item);
-        //    }
-        //}
+            var r = resturantReview.FindOne(query);
+            if (r == null)
+            {
+                if (review._id == null || review._id.ToString().Contains("000"))
+                {
+                    review._id = ObjectId.GenerateNewId(DateTime.Now);
+                }
+                resturantReview.Insert(review);
+                return true;
+            }
 
-        //public void RemoveBasePage(string url)
-        //{
-        //    var query = Query<DigikalaBasePage>.Matches(x => x.Loc, BsonRegularExpression.Create(new Regex(url)));
-        //    digikalaBasePages.Remove(query);
-        //}
+            foreach (var item in review.sentences)
+            {
+                if (!r.sentences.Where(x => x.Text == item.Text).Any())
+                {
+                    r.sentences.Add(item);
+
+                }
+            }
+            var update = Update<Review>.Set(p => p.sentences, r.sentences);
+
+            resturantReview.Update(query, update);
+            return true;
+        }
+
+        public void SetTaggedProduct(int id, string tagger)
+        {
+            var query = Query<ResturantReviews>.Where(x => x._id == id);
+
+            var update = Update<ResturantReviews>
+                .Set(p => p.Reserve, false)
+                .Set(p => p.Tagger, tagger)
+                .Set(p => p.TagDate, DateTime.Now)
+                .Set(p => p.Tagged, true);
+
+            resturantCollection.Update(query, update);
+        }
     }
 }

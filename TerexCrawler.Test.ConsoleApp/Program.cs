@@ -774,6 +774,11 @@ namespace TerexCrawler.Test.ConsoleApp
                             //cleanReviews.Add(_txt);
                         }
                     }
+                    if (resturantReviews.Count > 30000)
+                    {
+                        Insert(resturantReviews);
+                        resturantReviews.Clear();
+                    }
                 }
             }
 
@@ -781,11 +786,17 @@ namespace TerexCrawler.Test.ConsoleApp
 
             //File.WriteAllText(@$"s:\Digikala\reviews\review-all-snapp.json", json, new UTF8Encoding(false));
             //json = "";
+            Insert(resturantReviews);
+        }
+
+        private static void Insert(List<ResturantReviewsDTO> resturantReviews)
+        {
             using (IWebsiteCrawler snapp = new SnappfoodHelper())
             {
                 AddResturatsDBParam addResturats = new AddResturatsDBParam();
                 addResturats.resturantReviews = resturantReviews;
                 snapp.AddRawReviewsToDB(addResturats);
+                System.Threading.Thread.Sleep(1500);
             }
         }
 

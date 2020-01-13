@@ -293,11 +293,6 @@ namespace TerexCrawler.Services.Digikala
             throw new NotImplementedException();
         }
 
-        public object GetAllReviews()
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<T> GetAllReviews<T>()
         {
             using (SnappfoodMongoDBRepository db = new SnappfoodMongoDBRepository())
@@ -330,7 +325,34 @@ namespace TerexCrawler.Services.Digikala
 
         public bool AddReviewToDB_NewMethod(AddReviewToDBParam param)
         {
-            throw new NotImplementedException();
+            try
+            {
+                using (SnappfoodMongoDBRepository db = new SnappfoodMongoDBRepository())
+                {
+                    Review review = new Review(param.review);
+                    db.AddReviewNew(review);
+                    if (param.AutoOff)
+                    {
+                        db.SetTaggedProduct(int.Parse(param.id), param.tagger);
+                    }
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogDTO log = new LogDTO()
+                {
+                    _id = ObjectId.GenerateNewId(DateTime.Now).ToString(),
+                    DateTime = DateTime.Now,
+                    Description = ex.Message,
+                    ProjectId = (int)ProjectNames.Services,
+                    Url = "DKP: " + param.review.ProductID,
+                    MethodName = "AddReviewToDB_NewMethod",
+                    Title = $"AddReviewToDB_NewMethod Error, Tagger: {param.tagger}"
+                };
+                Logger.AddLog(log);
+                return false;
+            }
         }
 
         public string GetAllReviews1()

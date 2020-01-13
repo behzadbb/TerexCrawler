@@ -55,6 +55,11 @@ namespace TerexCrawler.Apps.Web.Models
         public string Aspect { get; set; }
         public string Polarity { get; set; }
     }
+    public class ResrurantLabel
+    {
+        public string Label { get; set; }
+        public string Polarity { get; set; }
+    }
     public class AddLabelParam
     {
         public string ProductId { get; set; }
@@ -65,26 +70,29 @@ namespace TerexCrawler.Apps.Web.Models
         public AspectLabel[] AspectLabels { get; set; }
     }
 
+    public class AddLabelResturantParam
+    {
+        public string CommentId { get; set; }
+        public string Tagger { get; set; }
+        public string Text { get; set; }
+
+        public ResrurantLabel[] ResrurantLabels { get; set; }
+    }
+
 
     public class TaggerResturantVM
     {
         public int idBson { get; set; }
-        //public ReviewDTO ReviewDTO { get; set; }
         public ResturantAspects Aspects { get; set; }
-        //public DigikalaProductDTO ProductDTO { get; set; }
-        public int CountReview { get; set; }
-        public int CountCurrent { get; set; }
         public string AspectLabel { get; set; }
-        //public int ProductCount { get; set; }
-        //public string CommentJson { get; set; }
         public User User { get; set; }
-        //public string ProductName { get; set; }
-        //public string CommentTitle { get; set; }
         public string Review { get; set; }
         public string SelectReview { get; set; }
         public string ProductId { get; set; }
         public int UserId { get; set; }
         public string Tagger { get; set; }
+        public string RestId { get; set; }
+        public int CommentId { get; set; }
         public TaggerResturantVM()
         {
             Aspects = new ResturantAspects();

@@ -22,6 +22,7 @@ namespace TerexCrawler.Entites.Snappfood
         public bool Tagged { get; set; }
         public DateTime TagDate { get; set; }
         public bool Reject { get; set; }
+        
         public ResturantReviews(ResturantReviewsDTO dto)
         {
             this._id = dto._id;
