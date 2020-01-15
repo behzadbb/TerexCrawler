@@ -392,7 +392,11 @@ namespace TerexCrawler.Services.Digikala
 
         public List<Review> GetLabelReviews()
         {
-            throw new NotImplementedException();
+            using (SnappfoodMongoDBRepository db = new SnappfoodMongoDBRepository())
+            {
+                var allReviews = db.GetAllReviewsLabel();
+                return allReviews;
+            }
         }
 
         public void RejectReview(int id)

@@ -281,5 +281,10 @@ namespace TerexCrawler.DataLayer.Repository
             var reviews = resturantReview.FindAll().Where(x => x.sentences.Any() && x.sentences.Count() > 0);
             return reviews.Sum(s => s.sentences.Count());
         }
+
+        public List<Review> GetAllReviewsLabel()
+        {
+            return resturantReview.FindAll().ToList();
+        }
     }
 }

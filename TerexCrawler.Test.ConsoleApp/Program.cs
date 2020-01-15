@@ -48,6 +48,7 @@ namespace TerexCrawler.Test.ConsoleApp
             p("10- get All Reviews to xml");
             p("100- Get Site Map");
             p("101- Get Site Map From Url");
+            p("105- Get Status _ Report All");
             short methodNum = Convert.ToInt16(Console.ReadLine());
 
             switch (methodNum)
@@ -102,6 +103,9 @@ namespace TerexCrawler.Test.ConsoleApp
                     break;
                 case 104:
                     snappFood_104_GetFirstReview();
+                    break;
+                case 105:
+                    snappfood_105_GetStatus();
                     break;
                 default:
                     break;
@@ -735,7 +739,6 @@ namespace TerexCrawler.Test.ConsoleApp
             int end = url.IndexOf("/");
             return url.Substring(0, end);
         }
-
         private static void snappFood_103_GetAllReviews()
         {
             List<SnappfoodMinInfo> reviews = new List<SnappfoodMinInfo>();
@@ -788,7 +791,6 @@ namespace TerexCrawler.Test.ConsoleApp
             //json = "";
             Insert(resturantReviews);
         }
-
         private static void Insert(List<ResturantReviewsDTO> resturantReviews)
         {
             using (IWebsiteCrawler snapp = new SnappfoodHelper())
@@ -799,7 +801,6 @@ namespace TerexCrawler.Test.ConsoleApp
                 System.Threading.Thread.Sleep(1500);
             }
         }
-
         private static void snappFood_104_GetFirstReview()
         {
             using (IWebsiteCrawler snapp = new SnappfoodHelper())
@@ -808,6 +809,84 @@ namespace TerexCrawler.Test.ConsoleApp
 
                 param.tagger = "behzad";
                 var reviews = snapp.GetFirstProductByCategory<ResturantReviewsDTO>(param).Result;
+            }
+        }
+        private async static void snappfood_105_GetStatus()
+        {
+            List<Aspect> aspects = new List<Aspect>();
+            List<Category> categories = new List<Category>();
+            List<AspectCategory> aspectCategories = new List<AspectCategory>();
+            using (IWebsiteCrawler snapp = new SnappfoodHelper())
+            {
+                //var jhkkj = digikala.GetAllReviews1();
+                List<sentence> sentences = new List<sentence>();
+                List<Opinion> opinions = new List<Opinion>();
+                var data = snapp.GetLabelReviews();
+                foreach (var rev in data)
+                {
+                    if (rev.sentences != null && rev.sentences.Count() > 0)
+                    {
+                        sentences.AddRange(rev.sentences);
+                    }
+                }
+                sentences.ToList();
+                foreach (var sentence in sentences)
+                {
+                    if (sentence.Opinions != null && sentence.Opinions.Count() > 0)
+                    {
+                        foreach (var op in sentence.Opinions)
+                        {
+                            var q1 = aspects.Where(x => x.Name == op.aspect && x.polarity == op.polarity).Any();
+                            if (q1)
+                            {
+                                var s = aspects.Where(x => x.Name == op.aspect && x.polarity == op.polarity).FirstOrDefault();
+                                s.count += 1;
+                            }
+                            else
+                            {
+                                aspects.Add(new Aspect { Name = op.aspect, count = 1, polarity = op.polarity });
+                            }
+                            var q2 = categories.Where(x => x.Name == op.category && x.polarity == op.polarity).Any();
+                            if (q2)
+                            {
+                                var s1 = categories.Where(x => x.Name == op.category && x.polarity == op.polarity).FirstOrDefault();
+                                s1.count += 1;
+                            }
+                            else
+                            {
+                                categories.Add(new Category { Name = op.category, count = 1, polarity = op.polarity });
+                            }
+                            var q3 = aspectCategories.Where(x => x.aspect == op.aspect && x.category == op.category && x.polarity == op.polarity).Any();
+                            if (q3)
+                            {
+                                var s2 = aspectCategories.Where(x => x.aspect == op.aspect && x.category == op.category && x.polarity == op.polarity).FirstOrDefault();
+                                s2.count += 1;
+                            }
+                            else
+                            {
+                                aspectCategories.Add(new AspectCategory { category = op.category, aspect = op.aspect, count = 1, polarity = op.polarity });
+                            }
+                            opinions.Add(op);
+                        }
+                    }
+                }
+                opinions.ToList();
+                string aspp = "";
+                foreach (var item in aspects)
+                {
+                    aspp += $"{item.Name}	{item.polarity}	{item.count}\n";
+                }
+                string cats = "";
+                foreach (var item in categories)
+                {
+                    cats += $"{item.Name}	{item.polarity}	{item.count}\n";
+                }
+                string aspectCats = "";
+                foreach (var item in aspectCategories)
+                {
+                    aspectCats += $"{item.category}	{item.aspect}	{item.polarity}	{item.count}\n";
+                }
+                Console.WriteLine(snapp.GetSatatusReview());
             }
         }
         #endregion
