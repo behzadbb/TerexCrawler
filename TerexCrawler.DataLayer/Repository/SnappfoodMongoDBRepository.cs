@@ -259,5 +259,27 @@ namespace TerexCrawler.DataLayer.Repository
 
             resturantCollection.Update(query, update);
         }
+
+        public List<sentence> GetTopSentences()
+        {
+            List<sentence> sentences = new List<sentence>();
+            var _temp = resturantReview.FindAll().ToList();
+            var _temp1 = _temp.Select(x => x.sentences).ToList();
+            foreach (var item in _temp1)
+            {
+                sentences.AddRange(item);
+            }
+            return sentences.ToList();
+        }
+
+        public long GetCountReview()
+        {
+            return resturantReview.Count();
+        }
+        public long GetCountSentences()
+        {
+            var reviews = resturantReview.FindAll().Where(x => x.sentences.Any() && x.sentences.Count() > 0);
+            return reviews.Sum(s => s.sentences.Count());
+        }
     }
 }

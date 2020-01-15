@@ -852,7 +852,7 @@ namespace TerexCrawler.Services.Digikala
             }
         }
 
-        public List<sentence> GetTopSentences(int top)
+        public List<sentence> GetTopSentences()
         {
             using (DigikalaMongoDBRepository db = new DigikalaMongoDBRepository())
             {

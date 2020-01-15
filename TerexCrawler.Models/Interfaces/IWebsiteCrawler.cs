@@ -35,7 +35,7 @@ namespace TerexCrawler.Models.Interfaces
         string GetSatatusReview();
         bool AddReviewToDB_NewMethod(AddReviewToDBParam param);
         List<Review> GetAllReviews1();
-        List<sentence> GetTopSentences(int top);
+        List<sentence> GetTopSentences();
         List<Review> GetLabelReviews();
         void AddRawReviewsToDB(AddResturatsDBParam param);
         void RejectReview(int id);

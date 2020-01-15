@@ -183,5 +183,13 @@ namespace TerexCrawler.Apps.Web.Controllers
                 System.Threading.Thread.Sleep(1500);
             }
         }
+
+        public string GetStatus()
+        {
+            using (IWebsiteCrawler digikala = new SnappfoodHelper())
+            {
+                return digikala.GetSatatusReview();
+            }
+        }
     }
 }

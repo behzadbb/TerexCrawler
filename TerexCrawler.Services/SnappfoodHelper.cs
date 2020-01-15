@@ -1,19 +1,11 @@
 ﻿//using AutoMapper;
-using HtmlAgilityPack;
 using MongoDB.Bson;
 using Newtonsoft.Json;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
-using System.Net;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using TerexCrawler.Common;
 using TerexCrawler.DataLayer.Repository;
-using TerexCrawler.Entites.Digikala;
 using TerexCrawler.Entites.Snappfood;
 using TerexCrawler.HttpHelper;
 using TerexCrawler.Models;
@@ -318,11 +310,6 @@ namespace TerexCrawler.Services.Digikala
             }
         }
 
-        public string GetSatatusReview()
-        {
-            throw new NotImplementedException();
-        }
-
         public bool AddReviewToDB_NewMethod(AddReviewToDBParam param)
         {
             try
@@ -370,9 +357,29 @@ namespace TerexCrawler.Services.Digikala
             throw new NotImplementedException();
         }
 
-        public List<sentence> GetTopSentences(int top)
+        public List<sentence> GetTopSentences()
         {
-            throw new NotImplementedException();
+            try
+            {
+                using (SnappfoodMongoDBRepository db = new SnappfoodMongoDBRepository())
+                {
+                    return db.GetTopSentences();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogDTO log = new LogDTO()
+                {
+                    DateTime = DateTime.Now,
+                    Description = "Error GetTopSentences, Error= " + ex.ToString(),
+                    Title = "Get Top Sentences, Snappfood",
+                    MethodName = "GetTopSentences",
+                    ProjectId = 1,
+                    Url = "Export/TopResturant"
+                };
+                Logger.AddLog(log);
+                return new List<sentence>();
+            }
         }
 
         public void AddRawReviewsToDB(AddResturatsDBParam param)
@@ -393,6 +400,16 @@ namespace TerexCrawler.Services.Digikala
             using (SnappfoodMongoDBRepository db = new SnappfoodMongoDBRepository())
             {
                 db.Reject(id);
+            }
+        }
+
+        public string GetSatatusReview()
+        {
+            using (SnappfoodMongoDBRepository db = new SnappfoodMongoDBRepository())
+            {
+                var product = db.GetCountReview();
+                var Sentences = db.GetCountSentences();
+                return $"Products: {product} , Sentences: {Sentences}";
             }
         }
     }
