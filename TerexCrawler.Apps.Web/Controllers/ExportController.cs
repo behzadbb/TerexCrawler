@@ -53,12 +53,13 @@ namespace TerexCrawler.Apps.Web.Controllers
             }
             return File(Encoding.UTF8.GetBytes(_sentences), "text/csv", "TopSentences.csv");
         }
+
         public IActionResult TopMobile()
         {
             IWebsiteCrawler web = new DigikalaHelper();
             var sentences = web.GetTopSentences();
             string _sentences = "";
-            foreach (var item in sentences)
+            foreach (var item in sentences.Where(x => !string.IsNullOrEmpty(x.Text)))
             {
                 foreach (var op in item.Opinions)
                 {
@@ -67,6 +68,7 @@ namespace TerexCrawler.Apps.Web.Controllers
             }
             return File(Encoding.UTF8.GetBytes(_sentences), "text/csv", "TopSentences.csv");
         }
+
         public IActionResult TopResturant()
         {
             try
@@ -79,7 +81,7 @@ namespace TerexCrawler.Apps.Web.Controllers
                         return Ok("sentences null");
                     }
                     string _sentences = "";
-                    foreach (var item in sentences)
+                    foreach (var item in sentences.Where(x => !string.IsNullOrEmpty(x.Text)))
                     {
                         if (item.Opinions != null && item.Opinions.Count > 0)
                         {
@@ -110,11 +112,21 @@ namespace TerexCrawler.Apps.Web.Controllers
             public int count { get; set; }
             public string polarity { get; set; }
         }
+        class Aspect1
+        {
+            public string Name { get; set; }
+            public int count { get; set; }
+        }
         class Category
         {
             public string Name { get; set; }
             public int count { get; set; }
             public string polarity { get; set; }
+        }
+        class Category1
+        {
+            public string Name { get; set; }
+            public int count { get; set; }
         }
         class AspectCategory
         {
@@ -127,6 +139,10 @@ namespace TerexCrawler.Apps.Web.Controllers
         {
             List<Aspect> aspects = new List<Aspect>();
             List<Category> categories = new List<Category>();
+
+            List<Aspect1> aspects1 = new List<Aspect1>();
+            List<Category1> categories1 = new List<Category1>();
+
             List<AspectCategory> aspectCategories = new List<AspectCategory>();
             using (IWebsiteCrawler snapp = new SnappfoodHelper())
             {
@@ -142,7 +158,7 @@ namespace TerexCrawler.Apps.Web.Controllers
                     }
                 }
                 sentences.ToList();
-                foreach (var sentence in sentences)
+                foreach (var sentence in sentences.Where(x => !string.IsNullOrEmpty(x.Text)))
                 {
                     if (sentence.Opinions != null && sentence.Opinions.Count() > 0)
                     {
@@ -158,6 +174,16 @@ namespace TerexCrawler.Apps.Web.Controllers
                             {
                                 aspects.Add(new Aspect { Name = op.aspect, count = 1, polarity = op.polarity });
                             }
+                            var q12 = aspects1.Where(x => x.Name == op.aspect).Any();
+                            if (q12)
+                            {
+                                var s12 = aspects1.Where(x => x.Name == op.aspect).FirstOrDefault();
+                                s12.count += 1;
+                            }
+                            else
+                            {
+                                aspects1.Add(new Aspect1 { Name = op.aspect, count = 1 });
+                            }
                             var q2 = categories.Where(x => x.Name == op.category && x.polarity == op.polarity).Any();
                             if (q2)
                             {
@@ -167,6 +193,16 @@ namespace TerexCrawler.Apps.Web.Controllers
                             else
                             {
                                 categories.Add(new Category { Name = op.category, count = 1, polarity = op.polarity });
+                            }
+                            var q22 = categories1.Where(x => x.Name == op.category).Any();
+                            if (q22)
+                            {
+                                var s1 = categories1.Where(x => x.Name == op.category).FirstOrDefault();
+                                s1.count += 1;
+                            }
+                            else
+                            {
+                                categories1.Add(new Category1 { Name = op.category, count = 1 });
                             }
                             var q3 = aspectCategories.Where(x => x.aspect == op.aspect && x.category == op.category && x.polarity == op.polarity).Any();
                             if (q3)
@@ -178,6 +214,7 @@ namespace TerexCrawler.Apps.Web.Controllers
                             {
                                 aspectCategories.Add(new AspectCategory { category = op.category, aspect = op.aspect, count = 1, polarity = op.polarity });
                             }
+                           
                             opinions.Add(op);
                         }
                     }
@@ -193,14 +230,168 @@ namespace TerexCrawler.Apps.Web.Controllers
                 {
                     cats += $"{item.Name}	{item.polarity}	{item.count}\n";
                 }
+                string aspp1 = "";
+                foreach (var item in aspects1)
+                {
+                    aspp1 += $"{item.Name}	{item.count}\n";
+                }
+                string cats1 = "";
+                foreach (var item in categories1)
+                {
+                    cats1 += $"{item.Name}	{item.count}\n";
+                }
                 string aspectCats = "";
                 foreach (var item in aspectCategories)
                 {
                     aspectCats += $"{item.category}	{item.aspect}	{item.polarity}	{item.count}\n";
                 }
 
-                return Ok(aspp + "\n\n\n\n\n\n" + cats + "\n\n\n\n\n\n" + aspectCats);
+                return Ok(aspp1 + "\n\n\n_____\n\n\n" + cats1 + "\n\n\n_____\n\n\n" + aspp + "\n\n\n_____\n\n\n" + cats + "\n\n\n_____\n\n\n" + aspectCats);
             }
+        }
+
+        public IActionResult DetailsReportV2()
+        {
+            
+            using (IWebsiteCrawler snapp = new SnappfoodHelper())
+            {
+                //var jhkkj = digikala.GetAllReviews1();
+                List<sentence> sentences = new List<sentence>();
+                List<sentence> sentencesTrain = new List<sentence>();
+                List<sentence> sentencesTest = new List<sentence>();
+                List<sentence> sentencesTest1 = new List<sentence>();
+                
+                var data = snapp.GetLabelReviews();
+                foreach (var rev in data)
+                {
+                    if (rev.sentences != null && rev.sentences.Count() > 0)
+                    {
+                        sentences.AddRange(rev.sentences);
+                    }
+                }
+                sentences.ToList();
+                int countTest = (int)(sentences.Count() * 0.2);
+                int countTrain = sentences.Count() - countTest;
+                sentencesTrain = sentences.Take(countTrain).ToList();
+                sentencesTest = sentences.Skip(countTrain).Take(countTest).ToList();
+                sentencesTest1 = sentencesTest.Select(x => new sentence
+                {
+                    id = x.id,
+                    Opinions = new List<Opinion> { x.Opinions.First() },
+                    OutOfScope = x.OutOfScope,
+                    Text = x.Text
+                }).ToList();
+
+                string result = "Result:";
+                result += "\n\n****************************************\n❌ All Data:\n\n\n" + getDetails(sentences);
+                result += "\n\n****************************************\n❌ 1.Tarin:\n\n\n" + getDetails(sentencesTrain);
+                result += "\n\n****************************************\n❌ 2.Test:\n\n\n" + getDetails(sentencesTest);
+                result += "\n\n****************************************\n❌ 3.Test First:\n\n\n" + getDetails(sentencesTest1);
+
+                return Ok(result);
+            }
+        }
+
+        private string getDetails(List<sentence> sentences)
+        {
+            List<Aspect> aspects = new List<Aspect>();
+            List<Category> categories = new List<Category>();
+
+            List<Aspect1> aspects1 = new List<Aspect1>();
+            List<Category1> categories1 = new List<Category1>();
+
+            List<AspectCategory> aspectCategories = new List<AspectCategory>();
+            List<Opinion> opinions = new List<Opinion>();
+            foreach (var sentence in sentences.Where(x => !string.IsNullOrEmpty(x.Text)))
+            {
+                if (sentence.Opinions != null && sentence.Opinions.Count() > 0)
+                {
+                    foreach (var op in sentence.Opinions)
+                    {
+                        var q1 = aspects.Where(x => x.Name == op.aspect && x.polarity == op.polarity).Any();
+                        if (q1)
+                        {
+                            var s = aspects.Where(x => x.Name == op.aspect && x.polarity == op.polarity).FirstOrDefault();
+                            s.count += 1;
+                        }
+                        else
+                        {
+                            aspects.Add(new Aspect { Name = op.aspect, count = 1, polarity = op.polarity });
+                        }
+                        var q12 = aspects1.Where(x => x.Name == op.aspect).Any();
+                        if (q12)
+                        {
+                            var s12 = aspects1.Where(x => x.Name == op.aspect).FirstOrDefault();
+                            s12.count += 1;
+                        }
+                        else
+                        {
+                            aspects1.Add(new Aspect1 { Name = op.aspect, count = 1 });
+                        }
+                        var q2 = categories.Where(x => x.Name == op.category && x.polarity == op.polarity).Any();
+                        if (q2)
+                        {
+                            var s1 = categories.Where(x => x.Name == op.category && x.polarity == op.polarity).FirstOrDefault();
+                            s1.count += 1;
+                        }
+                        else
+                        {
+                            categories.Add(new Category { Name = op.category, count = 1, polarity = op.polarity });
+                        }
+                        var q22 = categories1.Where(x => x.Name == op.category).Any();
+                        if (q22)
+                        {
+                            var s1 = categories1.Where(x => x.Name == op.category).FirstOrDefault();
+                            s1.count += 1;
+                        }
+                        else
+                        {
+                            categories1.Add(new Category1 { Name = op.category, count = 1 });
+                        }
+                        var q3 = aspectCategories.Where(x => x.aspect == op.aspect && x.category == op.category && x.polarity == op.polarity).Any();
+                        if (q3)
+                        {
+                            var s2 = aspectCategories.Where(x => x.aspect == op.aspect && x.category == op.category && x.polarity == op.polarity).FirstOrDefault();
+                            s2.count += 1;
+                        }
+                        else
+                        {
+                            aspectCategories.Add(new AspectCategory { category = op.category, aspect = op.aspect, count = 1, polarity = op.polarity });
+                        }
+
+                        opinions.Add(op);
+                    }
+                }
+            }
+            opinions.ToList();
+            string aspp = "";
+            foreach (var item in aspects.OrderBy(x => x.Name))
+            {
+                aspp += $"{item.Name}	{item.polarity}	{item.count}\n";
+            }
+            string cats = "";
+            foreach (var item in categories.OrderBy(x => x.Name))
+            {
+                cats += $"{item.Name}	{item.polarity}	{item.count}\n";
+            }
+            string aspp1 = "";
+            foreach (var item in aspects1.OrderBy(x => x.Name))
+            {
+                aspp1 += $"{item.Name}	{item.count}\n";
+            }
+            string cats1 = "";
+            foreach (var item in categories1.OrderBy(x => x.Name))
+            {
+                cats1 += $"{item.Name}	{item.count}\n";
+            }
+            string aspectCats = "";
+            foreach (var item in aspectCategories.OrderBy(x => x.category))
+            {
+                aspectCats += $"{item.category}	{item.aspect}	{item.polarity}	{item.count}\n";
+            }
+
+            return (aspp1 + "\n\n_____\n\n" + cats1 + "\n\n_____\n\n" + aspp + "\n\n_____\n\n" + cats + "\n\n_____\n\n" + aspectCats);
+
         }
     }
 }
