@@ -3,6 +3,7 @@ using MongoDB.Bson;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using TerexCrawler.DataLayer.Repository;
@@ -342,16 +343,6 @@ namespace TerexCrawler.Services.Digikala
             }
         }
 
-        public string GetAllReviews1()
-        {
-            throw new NotImplementedException();
-        }
-
-        List<Review> IWebsiteCrawler.GetAllReviews1()
-        {
-            throw new NotImplementedException();
-        }
-
         public Task<T> GetAllReviewObjects<T>(string cat)
         {
             throw new NotImplementedException();
@@ -390,6 +381,46 @@ namespace TerexCrawler.Services.Digikala
             }
         }
 
+
+        public List<Review> GetAllReviews1()
+        {
+            using (SnappfoodMongoDBRepository db = new SnappfoodMongoDBRepository())
+            {
+                string xml = @"<?xml version=""1.0"" encoding=""UTF-8"" standalone=""yes""?>" + "\n";
+                xml += "<Reviews>\n";
+
+                var reviews = db.GetAllReviewsLabel();
+                foreach (var review in reviews)
+                {
+                    xml += $"    <Review rid=\"{review.rid}\">\n";
+                    xml += "        <sentences>\n";
+                    for (int i = 0; i < review.sentences.Count; i++)
+                    {
+                        if (review.sentences[i].Opinions != null)
+                        {
+                            xml += $@"            <sentence id=""{review.rid}:{i}"">" + "\n";
+                            xml += $"                <text>{review.sentences[i].Text}</text>\n";
+                            if (review.sentences[i].Opinions != null && review.sentences[i].Opinions.Any())
+                            {
+                                xml += "                <Opinions>\n";
+                                foreach (var op in review.sentences[i].Opinions)
+                                {
+                                    xml += @$"                    <Opinion target=""{op.category}"" category=""{op.category}#{op.aspect}"" polarity=""{op.polarity}"" />" + "\n";
+                                }
+                                xml += "                </Opinions>\n";
+                            }
+                            xml += $"            </sentence>\n";
+                        }
+                    }
+                    xml += "        </sentences>\n";
+                    xml += "    </Review>\n";
+                }
+                xml += "</Reviews>";
+                File.WriteAllText(@"C:\Users\Administrator\Desktop\1.xml", xml);
+                return reviews;
+            }
+        }
+
         public List<Review> GetLabelReviews()
         {
             using (SnappfoodMongoDBRepository db = new SnappfoodMongoDBRepository())
@@ -418,7 +449,7 @@ namespace TerexCrawler.Services.Digikala
         }
     }
 
-    
+
     public class AddProductsSnappfood
     {
         public List<Snappfood> Snappfoods { get; set; }

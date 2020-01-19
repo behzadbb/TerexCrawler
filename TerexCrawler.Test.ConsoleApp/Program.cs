@@ -107,6 +107,9 @@ namespace TerexCrawler.Test.ConsoleApp
                 case 105:
                     snappfood_105_GetStatus();
                     break;
+                case 106:
+                    snappfood_106_GetXml();
+                    break;
                 default:
                     break;
             }
@@ -886,7 +889,50 @@ namespace TerexCrawler.Test.ConsoleApp
                 {
                     aspectCats += $"{item.category}	{item.aspect}	{item.polarity}	{item.count}\n";
                 }
+
+                var Cats = aspectCategories.Select(x => x.category).Distinct().ToArray();
+                var Aspects = aspectCategories.Select(x => x.aspect).Distinct().ToArray();
+                string[,] table = new string[Cats.Length+1, Aspects.Length+1];
+                table[0, 0] = "X";
+                for (int j = 1; j < Aspects.Length+1; j++)
+                {
+                    table[0, j] = Aspects[j-1];
+                }
+                for (int i = 1; i < Cats.Length + 1; i++)
+                {
+                    table[i, 0] = Cats[i-1];
+                }
+                for (int i = 1; i < Cats.Length + 1; i++)
+                {
+                    for (int j = 1; j < Aspects.Length + 1; j++)
+                    {
+                        var catAspc = aspectCategories.Where(x=>x.aspect.Contains(Aspects[j-1]) && x.category.Contains(Cats[i-1])).ToList();
+                        var polPlus = catAspc.Count() > 0 && catAspc.Where(x => x.polarity == "positive").Any() ? catAspc.Where(x => x.polarity == "positive").FirstOrDefault().count : 0;
+                        int polNet = catAspc.Count() > 0 && catAspc.Where(x => x.polarity == "neutral").Any() ? catAspc.Where(x => x.polarity == "neutral").FirstOrDefault().count : 0;
+                        int polNeg = catAspc.Count() > 0 && catAspc.Where(x => x.polarity == "negative").Any() ? catAspc.Where(x => x.polarity == "negative").FirstOrDefault().count : 0;
+                        if (polPlus == 0 && polNet == 0 && polNeg == 0)
+                            table[i, j] = "-";
+                        else
+                            table[i, j] = $"{polPlus},{polNet},{polNeg}";
+                    }
+                }
+                string tabl = "";
+                for (int i = 0; i < Cats.Length + 1; i++)
+                {
+                    for (int j = 0; j < Aspects.Length + 1; j++)
+                    {
+                        tabl += table[i, j] + "\t";
+                    }
+                    tabl += "\n";
+                }
                 Console.WriteLine(snapp.GetSatatusReview());
+            }
+        }
+        private async static void snappfood_106_GetXml()
+        {
+            using (IWebsiteCrawler snapp = new SnappfoodHelper())
+            {
+                var ss=snapp.GetAllReviews1();
             }
         }
         #endregion
